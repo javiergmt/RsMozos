@@ -1,0 +1,323 @@
+import { Float } from "react-native/Libraries/Types/CodegenTypes"
+
+export type errorFetch = {
+    isError: boolean,
+    message: string
+}
+
+export type dispValido = {  
+  valido?: number,
+}
+
+
+export type mozoType = {
+    idMozo: number,
+    nombre: string,
+    direccion: string,
+    telefono: string,
+    activo: boolean,
+    password: string,
+    tecla: string,
+    idTipoMozo: number,
+    nroPager: string,
+    orden: number,
+}
+
+export type sectoresType = {
+    idSector: number,
+    descripcion: string,
+    comensales: number,
+}
+
+export type mesasType = {
+    nroMesa: number,
+    idSector: number,
+    posTop: number,
+    posLeft: number,
+    width: number,
+    height: number,
+    ocupada: string,
+    nro2: number ,
+    idMozo: number ,
+    forma: number,
+    cerrada: number,
+    cantSillas: number,
+    cantPersonas: number,
+    activa: boolean,
+    conPedEnEspera: boolean,
+    comiendo: boolean,
+    pendiente: boolean,
+    porCobrar: boolean,
+    reservada: boolean,
+    soloOcupada: boolean,
+    conPostre: boolean 
+}
+
+export type mesaType = {
+    nroMesa: number,
+    idSector: number,    
+    ocupada: string,    
+    idMozo: number ,    
+    cerrada: number,   
+    cantPersonas: number,
+    activa: boolean, 
+}
+
+export type mesaEncType ={
+  nroMesa: number;
+  idMozo: number;
+  fecha: string;
+  cerrada: number;
+  porcDesc: number;
+  cantPersonas: number;
+  descPesos: number;
+  fechaHoraImp: string;
+  idCliente: number;
+  idOcupacion: number;
+  idSector: number;
+  descMesa: string;
+  nombre: string;
+}
+
+export type gustosDet = {
+  idGusto: number;
+  descripcion: string;
+}
+
+export type mesaDetType ={
+  nroMesa: number;
+  idPlato: number;
+  idDetalle: number;
+  cant: number;
+  pcioUnit: number;
+  importe: number;
+  descripcion: string;
+  obs: string;
+  esEntrada: boolean;
+  cocido: string;
+  idTamanio?: number;
+  descTam?: string;
+  idSectorExped?: number;
+  gustos?: gustosDet[];
+  combos?: comboPostType[];
+  idTipoConsumo: string;
+  impCentralizada: number;
+}
+
+export type mesaDetGustosType ={
+  nroMesa: number;
+  idDetalle: number;
+  idPlato: number;
+  idGusto: number;
+  descGusto: string;
+  cant: number;
+}
+
+export type mesaDetModifType ={
+  nroMesa: number;
+  idDetalle: number;
+  idPlato: number;
+  idTamanio: number;
+  descTam: string;
+}
+
+export type subRubrosType = {
+    idSubRubro: number,
+    descripcion: string,
+    imagen: string,
+    orden: number,
+}
+
+export type rubrosSubType = {
+    idRubro: number,
+    descripcion: string,
+    orden: number,
+    visualizacion: string,
+    iconoApp: string,
+    subrubros: subRubrosType[]
+}
+
+export type platosType = {
+   idPlato: number,
+   descCorta: string,
+   descripcion: string,
+   pcioUnit: Float, 
+   tamanioUnico: boolean,
+   idTipoConsumo: string,
+   idRubro: number,
+   idSubRubro: number,
+   cantgustos: number,
+   codBarra: string,
+   colorFondo: string,
+   tecla: number,
+   orden: number,
+   shortCut: string,
+   pedirCantAlCargar: boolean,
+   impCentralizada: number, 
+}
+
+export type platosprecioType = {
+  idPlato: number,
+  pcioUnit: number,
+  idSectorExped: number,
+  impCentralizada: number,
+}
+
+
+export type paramType = {
+  colorMesaCerrada: string;
+  colorMesaComiendo: string;
+  colorMesaComiendoEsperando: string;
+  colorMesaEperando: string;
+  colorMesaNormal: string;
+  colorMesaOcupada: string;
+  colorMesaPorCobrar: string;
+  colorMesaSinPed: string;
+  colorPostre: string;
+  sucursal: number;
+  activarSubEstadosMesa: boolean;
+  modificaPrecioEnMesa: boolean;
+  permiteDescLibre: boolean;
+  permitePrecioCero: boolean;
+  autorizarElimiarPlatoEnMesa: boolean;
+  marcarMesaSinCobrar: boolean;
+  mozosCierranMesa: boolean;
+  mostrarRubroFavoritos: boolean;
+  ocultarTotalMesaMozos: boolean;
+  pedirMotElimRenglon: boolean;
+  pedirCubiertos: boolean;
+  idCubiertos: number;
+  idTurnoCubierto: number;
+  nombre: string;
+  idPagWeb: number;
+  nombreWeb: string;
+  sector_ini: number;
+}
+
+export type gustosType ={
+  idPlato: number;
+  idGusto: number;
+  descGusto: string;
+}
+
+export type modifType ={
+  idPlato: number;
+  idTamanio: number;
+  descTam: string;
+}
+
+export type comboSecType = {
+  idSeccion: number;
+  idPlato: number;
+  descripcion: string;
+  cantMax: number;
+  orden: number;
+  autocompletar: boolean;
+  imprimirEnAceptacion: boolean;
+  seleccionarUno: boolean;
+  idTamanio: number;
+  descCorta: string;
+  tamanio: string;
+  platoSel: number;
+  idTipoConsumo: string;
+}
+
+export type comboDetType = {
+  idSeccion: number;
+  idPlato: number;
+  descripcion: string;
+  idTamanio: number;
+  descCorta: string;
+  idTipoConsumo: string;
+  cantGustos: number;
+  tamanio: string;
+  selected: boolean;
+  idSectorExped?: number;
+  impCentralizada?: number;
+}
+
+//----------------------------------------------
+// POST de MesaDet
+//----------------------------------------------
+
+export type mesaDetPost = {
+  nroMesa: number;
+  idDetalle: number;
+  idPlato: number;
+  idTipoConsumo: string;
+  cant: number;
+  pcioUnit: number;
+  importe: number;
+  obs: string;
+  idTamanio: number;
+  tamanio: string;
+  procesado: boolean;
+  hora: string;
+  idMozo: number;
+  nombreMozo: string;
+  idUsuario: number;
+  cocinado: boolean;
+  esEntrada: boolean;
+  descripcion: string;
+  fechaHora: string;
+  comanda: boolean;
+  idSectorExped?: number;
+  impCentralizada?: number;
+  gustos?: Gusto[];
+  combos?: comboPostType[];
+}
+
+interface Gusto {
+  idGusto: number;
+  descripcion: string;
+}
+
+
+export type comboPostType = {
+  idSeccion: number,
+  idPlato: number,
+  cant: number,
+  procesado: boolean,
+  idTamanio: number,
+  tamanio: string,
+  obs: string,
+  cocinado: boolean,
+  fechaHora: string,
+  comanda: boolean,
+  descripcion: string;
+  idSectorExped?: number;
+  impCentralizada?: number;
+  combosGustos?: combosGustosType[]
+}
+
+export type combosGustosType ={
+  idSeccion: number,
+  idPlato: number,
+  idGusto: number,
+  descripcion: string;
+}
+
+export interface NoticiasType {
+  idMozo: number;
+  descNoticia: string;
+}
+
+export interface ReservasType{
+    idReserva: number,
+    fecha: Date,
+    turno: number,
+    descTurno: string,
+    nombre: string,
+    hora: string,
+    cant: number,
+    obs: string,
+    telefono: number,
+    idSector: number,
+    sector: string,
+    mesa: number,
+    idCliente: number,
+    nombreClie: string,
+    confirmada: boolean,
+    cumplida: boolean,
+    usuario: string
+}
