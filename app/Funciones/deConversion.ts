@@ -1,5 +1,9 @@
 // SOBRE TIEMPO: 
 
+export default function deConversion(){
+    return null;
+}
+
 /**
  * Genera un array con la hora actual. Utiliza un expresión regular para dividir
  * el string que viene de new Date().toISOString(). En la posición 1 se guarda la hora
@@ -84,6 +88,14 @@ export function deconvPort(urlBase:string){
     const port = url3.substring(0,url3.length-1)  
     //console.log(url2,pos2,pos3,port)  
     return (port)
+}
+
+export function izqRellena(cadena:string, longitud:number){
+    console.log('cadena:',cadena,' longitud:',longitud, ' cadena.length:',cadena.length)
+    let cadret = cadena.padStart(longitud - cadena.length,'0')
+    console.log('cadena:',cadret)
+    return cadret
+        
 }
 
 

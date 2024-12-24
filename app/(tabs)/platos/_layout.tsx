@@ -5,6 +5,7 @@ import { StatusBar } from "react-native"
 import { useLoginStore } from "../../store/useLoginStore"
 import { useEffect, useState } from "react"
 import { mesaType } from "../../ApiFront/Types/BDTypes"
+import React from "react"
 
 const NewsStacK = () => {
 const [ultMesa, setUltMesa] = useState<mesaType>()

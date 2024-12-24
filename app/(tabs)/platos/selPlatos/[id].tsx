@@ -13,6 +13,7 @@ import { showToast } from '../../../Funciones/deInfo'
 import Colors from '../../../../constants/Colors'
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const rubSub = (id:any,rubros:rubrosSubType[]) => {
     const pos = id.indexOf('-')

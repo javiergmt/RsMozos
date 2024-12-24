@@ -1,5 +1,9 @@
 import { Float } from "react-native/Libraries/Types/CodegenTypes"
 
+export default function BDTypes(){
+  return null;
+}
+
 export type errorFetch = {
     isError: boolean,
     message: string
@@ -8,7 +12,6 @@ export type errorFetch = {
 export type dispValido = {  
   valido?: number,
 }
-
 
 export type mozoType = {
     idMozo: number,
@@ -61,6 +64,7 @@ export type mesaType = {
     cerrada: number,   
     cantPersonas: number,
     activa: boolean, 
+    soloOcupada: boolean,
 }
 
 export type mesaEncType ={
@@ -320,4 +324,12 @@ export interface ReservasType{
     confirmada: boolean,
     cumplida: boolean,
     usuario: string
+}
+
+export interface turnosType{
+    idTurno: number,
+    descripcion: string,
+    horaDesde: string,
+    horaHasta: string,
+    
 }

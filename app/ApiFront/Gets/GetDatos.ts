@@ -1,4 +1,4 @@
-import { NoticiasType, platosprecioType, rubrosSubType} from './../Types/BDTypes';
+import { NoticiasType, platosprecioType, rubrosSubType, turnosType} from './../Types/BDTypes';
 
 import { mozoType,sectoresType,mesasType,platosType,paramType,gustosType,
     modifType,mesaEncType,mesaDetType, comboSecType, comboDetType,ReservasType,
@@ -6,6 +6,10 @@ import { mozoType,sectoresType,mesasType,platosType,paramType,gustosType,
 import { getHoraActual } from '../../Funciones/deConversion';
 
 //const urlBase = "http://192.168.1.103:1234/"
+
+export default function GetDatos(){
+    return null;
+}
 
 export const getDisp = async(id:number,url:string,base:string):
     Promise<{ disp:dispValido[],isError:string,isPending:boolean}> => {
@@ -136,7 +140,7 @@ export const getRubrosSub = async(url:string,base:string): Promise<{rubros:rubro
             }
         )
         const rubros = await response.json()
-        console.log('url: ',url,' - base: ',base,' - Rubros: ',rubros)
+        //console.log('url: ',url,' - base: ',base,' - Rubros: ',rubros)
         isPending = false
         let isError = false
         return {rubros,isError,isPending}
@@ -285,8 +289,8 @@ export const getNoticias = async(url:string,base:string): Promise<NoticiasType[]
     return data
 }
 
-export const getReservas = async(url:string,base:string,fecha:string): Promise<ReservasType[]> => {
-    const response = await fetch(url+`reservas/${fecha}`,
+export const getReservas = async(url:string,base:string,fecha:string,turno:number): Promise<ReservasType[]> => {
+    const response = await fetch(url+`reservas/${fecha}/${turno}`,
         {   method: 'get', 
             headers: new Headers({
               'bd': base,
@@ -295,5 +299,18 @@ export const getReservas = async(url:string,base:string,fecha:string): Promise<R
     )
     const data = await response.json()    
     console.log('reservas: ',data)
+    return data
+}
+
+export const getTurnos = async(url:string,base:string): Promise<turnosType[]> => {
+    const response = await fetch(url+`reservas_turnos`,
+        {   method: 'get', 
+            headers: new Headers({
+              'bd': base,
+            })
+        }
+    )
+    const data = await response.json()    
+    console.log('turnos: ',data)
     return data
 }

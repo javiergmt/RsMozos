@@ -150,6 +150,10 @@ const mozos = () => {
           </TouchableOpacity>   
         </Link>
         </View>
+
+        <View>
+          <Text style={styles.textver}>Version 1.0.1</Text>
+        </View>
        
         {/* Si esta logueado redirige a la pagina de mesas */}
         { isLogin ? <Redirect href="/mesas" /> : <Text> </Text>} 
@@ -183,6 +187,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',  
     color: 'white',
+    paddingTop: 10,
+  },
+
+  textver: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    alignSelf: 'center',  
+    color: 'lightblue',
     paddingTop: 10,
   },
 

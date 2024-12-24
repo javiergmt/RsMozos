@@ -1,7 +1,11 @@
-import { mozoType,mesaDetPost } from "../Types/BDTypes"
+import { mozoType,mesaDetPost, ReservasType } from "../Types/BDTypes"
 import { modificarPlatoPost } from "./ConvDatos"
 import { showToast } from '../../Funciones/deInfo'
 import { Alert } from "react-native"
+
+export default function PostDatos(){
+    return null;
+}
 
 const requestOptionPost = (parametros: object, operacion = 'POST',base:string) => {
     // console.log("PARAMETROS: ", JSON.stringify(parametros), " OPERACION: ", operacion)
@@ -35,16 +39,16 @@ export const LiberarMesa = async (nroMesaLiberar = 0, borrarMesa = false,url:str
         .catch(error => console.log(error))
 }
 
-export const BloquearMesa = async (nroMesaBloquear: number, url:string,base:string) => {
+export const BloquearMesa = async (nroMesaBloquear: number,mozo:number, url:string,base:string) => {
     
-    console.log("BLOQUEAR MESA: ", nroMesaBloquear)
+    console.log("BLOQUEAR MESA: ", nroMesaBloquear, "MOZO: ", mozo)
     const res = await isOcupada(nroMesaBloquear,url,base)
     
     console.log("RES: ", res)    
 
     if (!res) {
     return fetch(url+"mesa_bloquear/",
-        requestOptionPost({ nromesa: nroMesaBloquear },'POST',base))
+        requestOptionPost({ nromesa: nroMesaBloquear,idMozo: mozo },'POST',base))
         .then(response => response.json())
         .catch(error => console.log(error))
         // .then(response => console.log("RESPONSE BLOQUEAR MESA \n", response))
@@ -129,6 +133,30 @@ export const GrabarMesa = async (det:mesaDetPost[] ,url:string,base:string) => {
         body: JSON.stringify(det) })        
         .then(response => response.json())
         .catch(error => console.log(error))
+}
+
+export const CambiarReserva = async (r:ReservasType, url:string,base) => {    
+    const reserva = await fetch(url+"reserva_cambiar/",
+        requestOptionPost({
+            idReserva: r.idReserva,
+            fecha: r.fecha,
+            turno: r.turno,
+            nombre: r.nombre,
+            hora: r.hora,
+            cant: r.cant,
+            obs: r.obs,
+            telefono: r.telefono,
+            idSector: r.idSector,
+            mesa: r.mesa,
+            idCliente: r.idCliente,
+            confirmada: true,
+            cumplida: r.cumplida,
+            usuario: r.usuario
+
+        },'POST',base))
+        .then(response => response.json())
+        .catch(error => console.log(error))
+    return reserva
 }
 
 const respuesta = (mens:string) => {

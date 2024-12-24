@@ -8,6 +8,9 @@ import { mozoType, rubrosSubType, paramType, platosType,
 // regex para replazar json de web to interface: (\w+)\s(\d|".*"|\w+)\n
 // boolean type -> :true|false(,\n\s+\w+:)
 // string type -> :"\w+\s\d+"|:"\w+"|:""
+// number type -> :\d+(,\n\s+\w+:)
+// array type -> :\[(\d|".*"|\w+)(,\n\s+\w+:)*\]
+
 
 interface LoginStoreState {
     isLoggedIn: boolean,
@@ -174,7 +177,7 @@ return {
 
 function initMesa(): mesaType {
     return {
-        nroMesa: 0, idSector: 0, ocupada: '', idMozo: 0, cerrada: 0, cantPersonas: 0, activa: false
+        nroMesa: 0, idSector: 0, ocupada: '', idMozo: 0, cerrada: 0, cantPersonas: 0, activa: false,soloOcupada:false
     }
 }
 

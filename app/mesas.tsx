@@ -5,11 +5,11 @@ import { mesasType, sectoresType, paramType, mesaType } from './ApiFront/Types/B
 import { getMesas, getSectores } from './ApiFront/Gets/GetDatos';
 import { useLoginStore } from "../app/store/useLoginStore"
 import Colors from '../constants/Colors';
-import { AbrirMesa, BloquearMesa, GrabarComensales } from './ApiFront/Posts/PostDatos';
+import { AbrirMesa, BloquearMesa, GrabarComensales, LiberarMesa } from './ApiFront/Posts/PostDatos';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const mesaForma = (forma:number) => {
 
@@ -34,13 +34,17 @@ const mesaForma = (forma:number) => {
 const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean) => {
   
   if ( idMozoSel != idMozo && ocupada=='S' && cerrada==0) {
+    if (soloOcupada) {
+      return 'lightblue'
+    } else {
     return 'gray'
+    }
   } else {
     if (conPostre) {
       return param[0].colorPostre
     } else {
       if (soloOcupada) {
-        return 'lightgray'
+        return 'lightblue'
       } else {
         if (cerrada == 1) {
           return param[0].colorMesaCerrada
@@ -68,6 +72,7 @@ const mesas = () => {
   const Param = getParam()
   const [isOk, setIsOk] = useState(false)
   const [isOcup, setIsOcup] = useState('N')
+  const [isSoloOcup, setIsSoloOcup] = useState(false)
   const [isPending, setIsPending] = useState(false);  
   const [comensalesOk, setComensalesOk] = useState(!Param[0].pedirCubiertos)
   const [cantComensales, setCantComensales] = useState(1)
@@ -97,7 +102,7 @@ const mesas = () => {
     || ( mesa.idMozo == mozo.idMozo && mesa.ocupada == 'S' && mesa.cerrada == 0)
     )
     {
-      const res = await BloquearMesa(mesa.nroMesa,urlBase,base)
+      const res = await BloquearMesa(mesa.nroMesa,mozo.idMozo,urlBase,base)
       console.log('Mesa Bloqueada',res)
       if (res.mesa != 0) {
         setUltSector(mesa.idSector);
@@ -108,7 +113,8 @@ const mesas = () => {
             idMozo:mesa.idMozo,
             cerrada:mesa.cerrada,
             cantPersonas:mesa.cantPersonas,
-            activa:mesa.activa
+            activa:mesa.activa,
+            soloOcupada:mesa.soloOcupada
           });
           setIsOk(true)
           setIsOcup(mesa.ocupada)
@@ -125,7 +131,33 @@ const mesas = () => {
       Alert.alert('ATENCION !!','Mesa Cerrada ')
     } else {
       if (mesa.idMozo != mozo.idMozo) {
-        Alert.alert('ATENCION !!','Mesa Ocupada por otro Mozo')
+        if (mesa.soloOcupada ) {
+          // Registrar la Mesa solo ocupada sin detalle al Mozo que se loguea
+          //Alert.alert('ATENCION !!','Mesa SOLO Ocupada por otro Mozo')
+          const res = await BloquearMesa(mesa.nroMesa,mozo.idMozo,urlBase,base)
+          if (res.mesa != 0) {
+            setUltSector(mesa.idSector);
+            setUltMesa(
+              { nroMesa:mesa.nroMesa,
+                idSector:mesa.idSector,
+                ocupada:mesa.ocupada,
+                idMozo:mesa.idMozo,
+                cerrada:mesa.cerrada,
+                cantPersonas:mesa.cantPersonas,
+                activa:mesa.activa,
+                soloOcupada:mesa.soloOcupada
+              });
+              setIsOk(true)
+              setIsOcup(mesa.ocupada)
+              setIsSoloOcup(mesa.soloOcupada)
+              setMesaSeleccionada(mesa.nroMesa)
+              setComensalesOk(true)
+              console.log('Mesa Bloqueada',mesa, res)
+          }
+          
+        } else {  
+          Alert.alert('ATENCION !!','Mesa Ocupada por otro Mozo')
+        }  
       } else {
         Alert.alert('ATENCION !!','Mesa en Uso')
       }
@@ -142,19 +174,21 @@ const handleComensales = (cant:number) => {
   }
 }
 
-const handleBottomSheet = () => { 
+const handleBottomSheet = async () => { 
   if (cantComensales == 0) {
     Alert.alert('ATENCION !!','Debe ingresar la cantidad de Comensales')
     return
   }
   setComensales(cantComensales)
   setComensalesOk(true)
-  const res = GrabarComensales(mesaSeleccionada,cantComensales,urlBase,base)
+  const res = await GrabarComensales(mesaSeleccionada,cantComensales,urlBase,base)
+  // Revisar porque no pone Cerrada = 0
+  const res2 = await LiberarMesa(mesaSeleccionada,false,urlBase,BaseDatos)
   //console.log('Comensales Grabados:',res)
 }
 
 useEffect(() => {
-  //console.log('Busco Mesas')
+
   sheetRef.current?.snapToIndex(-1);
   handleMesas(ultSector); 
   const load = async () => {
@@ -231,9 +265,9 @@ return (
     </View> 
 
     {/* Redirecciono a la pagina Cuenta o Rubros segun si esta Ocupada o Libre   */}  
-    { (isOk && isOcup=='N' && comensalesOk) && <Redirect href="/(tabs)/platos/" /> }
+    { (isOk && ( isOcup=='N' || isSoloOcup) && comensalesOk && mozo.idTipoMozo != 4) && <Redirect href="/(tabs)/platos/" /> }
     { (isOk && isOcup=='S') && <Redirect href="/(tabs)/cuenta" /> }
-   
+    { (isOk && isOcup=='N' && comensalesOk && mozo.idTipoMozo == 4) && <Redirect href="/mesas" /> } 
 
     {/* Pido Comensales */}
     { (isOk && isOcup=='N'&& !comensalesOk) && 

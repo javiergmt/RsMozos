@@ -1,6 +1,8 @@
 
 // import useFetch, { errorType } from "../../Hooks/useFetch";
-
+export default function GetValid(){
+    return null;
+}
 // export function GetValid(id: string):dispValidType {
 //     const endpoint = "http://192.168.1.30:1234/disp_valido/11"
     

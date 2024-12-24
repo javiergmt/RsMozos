@@ -48,6 +48,9 @@ interface PostPlato {
         }[];
 };
 
+export default function ConvDatos(){
+    return null;
+}
 
 export function modificarPlatoPost(objeto: any): PostPlato {
     let result: PostPlato;

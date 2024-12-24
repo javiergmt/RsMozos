@@ -1,79 +1,264 @@
 import { useEffect, useState } from "react";
-import { ReservasType } from "./ApiFront/Types/BDTypes";
+import { mesasType, ReservasType, sectoresType, turnosType } from "./ApiFront/Types/BDTypes";
 import { useLoginStore } from "./store/useLoginStore";
-import { getReservas } from "./ApiFront/Gets/GetDatos";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ActivityIndicator, ListRenderItem, View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView, } from "react-native";
-
-import { capitalize, getHoraActual } from './Funciones/deConversion';
-import { Link } from "expo-router";
+import { getMesas, getReservas, getSectores, getTurnos } from "./ApiFront/Gets/GetDatos";
+import { ActivityIndicator,View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Button, ScrollView, TextInput, Alert, } from "react-native";
+import { capitalize, getHoraActual, izqRellena } from './Funciones/deConversion';
+import { Link, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React from "react";
 import Colors from "../constants/Colors";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { CambiarReserva } from "./ApiFront/Posts/PostDatos";
+
 
 const reservas = () => {
     const [reservas, setReservas] = useState<ReservasType[]>([]);
+    const [turnos, setTurnos] = useState<turnosType[]>([]);
+    const [sectores, setSectores] = useState<sectoresType[]>([]);
+    const [mesas, setMesas] = useState<mesasType[]>([]);
     const {getUrl,getBaseDatos,BaseDatos} = useLoginStore();
     const [isOk, setIsOk] = useState(false);
     const [isPending, setIsPending] = useState(false); 
     const urlBase = getUrl()
     const base = getBaseDatos()
+    const [text, onChangeText] = useState('');
+    const [idTurnoSel, setIdTurnoSel] = useState(0);
+    const [turnoSel, setTurnoSel] = useState('Todos');
+
+    // Datetime Picker
+    const [date, setDate] = useState(new Date());
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate;
+        setShow(false);
+        setDate(currentDate);
+    };
+
+    const showMode = (currentMode) => {
+        setShow(true);
+        setMode(currentMode);
+    };
+
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
+    // Seelct Picker Turnos
+    const [showSelect, setShowSelect] = useState(false);
+    const handleSelect = () => {
+        setShowSelect(true);
+    }
 
     // SafeArea
     const { bottom, top, right, left } = useSafeAreaInsets();
 
-    const handleItem = (item: ReservasType) => {
-        console.log('Reserva:',item)
+    const [ubicarReserva, setUbicarReserva] = useState(false);
+    const [idSector, setIdSector] = useState(0);
+    const [sectorSel, setSectorSel] = useState('');
+
+    const handleReserva = async (r: ReservasType) => {
+        console.log('Reserva:',r)
+        if (r.confirmada){
+          setUbicarReserva(true);
+        } else{
+          // Confirmar Reserva
+          const result = await CambiarReserva(r,urlBase,base);
+          console.log('Confirmar Reserva:',result)
+          Alert.alert('Reserva Confirmada');
+        }  
     }
 
-    const renderItem: ListRenderItem<any> = ({ item }) => (
-      
-        <View style={styles.renglonContainer} >
-  
-          <TouchableOpacity onPress={() => handleItem(item)}> 
-  
-          <View style={styles.itemContainer}>       
-            <Text style={styles.itemName}>{item.hora} - {item.cant} - {capitalize(item.nombre)}</Text>
-            <Text style={styles.itemName}>confirmada</Text>
-          </View>
+    const handleSector = (s: sectoresType) => {
+      console.log('Sectores:',s)
+      const load = async () => {
+        const { mesas, isError, isPending } = await getMesas(s.idSector,urlBase,base);
+        setMesas(mesas.filter(m => m.ocupada == 'N'));
+      };
+      setIdSector(s.idSector);
+      setSectorSel(s.descripcion);
+      load();
 
-          </TouchableOpacity>
-          
-        </View>
-          
-      );
+  }
+
+  const handleMesas = async (m:mesasType) => {
+     
+    console.log('Mesa:',m.nroMesa)
+    setUbicarReserva(false);
+    
+
+}
+
+    const handleTurno = async (t:turnosType) => {
+     
+      console.log('Turno:',t.idTurno)
+      setShowSelect(false);
+      setIdTurnoSel(t.idTurno);
+      setTurnoSel(t.descripcion);
+      
+
+  }
+
+    useEffect(() => {   
+      const load = async () => {
+        const result = await getTurnos(urlBase,base);
+        setTurnos(result);
+    };
+        load();    
+      }, []); 
+      
+    useEffect(() => {   
+        const load = async () => {
+            const result = await getSectores(urlBase,base);
+            setSectores(result);
+        };
+        load();    
+      }, []);  
 
     useEffect(() => {
    
       const load = async () => {
-          const result = await getReservas(urlBase,base,'2024-12-20');
+          const result = await getReservas(urlBase,base,date.toISOString(),idTurnoSel);
           setReservas(result);
       };
       load();    
-    }, []);
+    }, [idTurnoSel,date]);
 
     return (<>
+          <Stack.Screen options={
+            {headerTitle: `RESERVAS`, headerTitleAlign: 'center'}
+            } /> 
     <SafeAreaView style={styles.container}>     
-    <View style={styles.body}>
-    { isPending  &&
-       <View style={styles.activ}>          
-           <ActivityIndicator size="large" color="#0000ff"/> 
-       </View>
-    }
+   
+        <View style={styles.container_input}>
+        <TouchableOpacity onPress={showDatepicker} >
+          <Text style={styles.input_fecha} >{/(\d{4}-\d{2}-\d{2})T/.exec(date.toISOString())[1]}</Text>
+         </TouchableOpacity>
+         <TouchableOpacity onPress={handleSelect}>
+          <Text style={styles.input_turno} >{turnoSel}</Text>
+         </TouchableOpacity>
+          <TextInput
+                  style={styles.input}
+                  onChangeText={onChangeText}
+                  value={text}     
+                  placeholder='Buscar x Nombre'   
+                  placeholderTextColor='grey'
+                />    
+        </View>
 
-    <Text style={styles.itemName}>Reservas</Text>
+        {/* Despliego las reservas */
+         !ubicarReserva && !showSelect &&
+        
+         <View style={{flex:1, height:'100%', margin:20, backgroundColor: Colors.background, }}>
+           <ScrollView> 
+            {
+             reservas.map((r) => (
+              <View key={r.idReserva}>
+                 <View style={styles.cont_reservas}>
+                 <TouchableOpacity onPress={() => handleReserva(r)}>
+                   <View >     
+                       <Text style={[ r.confirmada ? styles.textResConf : styles.textResSinConf ]}>
+                        {r.hora} &nbsp;-&nbsp; ({r.cant}) &nbsp;-&nbsp; {r.nombre}&nbsp;{r.mesa > 0 ? ' M: ' + r.mesa : ''}
+                        </Text>
+                   </View>
+                 </TouchableOpacity>
+                 </View>
+                 </View>  
+             ))
+             }
+           </ScrollView>
+         </View> 
+         }
+
+
+        {showSelect &&
+        <View style={{flex:1, height:'100%', margin:20, backgroundColor: Colors.background, }}>
+          <Text style={styles.text}>Seleccione un Turno</Text>
+          <ScrollView > 
+          {
+          turnos.map((t) => (
+            <View key={t.idTurno}>
+              <View style={styles.cont_turnos}>
+              <TouchableOpacity key={t.idTurno} onPress={() => handleTurno(t)}>
+                <View >     
+                  <Text style={styles.text }>{t.descripcion}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            </View>
+          ))
+          }
+          </ScrollView>
+        </View>
+        } 
+        {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          locale="es-ES"
+          timeZoneName={'America/Argentina/Buenos_Aires'}
+          is24Hour={true}
+          onChange={onChange}
+        />
+        )}
+
+    
+
+        {/* Ubicar Reserva */
+        ubicarReserva && idSector == 0 &&
+        <View style={{flex:1, height:'100%', margin:20, backgroundColor: Colors.background, }}>
+          <Text style={styles.text}>Seleccione un Sector</Text>
+          <ScrollView> 
+           {
+            sectores.map((s) => (
+              <View  key={s.idSector}>
+              <View style={styles.cont_sectores}>
+                <TouchableOpacity onPress={() => handleSector(s)}>
+                  <View >     
+                      <Text style={styles.text }>{s.descripcion}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+             </View>
+            ))
+            }
+          </ScrollView>
+        </View>
+        }
+
+         {/* Ubicar Reserva */
+        ubicarReserva && idSector > 0 &&
+        <View style={{flex:1, height:'100%', margin:20, backgroundColor: Colors.background, }}>
+          <Text style={styles.text}>Seleccione una Mesa</Text>
+          <ScrollView> 
+           {
+            mesas.map((m) => (
+              <View  key={m.nroMesa}>
+              <View style={styles.cont_sectores}>
+                <TouchableOpacity onPress={() => handleMesas(m)}>
+                  <View >     
+                      <Text style={styles.text }>Mesa &nbsp;{m.nroMesa}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+             </View>
+            ))
+            }
+          </ScrollView>
+        </View>
+        }
+    
+        <View style={[{bottom, },styles.cont_Pie  ]}>
+          <Link href="/mozos" replace asChild>  
+              <TouchableOpacity> 
+                  <Text style={styles.textBtSalir}>Salir</Text> 
+              </TouchableOpacity>
+          </Link>
+        </View>
 
   
-    <FlatList data={reservas} renderItem={renderItem} keyExtractor={(item) => item.idReserva.toString()} />
-            
-        <View style={[{bottom, },styles.cont_Pie  ]}>
-        <Link href="/mozos" replace asChild>  
-            <TouchableOpacity> 
-                <Text style={styles.textBtSalir}>Salir</Text> 
-            </TouchableOpacity>
-        </Link>
-        </View>
-    </View>
     </SafeAreaView>
     </>
     )
@@ -86,28 +271,8 @@ container: {
     backgroundColor: Colors.background,
     height: '100%', 
 },
-body: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 2,
-  },
-renglonContainer: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.colorborderubro,
-    backgroundColor: 'lightgray',
-},
-itemContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      backgroundColor: Colors.background,  
-},
-itemName: {
-   fontSize: 20,
-   color: Colors.colorfondoBoton,
-   paddingLeft: 10,
-},
+
+
 cont_Pie: {
           backgroundColor: Colors.background,
           alignItems: 'center',
@@ -135,5 +300,113 @@ textBtSalir: {
 activ: {
     margin: 20,
 },
+container_input: { 
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',  
+  marginLeft: 15,
+  marginRight: 15,
+},
+input: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    height: 40,
+    width: '50%',
+    borderWidth: 1,
+    borderColor: Colors.colorborderubro,
+    padding: 5,
+    color: 'white',
+    //backgroundColor: Colors.backbotones,
+    borderRadius: 8,
+    paddingBottom: 10,
+  },
+  input_fecha: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    height: 40,
+    width: 100,
+    borderWidth: 1,
+    borderColor: Colors.colorborderubro,
+    padding: 5,
+    color: 'white',
+    //backgroundColor: Colors.backbotones,
+    borderRadius: 8,
+    paddingBottom: 10,
+    marginRight: 5,
+    marginLeft: 5,
+  },  
+  input_turno: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    height: 40,
+    width: 80,
+    borderWidth: 1,
+    borderColor: Colors.colorborderubro,
+    padding: 5,
+    color: 'white',
+    //backgroundColor: Colors.backbotones,
+    borderRadius: 8,
+    paddingBottom: 10,
+    marginRight: 5,
+    marginLeft: 5,
+  },    
+
+  cont_reservas: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    padding: 10,
+    shadowColor: "white",
+    shadowOpacity: 0.26,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 5,
+    borderRadius: 10,
+    backgroundColor:  Colors.background,
+  },
+
+  cont_turnos: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    padding: 8,
+    backgroundColor:  'grey',
+  },
+
+  cont_sectores: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    padding: 10,
+    //shadowColor: "white",
+    //shadowOpacity: 0.26,
+    //shadowOffset: { width: 0, height: 2 },
+    //shadowRadius: 8,
+    //elevation: 5,
+    borderRadius: 10,
+    backgroundColor:  'grey',
+  },
+  
+  text: {
+    fontFamily: "openSansBold",
+    fontSize: 20,
+    color: 'white',
+  },
+
+ textResConf: {
+    fontFamily: "openSansBold",
+    fontSize: 20,
+    color: 'white',
+  },
+
+ textResSinConf: {
+    fontFamily: "openSansBold",
+    fontSize: 20,
+    color: 'white',
+    backgroundColor: Colors.colorfondoBoton,
+  },  
 });
 
