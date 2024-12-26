@@ -135,11 +135,12 @@ export const GrabarMesa = async (det:mesaDetPost[] ,url:string,base:string) => {
         .catch(error => console.log(error))
 }
 
-export const CambiarReserva = async (r:ReservasType, url:string,base) => {    
+export const CambiarReserva = async (r:ReservasType ,url:string, base:string) => {    
+    console.log("RESERVA: ", r,url,base)
     const reserva = await fetch(url+"reserva_cambiar/",
         requestOptionPost({
             idReserva: r.idReserva,
-            fecha: r.fecha,
+            fecha: r.fecha.toISOString(),
             turno: r.turno,
             nombre: r.nombre,
             hora: r.hora,
@@ -151,11 +152,12 @@ export const CambiarReserva = async (r:ReservasType, url:string,base) => {
             idCliente: r.idCliente,
             confirmada: true,
             cumplida: r.cumplida,
-            usuario: r.usuario
+            usuario: r.usuario,
 
         },'POST',base))
-        .then(response => response.json())
+        .then(response => console.log(response.json()))
         .catch(error => console.log(error))
+       
     return reserva
 }
 

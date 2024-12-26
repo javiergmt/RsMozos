@@ -58,17 +58,24 @@ const reservas = () => {
     const [ubicarReserva, setUbicarReserva] = useState(false);
     const [idSector, setIdSector] = useState(0);
     const [sectorSel, setSectorSel] = useState('');
+    const [actReservas, setActReservas] = useState(false);
 
-    const handleReserva = async (r: ReservasType) => {
+
+    const handleReserva = async(r: ReservasType) => {
         console.log('Reserva:',r)
-        if (r.confirmada){
-          setUbicarReserva(true);
-        } else{
+        //if (r.confirmada){
+        //  setUbicarReserva(true);
+        //} else {
+          
           // Confirmar Reserva
           const result = await CambiarReserva(r,urlBase,base);
-          console.log('Confirmar Reserva:',result)
-          Alert.alert('Reserva Confirmada');
-        }  
+         
+          //console.log('Reserva confirmada:',result)
+            //setActReservas(!actReservas);
+            Alert.alert('Reserva Confirmada');
+      
+        
+        //  }  
     }
 
     const handleSector = (s: sectoresType) => {
@@ -87,6 +94,7 @@ const reservas = () => {
      
     console.log('Mesa:',m.nroMesa)
     setUbicarReserva(false);
+    setIdSector(0);
     
 
 }
@@ -324,7 +332,7 @@ input: {
     fontSize: 15,
     fontWeight: 'bold',
     height: 40,
-    width: 100,
+    width: 120,
     borderWidth: 1,
     borderColor: Colors.colorborderubro,
     padding: 5,
@@ -405,8 +413,8 @@ input: {
  textResSinConf: {
     fontFamily: "openSansBold",
     fontSize: 20,
-    color: 'white',
-    backgroundColor: Colors.colorfondoBoton,
+    color: 'grey',
+    //backgroundColor: 'grey',
   },  
 });
 
