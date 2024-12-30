@@ -7,6 +7,7 @@ import { Link, Redirect } from 'expo-router';
 import Colors from '../constants/Colors';
 import convColores from './Funciones/convColores';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import { version } from '../package.json';
 
 const mozos = () => {
   const [pass,setPass] = useState([]);
@@ -152,7 +153,7 @@ const mozos = () => {
         </View>
 
         <View>
-          <Text style={styles.textver}>Version 1.0.1</Text>
+          <Text style={styles.textver}>Version {version}</Text>
         </View>
        
         {/* Si esta logueado redirige a la pagina de mesas */}

@@ -298,7 +298,7 @@ export const getReservas = async(url:string,base:string,fecha:string,turno:numbe
         }
     )
     const data = await response.json()    
-    console.log('reservas: ',data)
+    //console.log('reservas: ',data)
     return data
 }
 

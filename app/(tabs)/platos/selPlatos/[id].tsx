@@ -107,11 +107,9 @@ const selPlatos = () => {
   }
 
   const handleCantidad = (cant) => {
-    if (cant == -1 && cantItem > 1) {
+    if (cantItem + cant >= 1) {
       setCantItem(cantItem + cant) 
-    } else {
-      setCantItem(cantItem + cant)
-    }
+    } 
     
   }
 

@@ -18,7 +18,7 @@ const requestOptionPost = (parametros: object, operacion = 'POST',base:string) =
     }
 }
 
-async function isOcupada(nroMesa: number, url:string, base:string) {
+export const isOcupada = async (nroMesa: number, url:string, base:string) => {
     const response = await fetch(url+ "mesa/" + `${nroMesa}/-1`,
         {   method: 'get', 
             headers: new Headers({
@@ -27,7 +27,22 @@ async function isOcupada(nroMesa: number, url:string, base:string) {
         }
     )
     const mesa = await response.json()
-    return (mesa[0]?.cerrada === 2)
+    console.log("MESA: ", mesa[0])
+    return (mesa[0]?.cerrada == 2 )
+ 
+}
+
+export const isSoloOcupada = async (nroMesa: number, url:string, base:string) => {
+    const response = await fetch(url+ "mesa/" + `${nroMesa}/-1`,
+        {   method: 'get', 
+            headers: new Headers({
+              'bd': base,
+            })
+        }
+    )
+    const mesa = await response.json()
+    console.log("MESA: ", mesa[0].cerrada,mesa[0].ocupada, (mesa[0].cerrada == 0) && (mesa[0].ocupada == 'S'))
+    return ( (mesa[0].cerrada == 0) && (mesa[0].ocupada == 'S') )
  
 }
 
@@ -55,19 +70,19 @@ export const BloquearMesa = async (nroMesaBloquear: number,mozo:number, url:stri
     } else {
        return {"mesa": 0 , "res": "Mesa ocupada"}
     }
-   
-
 }
 
 export const AbrirMesa = async (nroMesa: number, mozo: mozoType, url:string,base:string) => {
     const accesoInvalido = await isOcupada(nroMesa,url,base)
-    if (accesoInvalido) return accesoInvalido
+    if (accesoInvalido) return ({mesa: nroMesa, mozo: mozo.idMozo, res: "error"})
+    
     const acceso = await fetch(url+"mesa_abrir/",
         requestOptionPost({
             nromesa: nroMesa,
             mozo: mozo?.idMozo
         },'POST',base))
         .then(response => response.json())
+        .catch(error => console.log(error))
     return acceso
 }
 
@@ -159,6 +174,20 @@ export const CambiarReserva = async (r:ReservasType ,url:string, base:string) =>
         .catch(error => console.log(error))
        
     return reserva
+}
+
+export const ConfCumpReserva = async (id:number,confirmada:boolean,cumplida:boolean ,url:string, base:string) => {    
+  
+    const res = await fetch(url+"reserva_conf_cump/",
+        requestOptionPost({
+            idReserva: id,
+            confirmada: confirmada,
+            cumplida: cumplida
+        },'POST',base))
+        .then(response => console.log(response.json()))
+        .catch(error => console.log(error))
+       
+    return res
 }
 
 const respuesta = (mens:string) => {

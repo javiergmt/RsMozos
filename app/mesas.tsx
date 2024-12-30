@@ -204,7 +204,7 @@ useEffect(() => {
 
 return (
   <GestureHandlerRootView style={{ flex: 1 }}>
-    <View  style={{flex:1}}>
+    <View style={{flex:1, height:'100%',  backgroundColor: Colors.background, }}>
      
     {/* Despliego los Sectores  */}
     {!isOk &&
@@ -238,7 +238,7 @@ return (
        
           <TouchableOpacity key={m.nroMesa} onPress={() => handleMesa(m)}>
             <View >     
-                <Text style={[styles.itemText, mesaForma(m.forma),m.reservada && {borderColor:'white',borderWidth:5},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada)}]}>{m.nroMesa}</Text>
+                <Text style={[styles.itemText, mesaForma(m.forma),m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:5},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada)}]}>{m.nroMesa}</Text>
             </View>
           </TouchableOpacity>
       

@@ -16,6 +16,7 @@ export default {
   //colorBackBoton: "#fc1303",
   colorBackModal: "#d6c8c7",
   colorBackBoton: "#dbac53",
+  colorFondoInput: 'lightgrey',
   input: '#1b1b32',
   primary: '#582c96',
   light: {

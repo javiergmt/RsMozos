@@ -12,6 +12,7 @@ import { gustosDet, gustosType, mesaDetGustosType, mesaDetType, platosType } fro
 import { getHoraActual } from '../../../Funciones/deConversion'
 import { showToast } from '../../../Funciones/deInfo'
 import Colors from '../../../../constants/Colors'
+import InputSpinner from "react-native-input-spinner";
 
 
 type Gustos ={
@@ -31,6 +32,27 @@ const selGustos = () => {
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const [grabarGustos, setGrabarGustos] = useState(false)
   const [mesaGustos, setMesaGustos] = useState( [] as Gustos[]) 
+
+  const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string) => {
+    let cant = cantGustos + inc
+    let noEsta = true       
+    mesaGustos.forEach((m) => {
+        if (m.idGusto == id) {
+          m.cant = cantg
+          noEsta = false
+        }
+    })
+    if (noEsta) {
+        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:cantg}])
+    }
+      setCantGustos(cant)
+      if (cant > cantMaxGustos) {
+       Alert.alert('Atención','No puede seleccionar más de '+cantMaxGustos.toString()+' Variedades')
+    } 
+      
+    //console.log('MesaGustos:',mesaGustos)
+  }
+
   
   const handlePress = (isChecked:boolean, id:number,descrip:string ) => {
     let cant = cantGustos
@@ -62,7 +84,7 @@ const selGustos = () => {
   }
   
  const handleConfirmar = () => {
-    
+    console.log('MesaGustos:',mesaGustos)
     const hora = getHoraActual()
     const platoprecio = getPlato_Precio(item.idPlato, idTam, ultMesa.idSector, hora, urlBase,BaseDatos)
   
@@ -71,7 +93,7 @@ const selGustos = () => {
       const detgus = [] as gustosDet[]
       mesaGustos.forEach((m) => {
         if (m.cant > 0) {
-          detgus.push({ idGusto: m.idGusto, descripcion: m.descGusto })
+          detgus.push({ idGusto: m.idGusto, descripcion: m.cant > 1 ? '('+m.cant+')'+m.descGusto : m.descGusto})
         }
       })
 
@@ -128,41 +150,58 @@ const selGustos = () => {
      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}} /> 
   
        <View> 
-        <Text style={styles.tituloText}>  {item.descripcion} - Max: {item.cantgustos} </Text>
+        <Text style={styles.tituloText}>  {item.descripcion}  </Text>
        </View> 
-
-       { !grabarGustos && gustos.map((g) => ( 
-        //<View style={styles.checkboxContainer} key={g.idGusto}>
-        <ScrollView contentContainerStyle={styles.cont_checkbox} key={g.idGusto} >   
-          <BouncyCheckbox
-            size={25}
-            fillColor={Colors.colorcheckbox}
-            //unFillColor="#FFFFFF"
-            text={g.descGusto}
-            textStyle={{  color: "white" ,textDecorationLine: "none",}}
-            //iconStyle={{ borderColor: "blue" }}
-            innerIconStyle={{ borderWidth: 2 }}
-            onPress={(isChecked: boolean) => {handlePress(isChecked, g.idGusto, g.descGusto)}}
-          />  
-          {/* <Text style={styles.checkbox}>{g.descGusto}</Text> */}
-         </ScrollView>
-         //</View>
-         ))}
-   
-     
-         <View> 
+       <View> 
          { !grabarGustos && cantGustos > 0 && cantGustos <= cantMaxGustos ?
           <TouchableOpacity onPress={handleConfirmar}  >
-            <Text style={styles.valText}>Confirmar</Text>
+            <Text style={styles.valText}>Confirmar seleccion</Text>
           </TouchableOpacity>
-          :<Text></Text>
+          :<Text style={styles.valText}>Seleccionar - Max: {item.cantgustos}</Text>
           }
           </View>
+       <ScrollView>
+
+       { !grabarGustos && gustos.map((g) => ( 
+        <View style={styles.checkboxContainer} key={g.idGusto}>
+            {/* 
+            <BouncyCheckbox
+              size={25}
+              fillColor={Colors.colorcheckbox}
+              //unFillColor="#FFFFFF"
+              text={g.descGusto}
+              textStyle={{  color: "white" ,textDecorationLine: "none",}}
+              //iconStyle={{ borderColor: "blue" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              onPress={(isChecked: boolean) => {handlePress(isChecked, g.idGusto, g.descGusto)}}
+            /> 
+            */}
+  
+
+            <View style={styles.col}>
+						<Text style={styles.text}>{g.descGusto}</Text>
+						<InputSpinner
+							value={0}
+							style={styles.spinner}
+							color={Colors.colorcheckbox}
+            
+              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto)
+              }}
+              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto)
+              }}
+						/>
+					  </View>
+        </View>
+      
+   
+         ))}
+
+        
           {
           grabarGustos ? <Redirect href={`platos/${item.idRubro}`} /> : <Text></Text>
           }  
-         </View>
-          
+          </ScrollView>
+         </View>     
      </SafeAreaView>
   
   )
@@ -223,6 +262,32 @@ const styles = StyleSheet.create({
     textAlign: "center",
     margin: 20
   },
+
+  col: {
+		flex: 1,
+		marginBottom: 5,
+		flexDirection: "row",
+		alignItems: "center",
+		textAlign: "left",
+		textAlignVertical: "center",
+	},
+	text: {
+		flex: 3,
+		marginRight: 20,
+    fontSize: 22,
+    fontWeight: "bold",
+    color: Colors.colorazulboton,
+	},
+	title: {
+		marginBottom: 40,
+		fontSize: 30,
+	},
+	spinner: {
+		flex: 1,
+		marginRight: 10,
+		minWidth: 50,
+    backgroundColor: 'white',
+	},
 })
 
 export default selGustos

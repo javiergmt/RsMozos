@@ -9,15 +9,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React from "react";
 import Colors from "../constants/Colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { CambiarReserva } from "./ApiFront/Posts/PostDatos";
+import { AbrirMesa, CambiarReserva, ConfCumpReserva, GrabarComensales, isSoloOcupada, LiberarMesa } from "./ApiFront/Posts/PostDatos";
+import { AntDesign } from '@expo/vector-icons';
 
 
 const reservas = () => {
     const [reservas, setReservas] = useState<ReservasType[]>([]);
+    const [reserva, setReserva] = useState<ReservasType>();
     const [turnos, setTurnos] = useState<turnosType[]>([]);
     const [sectores, setSectores] = useState<sectoresType[]>([]);
     const [mesas, setMesas] = useState<mesasType[]>([]);
-    const {getUrl,getBaseDatos,BaseDatos} = useLoginStore();
+    const {getUrl,getBaseDatos,BaseDatos,mozo} = useLoginStore();
     const [isOk, setIsOk] = useState(false);
     const [isPending, setIsPending] = useState(false); 
     const urlBase = getUrl()
@@ -61,25 +63,41 @@ const reservas = () => {
     const [actReservas, setActReservas] = useState(false);
 
 
-    const handleReserva = async(r: ReservasType) => {
-        console.log('Reserva:',r)
-        //if (r.confirmada){
-        //  setUbicarReserva(true);
-        //} else {
-          
+    //console.log('Reserva:',r)
+   
+
+    const handleReservas = async(r: ReservasType) => {
+        console.log('intento de ocupacion / confirmacion',r.confirmada,r.mesa)
+        if (r.confirmada){
+          setReserva(r);
+          if  (r.mesa > 0) {
+            const ocup = await isSoloOcupada(r.mesa,urlBase,base)
+            if (ocup) {
+              Alert.alert('La mesa '+ r.mesa +' ya esta ocupada, por favor seleccione otra');
+              setUbicarReserva(true);
+            } else {  
+              // Si ya tiene mesa asignada la ocupo
+              const res = await AbrirMesa(r.mesa,mozo,urlBase,base)
+              console.log('Abrir Mesa:',res)
+              const res1 = await GrabarComensales(r.mesa,r.cant,urlBase,base)
+              const res2 = await LiberarMesa(r.mesa,false,urlBase,BaseDatos)
+              const res3 = await ConfCumpReserva(r.idReserva,true,true,urlBase,BaseDatos)
+              setActReservas(!actReservas);
+              Alert.alert('La Mesa '+r.mesa+' fue ocupada');
+            }  
+          } else { 
+            setUbicarReserva(true);
+          }
+        } else {    
           // Confirmar Reserva
-          const result = await CambiarReserva(r,urlBase,base);
-         
-          //console.log('Reserva confirmada:',result)
-            //setActReservas(!actReservas);
-            Alert.alert('Reserva Confirmada');
-      
-        
-        //  }  
-    }
+          const res = await ConfCumpReserva(r.idReserva,true,false,urlBase,BaseDatos)
+          setActReservas(!actReservas);
+          Alert.alert('Reserva Confirmada');
+        }
+    } 
 
     const handleSector = (s: sectoresType) => {
-      console.log('Sectores:',s)
+      // Obtengo los sectores de las mesas
       const load = async () => {
         const { mesas, isError, isPending } = await getMesas(s.idSector,urlBase,base);
         setMesas(mesas.filter(m => m.ocupada == 'N'));
@@ -90,24 +108,33 @@ const reservas = () => {
 
   }
 
-  const handleMesas = async (m:mesasType) => {
-     
+  const handleMesas = async (m:mesasType) => {     
     console.log('Mesa:',m.nroMesa)
+    if (m.ocupada == 'N') {
+       // Ocupo la mesa seleccionada
+       const res = await AbrirMesa(m.nroMesa,mozo,urlBase,base)
+       const res1 = await GrabarComensales(m.nroMesa,2,urlBase,base)
+       const res2 = await LiberarMesa(m.nroMesa,false,urlBase,BaseDatos)
+       const res3 = await ConfCumpReserva(reserva.idReserva,true,true,urlBase,BaseDatos)
+       Alert.alert('Se ocupo la Mesa '+m.nroMesa);
+       setActReservas(!actReservas);
+    } else {
+      Alert.alert('La mesa '+ m.nroMesa +'ya esta ocupada');
+    }
     setUbicarReserva(false);
     setIdSector(0);
-    
 
 }
 
     const handleTurno = async (t:turnosType) => {
-     
-      console.log('Turno:',t.idTurno)
       setShowSelect(false);
       setIdTurnoSel(t.idTurno);
       setTurnoSel(t.descripcion);
-      
-
   }
+
+  const handleBuscar =  () => { 
+    setActReservas(!actReservas);
+}
 
     useEffect(() => {   
       const load = async () => {
@@ -115,7 +142,7 @@ const reservas = () => {
         setTurnos(result);
     };
         load();    
-      }, []); 
+    }, []); 
       
     useEffect(() => {   
         const load = async () => {
@@ -123,16 +150,16 @@ const reservas = () => {
             setSectores(result);
         };
         load();    
-      }, []);  
+    }, []);  
 
     useEffect(() => {
-   
       const load = async () => {
-          const result = await getReservas(urlBase,base,date.toISOString(),idTurnoSel);
-          setReservas(result);
+          const res = await getReservas(urlBase,base,date.toISOString(),idTurnoSel);
+          setReservas(res.filter(r => !r.cumplida && r.nombre.toUpperCase().includes(text.toUpperCase())) );
+          onChangeText('');
       };
       load();    
-    }, [idTurnoSel,date]);
+    }, [actReservas,idTurnoSel,date]);
 
     return (<>
           <Stack.Screen options={
@@ -142,18 +169,31 @@ const reservas = () => {
    
         <View style={styles.container_input}>
         <TouchableOpacity onPress={showDatepicker} >
-          <Text style={styles.input_fecha} >{/(\d{4}-\d{2}-\d{2})T/.exec(date.toISOString())[1]}</Text>
+          {/* <Text style={styles.input_fecha} >{date.toISOString()}</Text> 
+          <Text style={styles.input_fecha} >{/(\d{4}-\d{2}-\d{2})T-/.exec(date.toISOString())[1]}</Text>
+          <Text style={styles.input_fecha} >{ date.getDate() + "-"+ date.getMonth() +"-"+date.getFullYear()}</Text>
+          */}
+          <Text style={styles.input_fecha} >{ date.toLocaleDateString() }</Text>
          </TouchableOpacity>
          <TouchableOpacity onPress={handleSelect}>
           <Text style={styles.input_turno} >{turnoSel}</Text>
          </TouchableOpacity>
           <TextInput
-                  style={styles.input}
+                  style={styles.input_text}
                   onChangeText={onChangeText}
                   value={text}     
                   placeholder='Buscar x Nombre'   
                   placeholderTextColor='grey'
-                />    
+                />  
+        
+          <View style={{marginLeft:10}}>
+           
+            <TouchableOpacity onPress={handleBuscar}>
+            <AntDesign name="search1" size={28} color={Colors.colorborderubro} />
+            </TouchableOpacity>
+       
+          </View>
+           
         </View>
 
         {/* Despliego las reservas */
@@ -165,7 +205,7 @@ const reservas = () => {
              reservas.map((r) => (
               <View key={r.idReserva}>
                  <View style={styles.cont_reservas}>
-                 <TouchableOpacity onPress={() => handleReserva(r)}>
+                 <TouchableOpacity onPress={() => handleReservas(r)}>
                    <View >     
                        <Text style={[ r.confirmada ? styles.textResConf : styles.textResSinConf ]}>
                         {r.hora} &nbsp;-&nbsp; ({r.cant}) &nbsp;-&nbsp; {r.nombre}&nbsp;{r.mesa > 0 ? ' M: ' + r.mesa : ''}
@@ -173,7 +213,7 @@ const reservas = () => {
                    </View>
                  </TouchableOpacity>
                  </View>
-                 </View>  
+              </View>  
              ))
              }
            </ScrollView>
@@ -312,14 +352,15 @@ container_input: {
   flexDirection: 'row',
   justifyContent: 'center',
   alignItems: 'center',  
-  marginLeft: 15,
-  marginRight: 15,
+  marginLeft: 10,
+  marginRight: 10,
+  //backgroundColor: Colors.colorFondoInput,
 },
-input: {
-    fontSize: 20,
+input_text: {
+    fontSize: 15,
     fontWeight: 'bold',
     height: 40,
-    width: '50%',
+    width: '40%',
     borderWidth: 1,
     borderColor: Colors.colorborderubro,
     padding: 5,
@@ -332,7 +373,7 @@ input: {
     fontSize: 15,
     fontWeight: 'bold',
     height: 40,
-    width: 120,
+    width: 100,
     borderWidth: 1,
     borderColor: Colors.colorborderubro,
     padding: 5,
@@ -340,8 +381,9 @@ input: {
     //backgroundColor: Colors.backbotones,
     borderRadius: 8,
     paddingBottom: 10,
-    marginRight: 5,
-    marginLeft: 5,
+    //marginRight: 5,
+    
+    //marginLeft: 5,
   },  
   input_turno: {
     fontSize: 15,
@@ -355,8 +397,8 @@ input: {
     //backgroundColor: Colors.backbotones,
     borderRadius: 8,
     paddingBottom: 10,
-    marginRight: 5,
-    marginLeft: 5,
+    //marginRight: 5,
+    //marginLeft: 5,
   },    
 
   cont_reservas: {

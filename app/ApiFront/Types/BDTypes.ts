@@ -326,6 +326,13 @@ export interface ReservasType{
     usuario: string
 }
 
+export interface reservasConfCumpType{
+  idReserva: number,
+  confirmada: boolean,
+  cumplida: boolean,
+
+}
+
 export interface turnosType{
     idTurno: number,
     descripcion: string,
