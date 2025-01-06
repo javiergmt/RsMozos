@@ -30,6 +30,12 @@ const config = () => {
       }
   }; 
 
+  const getDisp = async () => {
+   //const mac = await DeviceInfo.getMacAddress()
+   //setDispId(mac)
+  
+  };
+
   async function save(key, value) {
     await SecureStore.setItemAsync(key, value);
   }
@@ -54,9 +60,13 @@ const config = () => {
       onChangeText(deconvUrl(res))
       onChangeNumber(deconvPort(res))
     })
+    
     getValueFor('disp').then((res) => {
       onChangeDisp(res)
-    })
+    }) 
+    
+     
+
     getValueFor('bd').then((res) => {
       onChangeBase(res)
     })

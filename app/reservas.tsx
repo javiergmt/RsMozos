@@ -204,15 +204,15 @@ const reservas = () => {
             {
              reservas.map((r) => (
               <View key={r.idReserva}>
-                 <View style={styles.cont_reservas}>
                  <TouchableOpacity onPress={() => handleReservas(r)}>
+                 <View style={styles.cont_reservas}>
                    <View >     
                        <Text style={[ r.confirmada ? styles.textResConf : styles.textResSinConf ]}>
                         {r.hora} &nbsp;-&nbsp; ({r.cant}) &nbsp;-&nbsp; {r.nombre}&nbsp;{r.mesa > 0 ? ' M: ' + r.mesa : ''}
                         </Text>
                    </View>
+                 </View>  
                  </TouchableOpacity>
-                 </View>
               </View>  
              ))
              }
@@ -228,13 +228,15 @@ const reservas = () => {
           {
           turnos.map((t) => (
             <View key={t.idTurno}>
-              <View style={styles.cont_turnos}>
+              
               <TouchableOpacity key={t.idTurno} onPress={() => handleTurno(t)}>
+              <View style={styles.cont_turnos}>
                 <View >     
                   <Text style={styles.text }>{t.descripcion}</Text>
                 </View>
+              </View>  
               </TouchableOpacity>
-            </View>
+            
             </View>
           ))
           }
@@ -262,13 +264,13 @@ const reservas = () => {
            {
             sectores.map((s) => (
               <View  key={s.idSector}>
-              <View style={styles.cont_sectores}>
-                <TouchableOpacity onPress={() => handleSector(s)}>
+              <TouchableOpacity onPress={() => handleSector(s)}>  
+              <View style={styles.cont_sectores}>                
                   <View >     
                       <Text style={styles.text }>{s.descripcion}</Text>
                   </View>
-                </TouchableOpacity>
-              </View>
+               </View>   
+               </TouchableOpacity>  
              </View>
             ))
             }
@@ -284,13 +286,13 @@ const reservas = () => {
            {
             mesas.map((m) => (
               <View  key={m.nroMesa}>
-              <View style={styles.cont_sectores}>
-                <TouchableOpacity onPress={() => handleMesas(m)}>
+              <TouchableOpacity onPress={() => handleMesas(m)}> 
+              <View style={styles.cont_sectores}>  
                   <View >     
                       <Text style={styles.text }>Mesa &nbsp;{m.nroMesa}</Text>
                   </View>
-                </TouchableOpacity>
               </View>
+              </TouchableOpacity>
              </View>
             ))
             }

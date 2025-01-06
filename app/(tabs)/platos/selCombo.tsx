@@ -14,6 +14,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { Redirect } from 'expo-router'
 import { AntDesign } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import InputSpinner from "react-native-input-spinner";
 
 type Gustos ={
   idSeccion: number;
@@ -42,7 +43,7 @@ const selCombo = () => {
   const [autocompletar, setAutocompletar] = useState(false)
   const [unicoPlato, setUnicoPlato] = useState('')
   const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = ['80%', '60%'];
+  const snapPoints = ['80%', '80%'];
   // SafeArea
   const { bottom, top, right, left } = useSafeAreaInsets();
 
@@ -141,6 +142,27 @@ const selCombo = () => {
   }
 
   // Control de los gustos de un Plato seleccionado
+  const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string) => {
+      let cant = cantGustos + inc
+      let noEsta = true       
+      
+      combosGustos.forEach((m) => {
+        if (m.idGusto == id) {
+          m.cant = 1
+          noEsta = false
+        }
+       })
+      if (noEsta) {
+          setCombosGustos([...combosGustos,{idSeccion:ultSeccion,idPlato:ultPlato,idGusto:id,descGusto:descrip,cant:1}])
+      }
+        setCantGustos(cant)
+        if (cant > cantMaxGustos) {
+         Alert.alert('Atención','No puede seleccionar más de '+cantMaxGustos.toString()+' Variedades')
+      } 
+        
+      //console.log('MesaGustos:',mesaGustos)
+  }
+
   const handlePressGusto = (isChecked:boolean, idGusto:number, descGusto:string) => { 
     let cant = cantGustos
     if (isChecked) {   
@@ -338,7 +360,7 @@ const selCombo = () => {
    <BottomSheet
          ref={sheetRef}
          snapPoints={snapPoints}
-         enablePanDownToClose={true}
+         enablePanDownToClose={false}
          onClose={() => handleBottomSheet()}
       >
       
@@ -356,6 +378,7 @@ const selCombo = () => {
       <BottomSheetScrollView contentContainerStyle={styles.containerScrollvSheet}>
       { gustos.map((g) => 
         <View style={styles.checkboxContainer} key={g.idGusto}>
+          {/* 
           <BouncyCheckbox
             size={25}
             fillColor={Colors.colorcheckbox}
@@ -366,6 +389,22 @@ const selCombo = () => {
             innerIconStyle={{ borderWidth: 2 }}
             onPress={(isChecked: boolean) => {handlePressGusto(isChecked, g.idGusto, g.descGusto)}}  
           />
+          */}
+
+            <View style={styles.col}>
+            <Text style={styles.text}>{g.descGusto}</Text>
+            <InputSpinner
+              value={0}
+              style={styles.spinner}
+              color={Colors.colorcheckbox}
+            
+              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto)
+              }}
+              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto)
+              }}
+            />
+            </View>
+
         </View>
       )}      
       </BottomSheetScrollView>
@@ -503,6 +542,31 @@ const styles = StyleSheet.create({
     backgroundColor:Colors.colorfondoBoton,  
    
   },
+    col: {
+      flex: 1,
+      marginBottom: 5,
+      flexDirection: "row",
+      alignItems: "center",
+      textAlign: "left",
+      textAlignVertical: "center",
+    },
+    text: {
+      flex: 3,
+      marginRight: 20,
+      fontSize: 22,
+      fontWeight: "bold",
+      color: Colors.colorazulboton,
+    },
+    title: {
+      marginBottom: 40,
+      fontSize: 30,
+    },
+    spinner: {
+      flex: 1,
+      marginRight: 10,
+      minWidth: 50,
+      backgroundColor: 'white',
+    },
 });  
 
 export default selCombo
