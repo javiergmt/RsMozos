@@ -18,7 +18,8 @@ import InputSpinner from "react-native-input-spinner";
 type Gustos ={
   idGusto: number;
   descGusto: string;
-  cant:number
+  cant:number;
+  idPlatoRel:number;
 }
 
 const selGustos = () => {
@@ -33,7 +34,7 @@ const selGustos = () => {
   const [grabarGustos, setGrabarGustos] = useState(false)
   const [mesaGustos, setMesaGustos] = useState( [] as Gustos[]) 
 
-  const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string) => {
+  const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string,idPlatoRel:number) => {
     let cant = cantGustos + inc
     let noEsta = true       
     mesaGustos.forEach((m) => {
@@ -43,7 +44,7 @@ const selGustos = () => {
         }
     })
     if (noEsta) {
-        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:cantg}])
+        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:cantg,idPlatoRel:idPlatoRel}])
     }
       setCantGustos(cant)
       if (cant > cantMaxGustos) {
@@ -53,7 +54,7 @@ const selGustos = () => {
     //console.log('MesaGustos:',mesaGustos)
   }
 
-  
+  /*
   const handlePress = (isChecked:boolean, id:number,descrip:string ) => {
     let cant = cantGustos
     if (isChecked) { 
@@ -66,7 +67,7 @@ const selGustos = () => {
         }
       })
       if (noEsta) {
-        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:1}])
+        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:1,idPlatoRel:0}])
       }
     } else {  
       cant = cant - 1
@@ -82,18 +83,17 @@ const selGustos = () => {
     } 
     console.log('Gustos:',mesaGustos)
   }
-  
- const handleConfirmar = () => {
-    console.log('MesaGustos:',mesaGustos)
-    const hora = getHoraActual()
-    const platoprecio = getPlato_Precio(item.idPlato, idTam, ultMesa.idSector, hora, urlBase,BaseDatos)
-  
-    platoprecio.then((res) => { 
+*/
 
+ const handleConfirmar = async () => {
+    //console.log('MesaGustos:',mesaGustos)
+    const hora = getHoraActual()
+    let nDet = 1;
+    const platopcio = await getPlato_Precio(item.idPlato, idTam, ultMesa.idSector, hora, urlBase,BaseDatos)
       const detgus = [] as gustosDet[]
       mesaGustos.forEach((m) => {
         if (m.cant > 0) {
-          detgus.push({ idGusto: m.idGusto, descripcion: m.cant > 1 ? '('+m.cant+')'+m.descGusto : m.descGusto})
+          detgus.push({ idGusto: m.idGusto, descripcion: m.cant > 1 ? '('+m.cant+')'+m.descGusto : m.descGusto,idPlatoRel: m.idPlatoRel })
         }
       })
 
@@ -102,32 +102,68 @@ const selGustos = () => {
       const det:mesaDetType = { 
       nroMesa: ultMesa.nroMesa,
       idPlato: item.idPlato,
-      idDetalle: ultDetalle + 1,
+      idDetalle: ultDetalle + nDet,
       cant: 1,
-      pcioUnit: (res ? res[0].pcioUnit : 0),
-      importe: (res ? res[0].pcioUnit : 0),
+      pcioUnit: (platopcio ? platopcio[0].pcioUnit : 0),
+      importe: (platopcio ? platopcio[0].pcioUnit : 0),
       descripcion: item.descripcion,
       obs: '',
       esEntrada: false,
       cocido: '',
       idTamanio: idTam,
       descTam: getUltDescTam(),
-      idSectorExped: (res ? res[0].idSectorExped : 0),
+      idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
       gustos: detgus,  
       idTipoConsumo: item.idTipoConsumo,
-      impCentralizada:  (res ? res[0].idSectorExped : 0)
+      impCentralizada:  (platopcio ? platopcio[0].idSectorExped : 0)
       } 
-      console.log('Detalle:',det)
+      //console.log('Detalle:',det)
+      nDet = nDet + 1;
     
       mesaDet.push(det)
-      setUltDetalle(ultDetalle+1)
-      setMesaDet(mesaDet)
-      setGrabarGustos(true)
-      setUltDescTam('')
-      //console.log('mesaDet con gustos:',mesaDet)
-      showToast('Plato con gustos Agregado!!')
-    })    
+      setMesaDet(mesaDet) 
+     
+      // Recorro los gustos y si hay platos relacionados los agrego a mesaDet
+      mesaGustos.forEach(async (m) =>  {
+      if ( (m.cant > 0) && (m.idPlatoRel > 0) ) {
+      
+        const platopcio = await getPlato_Precio(m.idPlatoRel, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
+
+          //console.log('Plato Rel:',platopcio)
+          
+          const det:mesaDetType = { 
+            nroMesa: ultMesa.nroMesa,
+            idPlato: m.idPlatoRel,
+            idDetalle: ultDetalle + nDet,
+            cant: 1,
+            pcioUnit: (platopcio ? platopcio[0].pcioUnit : 0),
+            importe: (platopcio ? platopcio[0].pcioUnit : 0),
+            descripcion: m.descGusto,
+            obs: '',
+            esEntrada: false,
+            cocido: '',
+            idTamanio: 0,
+            descTam: '',
+            idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
+            gustos: [],  
+            idTipoConsumo: 'CD',
+            impCentralizada:  (platopcio ? platopcio[0].idSectorExped : 0)
+            } 
+            //console.log('det2',det)
+
+            mesaDet.push(det)
+            setMesaDet(mesaDet) 
+            nDet = nDet + 1;
+            //console.log('Mesadet c/extra',mesaDet)
+          
+      }
+      })  
     
+
+    setUltDetalle(ultDetalle+nDet+1)
+    setGrabarGustos(true)
+    setUltDescTam('')
+    showToast('Plato con gustos Agregado!!')
   }
 
   useEffect(() => {
@@ -185,18 +221,16 @@ const selGustos = () => {
 							style={styles.spinner}
 							color={Colors.colorcheckbox}
             
-              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto)
+              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto,g.idPlatoRel)
               }}
-              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto)
+              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto,g.idPlatoRel)
               }}
 						/>
 					  </View>
         </View>
-      
-   
+         
          ))}
-
-        
+  
           {
           grabarGustos ? <Redirect href={`platos/${item.idRubro}`} /> : <Text></Text>
           }  

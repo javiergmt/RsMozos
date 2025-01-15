@@ -86,6 +86,7 @@ export type mesaEncType ={
 export type gustosDet = {
   idGusto: number;
   descripcion: string;
+  idPlatoRel: number;
 }
 
 export type mesaDetType ={
@@ -115,6 +116,7 @@ export type mesaDetGustosType ={
   idGusto: number;
   descGusto: string;
   cant: number;
+  idPlatoRel: number;
 }
 
 export type mesaDetModifType ={
@@ -202,6 +204,7 @@ export type gustosType ={
   idPlato: number;
   idGusto: number;
   descGusto: string;
+  idPlatoRel: number;
 }
 
 export type modifType ={
