@@ -83,7 +83,7 @@ const mozos = () => {
     }  
   }
 
-  useEffect(() => {  
+  useEffect( () => {  
     //const urlBase = getUrl()
     //const baseDatos = getBaseDatos()
     console.log('UseEffect urlBase:',urlBase,' BaseDatos:',BaseDatos)

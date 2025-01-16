@@ -302,6 +302,7 @@ export type combosGustosType ={
   idPlato: number,
   idGusto: number,
   descripcion: string;
+  idPlatoRel: number;
 }
 
 export interface NoticiasType {

@@ -21,7 +21,8 @@ type Gustos ={
   idPlato: number;
   idGusto: number;
   descGusto: string;
-  cant:number
+  cant:number;
+  idPlatoRel:number;
 }
 
 const selCombo = () => {
@@ -47,7 +48,7 @@ const selCombo = () => {
   // SafeArea
   const { bottom, top, right, left } = useSafeAreaInsets();
 
-  const handleConfirmar = () => {
+  const handleConfirmar = async () => {
     
     const detalleGustos = (idPlato:number,idSeccion:number)  => {
       let detg = [] as combosGustosType[]
@@ -58,7 +59,8 @@ const selCombo = () => {
             idSeccion: g.idSeccion, 
             idPlato: g.idPlato, 
             idGusto: g.idGusto, 
-            descripcion: g.descGusto})
+            descripcion: g.descGusto,
+            idPlatoRel: g.idPlatoRel,})
         }                
       })
       //console.log('Gustos:',detg)
@@ -66,11 +68,11 @@ const selCombo = () => {
     }
 
     const hora = getHoraActual()
-    const platoprecio = getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
-    platoprecio.then((res) => { 
-      const detcombo = [] as comboPostType[]
+    const platopcio = await getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
+
+    const detcombo = [] as comboPostType[]
       
-      comboDet.forEach((cd) => {
+    comboDet.forEach(async (cd) => {
         let detgustos = [] as combosGustosType[]
         cd.forEach((d) => {
           //console.log('Gustos',d.idPlato,detgustos,detgustos.filter( (g) => {g.idPlato == d.idPlato}))
@@ -98,36 +100,65 @@ const selCombo = () => {
                 combosGustos: detgustos.length > 0 ? detgustos : []                
               })           
               
-          }         
-        })        
-      })
-
-      const det:mesaDetType = { 
+          }        
+        }) // Fin del forEach        
+    })
+    let ndet = 1
+    const det:mesaDetType = { 
         nroMesa: ultMesa.nroMesa,
         idPlato: item.idPlato,
-        idDetalle: ultDetalle + 1,
+        idDetalle: ultDetalle + ndet,
         cant: 1,
-        pcioUnit: (res ? res[0].pcioUnit : 0),
-        importe: (res ? res[0].pcioUnit : 0),
+        pcioUnit: (platopcio ? platopcio[0].pcioUnit : 0),
+        importe: (platopcio ? platopcio[0].pcioUnit : 0),
         descripcion: item.descripcion,
         obs: '',
         esEntrada: false,
         cocido: '',
         idTamanio: 0,
         descTam: getUltDescTam(),
-        idSectorExped: (res ? res[0].idSectorExped : 0),
-        impCentralizada: (res ? res[0].impCentralizada : 0),
+        idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
+        impCentralizada: (platopcio ? platopcio[0].impCentralizada : 0),
         gustos: [],
         combos: detcombo,
         idTipoConsumo: 'CB'
-      } 
+    } 
+    mesaDet.push(det)
+    setMesaDet(mesaDet)
 
-      mesaDet.push(det)
-      setUltDetalle(ultDetalle+1)
-      setMesaDet(mesaDet)
-      showToast('Combo Agregado!!')
-      setSalir(true)
+    console.log('combosGustos:',combosGustos)
+    combosGustos.forEach(async (g) => {
+      
+      if (g.idPlatoRel > 0) {
+        const platopcio = await getPlato_Precio(g.idPlatoRel, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
+        ndet = ndet + 1
+        const det:mesaDetType = { 
+          nroMesa: ultMesa.nroMesa,
+          idPlato: g.idPlatoRel,
+          idDetalle: ultDetalle + ndet,
+          cant: 1,
+          pcioUnit: (platopcio ? platopcio[0].pcioUnit : 0),
+          importe: (platopcio ? platopcio[0].pcioUnit : 0),
+          descripcion: g.descGusto,
+          obs: '',
+          esEntrada: false,
+          cocido: '',
+          idTamanio: 0,
+          descTam: '',
+          idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
+          gustos: [],  
+          idTipoConsumo: 'CD',
+          impCentralizada: (platopcio ? platopcio[0].impCentralizada : 0)
+        } 
+        mesaDet.push(det)
+        setMesaDet(mesaDet)
+      }
     })
+    
+    setUltDetalle(ultDetalle+ndet+1)
+    showToast('Combo Agregado!!')
+    setSalir(true)
+    
   }
 
   // Control de cada seccion que se selecciona
@@ -142,7 +173,7 @@ const selCombo = () => {
   }
 
   // Control de los gustos de un Plato seleccionado
-  const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string) => {
+  const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string,idPlatoRel:number) => {
       let cant = cantGustos + inc
       let noEsta = true       
       
@@ -153,7 +184,7 @@ const selCombo = () => {
         }
        })
       if (noEsta) {
-          setCombosGustos([...combosGustos,{idSeccion:ultSeccion,idPlato:ultPlato,idGusto:id,descGusto:descrip,cant:1}])
+          setCombosGustos([...combosGustos,{idSeccion:ultSeccion,idPlato:ultPlato,idGusto:id,descGusto:descrip,cant:1,idPlatoRel:idPlatoRel}])
       }
         setCantGustos(cant)
         if (cant > cantMaxGustos) {
@@ -163,6 +194,7 @@ const selCombo = () => {
       //console.log('MesaGustos:',mesaGustos)
   }
 
+  /*
   const handlePressGusto = (isChecked:boolean, idGusto:number, descGusto:string) => { 
     let cant = cantGustos
     if (isChecked) {   
@@ -191,6 +223,7 @@ const selCombo = () => {
     } 
     //console.log('Gustos:',combosGustos)
   }
+  */
 
   // Control de la seleccion de platos de cada seccion
   const handlePress = (isChecked:boolean, idSeccion:number,idPlato:number,idTipoConsumo:string,cantGustos:number ) => {
@@ -398,9 +431,9 @@ const selCombo = () => {
               style={styles.spinner}
               color={Colors.colorcheckbox}
             
-              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto)
+              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto,g.idPlatoRel)
               }}
-              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto)
+              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto,g.idPlatoRel)
               }}
             />
             </View>
