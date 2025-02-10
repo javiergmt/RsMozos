@@ -254,7 +254,6 @@ const reservas = () => {
         />
         )}
 
-    
 
         {/* Ubicar Reserva */
         ubicarReserva && idSector == 0 &&

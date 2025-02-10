@@ -15,6 +15,7 @@ import { Redirect } from 'expo-router'
 import { AntDesign } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InputSpinner from "react-native-input-spinner";
+import { tapHandlerName } from 'react-native-gesture-handler/lib/typescript/handlers/TapGestureHandler'
 
 type Gustos ={
   idSeccion: number;
@@ -162,14 +163,20 @@ const selCombo = () => {
   }
 
   // Control de cada seccion que se selecciona
-  const handleSecciones = async (id:number,cmax:number,auto:boolean,descCorta:string) => {
+  const handleSecciones = (id:number,cmax:number,auto:boolean,descCorta:string) => {
+    console.log('Seccion:',id,cmax,auto,descCorta)
     setUltSeccion(id)
-    setCantMax(cmax)
-    setAutocompletar(auto)
+    setCantMax(cmax)   
     if (auto) {
-       setUnicoPlato(descCorta)
-       setIsOk(true)
+      setAutocompletar(true)
+      setUnicoPlato(descCorta)
+      setIsOk(true)
+    } else {
+      setAutocompletar(false)
+      setUnicoPlato('')
+      setIsOk(false)
     }
+
   }
 
   // Control de los gustos de un Plato seleccionado
@@ -264,11 +271,7 @@ const selCombo = () => {
         result.forEach((r) => {
           r.selected = false                  
         })    
-      } else {
-        result.forEach((r) => {
-          r.selected = true       
-        })
-      }     
+      }
      
       return result        
     };
@@ -279,6 +282,9 @@ const selCombo = () => {
 
   const handleBottomSheet = () => { 
     //console.log('Comensales Grabados:',res)
+    if (cantGustos == 0 ) {
+      sheetRef.current?.expand()
+    }
   }
 
   const handleConfirmarGustos = () => {
@@ -338,21 +344,15 @@ const selCombo = () => {
     }
     
     {/* Despliego los Platos de la seccion*/}
- 
-    { comboDet && autocompletar &&
+  
       <View style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.containerScrollv} >
+      {comboDet && autocompletar &&
+           <Text style={styles.checkbox}><AntDesign name="check" size={25} color={Colors.colorazulboton} /> {unicoPlato} </Text>
+      }       
       
-        <Text style={styles.checkbox}><AntDesign name="check" size={25} color={Colors.colorazulboton} /> {unicoPlato} </Text>
-      
-      </ScrollView>
-      </View>
-    }
-    { comboDet && !autocompletar &&
-      <View style={{flex: 1}}>
-      <ScrollView contentContainerStyle={styles.containerScrollv} >
-      {
-        comboDet.map((cd) => (
+      {comboDet && !autocompletar &&
+       comboDet.map((cd) => (
         cd.filter (d => d.idSeccion == ultSeccion).map((d) => (
          
         <View style={styles.checkboxContainer} key={d.idPlato} >         
@@ -368,16 +368,15 @@ const selCombo = () => {
             onPress={(isChecked: boolean) => {handlePress(isChecked, d.idSeccion,d.idPlato,d.idTipoConsumo,d.cantGustos)}}
           />           
         </View>
-       
         ))
         ))
+        
       }
-
+      
+      
       </ScrollView>
       </View>
-     
-      
-    }
+    
    
     {isOk && 
        <View style={styles.containerTitulo}>

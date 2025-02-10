@@ -163,7 +163,12 @@ const selPlatos = () => {
         </View>
 
         <View style={styles.detContainer}> 
+          {/* Esto es para no mostrar los precios
+           ( item.tamanioUnico) ? 
           <Text style={styles.itemPcio}>${item.pcioUnit.toFixed(2).toString().padStart(8,'')}</Text> 
+          :
+          <Text ></Text>
+          */}
           <Text style={styles.itemPcio}>{ 
             item.idTipoConsumo == 'CV' ? 'Seleccionar Variedad' :
             item.idTipoConsumo == 'CB' ? 'Armar Combo' : ''}

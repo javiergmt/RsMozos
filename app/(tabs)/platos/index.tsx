@@ -39,7 +39,7 @@ const retImagen = (iconoApp:string) => {
     'muffin': Imagen.muffin,
     'pan': Imagen.pan,
     'papasfritas': Imagen.papasfritas,
-    'parrila': Imagen.parrilla,
+    'parrilla': Imagen.parrilla,
     'pescado': Imagen.pescado,
     'pizza': Imagen.pizza,
     'platosCalientes': Imagen.platosCalientes,

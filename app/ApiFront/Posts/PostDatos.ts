@@ -79,7 +79,7 @@ export const AbrirMesa = async (nroMesa: number, mozo: mozoType, url:string,base
     const acceso = await fetch(url+"mesa_abrir/",
         requestOptionPost({
             nromesa: nroMesa,
-            mozo: mozo?.idMozo
+            mozo: mozo.idTipoMozo == 4 ? 0 : mozo.idMozo,
         },'POST',base))
         .then(response => response.json())
         .catch(error => console.log(error))
