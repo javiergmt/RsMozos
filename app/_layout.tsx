@@ -15,7 +15,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function StackLayout()  {
     
-    const { mozo,setUrl,setDispId } = useLoginStore();
+    const { mozo,setUrl,setDispId} = useLoginStore();
     const [loaded, error] = useFonts({
         SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
         ...FontAwesome.font,

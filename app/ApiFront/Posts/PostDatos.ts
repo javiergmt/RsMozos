@@ -89,9 +89,10 @@ export const AbrirMesa = async (nroMesa: number, mozo: mozoType, url:string,base
 export const CerrarMesa = async (nroMesa: number, url:string,base) => {
     // const accesoInvalido = await isOcupada(nroMesa,url)
     // if (accesoInvalido) return accesoInvalido
-    const acceso = await fetch(url+"mesa_cerrar/",
+    const acceso = await fetch(url+"mesa_cerrar_mozo/",
         requestOptionPost({
-            nromesa: nroMesa,
+            nromesa: nroMesa
+            /*,
             pagos: 0,
             descTipo: 0,
             descImporte: 0,
@@ -104,10 +105,11 @@ export const CerrarMesa = async (nroMesa: number, url:string,base) => {
             telefono3: "",
             email: "",
             idZona: 0,
-            fechaNac: "2024-07-31T22:33:43.764Z",
+            fechaNac: "2024-01-01T22:33:43.764Z",
             cuit: "",
             idIva: "",
             tarjeta: ""
+            */
         },'POST',base))
         .then(response => response.json())
     return acceso

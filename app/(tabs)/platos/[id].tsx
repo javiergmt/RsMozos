@@ -10,7 +10,7 @@ import { capitalize, hyphenatedText } from '../../Funciones/deConversion'
 
 const rubros = () => {
   const {id} = useLocalSearchParams()
-  const { Rubros, ultMesa ,mozo} = useLoginStore()
+  const { Rubros, ultMesa ,mozo, comensales} = useLoginStore()
   const [rubrosfilt, setRubrosFilt] = useState([])
   const [subrubros, setSubrubros] = useState([])
   const [idRubro, setIdRubro] = useState(99999)   
@@ -33,7 +33,7 @@ const rubros = () => {
   return (
     <View style={styles.container}>
       
-      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}} /> 
+      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
       {/* <Text style={[styles.titulo]}>Platos del Rubro: {id}</Text> */}
       <View style={styles.container_titulo}>  
        <Text style={styles.textRubro}>SubRubros</Text>

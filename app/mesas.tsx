@@ -1,11 +1,11 @@
 import { View, Text,  ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native'
 import React, {  useEffect, useRef, useState } from 'react'
 import { Link, Redirect} from 'expo-router'
-import { mesasType, sectoresType, paramType, mesaType } from './ApiFront/Types/BDTypes';
-import { getMesas, getSectores } from './ApiFront/Gets/GetDatos';
+import { mesasType, sectoresType, paramType, ReservasType } from './ApiFront/Types/BDTypes';
+import { getMesas, getReservas, getSectores } from './ApiFront/Gets/GetDatos';
 import { useLoginStore } from "../app/store/useLoginStore"
 import Colors from '../constants/Colors';
-import { AbrirMesa, BloquearMesa, GrabarComensales, LiberarMesa } from './ApiFront/Posts/PostDatos';
+import { AbrirMesa, BloquearMesa, ConfCumpReserva, GrabarComensales, LiberarMesa } from './ApiFront/Posts/PostDatos';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
@@ -63,6 +63,7 @@ const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boo
 const mesas = () => {
   const [mesas, setMesas] = useState<mesasType[]>([]);
   const [sectores, setSectores] = useState<sectoresType[]>([]);
+  const [reservas, setReservas] = useState<ReservasType[]>([]);
   const [sector, setSector] = useState<number>(2);
   const {getUrl,mozo,ultSector,setUltSector,getParam,setUltMesa,
          setOrigDetalle,setUltDetalle,setMesaDet,setComensales,
@@ -77,6 +78,8 @@ const mesas = () => {
   const [comensalesOk, setComensalesOk] = useState(!Param[0].pedirCubiertos)
   const [cantComensales, setCantComensales] = useState(1)
   const [mesaSeleccionada, setMesaSeleccionada] = useState(0)
+  const [tieneReserva, setIsTieneReserva] = useState(false)
+  const [date, setDate] = useState(new Date());
 
   // Control del bottomSheet
   const sheetRef = useRef<BottomSheet>(null); 
@@ -97,11 +100,18 @@ const mesas = () => {
  } 
 
  // Bloqueo la mesa y la abro si esta cerrada 
- const handleMesa = async (mesa:mesaType) => {
+ const handleMesa = async (mesa:mesasType) => {
  if ( ( mesa.idMozo == 0 && mesa.ocupada == 'N' && mesa.cerrada == 0) 
     || ( mesa.idMozo == mozo.idMozo && mesa.ocupada == 'S' && mesa.cerrada == 0)
     )
     {
+      if (mesa.reservada) {
+       setIsTieneReserva(true)
+        const res = await getReservas(urlBase,base,date.toISOString(),0);
+        setReservas(res.filter(r => r.mesa == mesa.nroMesa && !r.cumplida)) ;
+              
+      }
+
       const res = await BloquearMesa(mesa.nroMesa,mozo.idMozo,urlBase,base)
       console.log('Mesa Bloqueada',res)
       if (res.mesa != 0) {
@@ -187,6 +197,13 @@ const handleBottomSheet = async () => {
   //console.log('Comensales Grabados:',res)
 }
 
+const handleReservas = async (r:ReservasType) => { 
+  // Doy como cumplida la reserva y grabo los comensales en la mesa
+  setComensales(r.cant)
+  setComensalesOk(true)
+  const res = await GrabarComensales(mesaSeleccionada,r.cant,urlBase,base)
+  const res1 = await ConfCumpReserva(r.idReserva,true,true,urlBase,BaseDatos)
+}
 useEffect(() => {
 
   sheetRef.current?.snapToIndex(-1);
@@ -234,7 +251,7 @@ return (
         </View>
      }    
      {!isOk && !isPending &&
-      mesas.map((m) => (
+      mesas.map((m) => ( 
        
           <TouchableOpacity key={m.nroMesa} onPress={() => handleMesa(m)}>
             <View >     
@@ -270,7 +287,7 @@ return (
     { (isOk && isOcup=='N' && comensalesOk && mozo.idTipoMozo == 4) && <Redirect href="/mesas" /> } 
 
     {/* Pido Comensales */}
-    { (isOk && isOcup=='N'&& !comensalesOk) && 
+    { (isOk && isOcup=='N'&& !comensalesOk && !tieneReserva) && 
     <BottomSheet
          ref={sheetRef}
          snapPoints={snapPoints}
@@ -308,6 +325,67 @@ return (
       </BottomSheetView>    
     </BottomSheet> 
     } 
+
+    {/* Tiene Reserva  */}
+    { (isOk && isOcup=='N' && tieneReserva && !comensalesOk) && 
+    <BottomSheet
+         ref={sheetRef}
+         snapPoints={snapPoints}
+         enablePanDownToClose={true}
+         onClose={() => handleBottomSheet()}
+         backgroundStyle={{backgroundColor: Colors.colorBackModal}}
+      >
+      <BottomSheetView>
+      <Text style={styles.bottomText}>Seleccionar Reserva</Text>
+      <View style={{ flexDirection: 'row', alignItems:'center', justifyContent: 'center' }}>
+        <ScrollView> 
+                  {
+                   reservas.map((r) => (
+                    <View key={r.idReserva}>
+                       <TouchableOpacity onPress={() => handleReservas(r)}>
+                       <View style={styles.cont_mesas}>
+                         <View >     
+                             <Text style={styles.itemText}>
+                              {r.hora} &nbsp;-&nbsp; ({r.cant}) &nbsp;-&nbsp; {r.nombre}
+                              </Text>
+                         </View>
+                       </View>  
+                       </TouchableOpacity>
+                    </View>  
+                   ))
+                   }
+                 </ScrollView>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems:'center', justifyContent: 'center' }}>
+        
+        
+        <TouchableOpacity style={styles.bottombutton} onPress={() => handleComensales(-5)} >
+        <AntDesign name="minuscircleo" size={30} color={Colors.colorfondoBoton} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottombutton} onPress={() => handleComensales(-1)} >
+        <AntDesign name="minuscircle" size={30} color={Colors.colorfondoBoton} />
+        </TouchableOpacity>
+
+        <Text style={styles.bottomText}>{cantComensales}</Text>
+
+        <TouchableOpacity style={styles.bottombutton} onPress={() => handleComensales(1)} >
+        <AntDesign name="pluscircle" size={30} color={Colors.colorfondoBoton} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottombutton} onPress={() => handleComensales(5)} >
+        <AntDesign name="pluscircleo" size={30} color={Colors.colorfondoBoton}/>
+        </TouchableOpacity>
+   
+      </View>
+      <View style={styles.bottombutton} >
+        <TouchableOpacity onPress={() => handleBottomSheet()}> 
+            <Text style={styles.textBtSalir}>Ocupar sin Reserva</Text> 
+        </TouchableOpacity>
+      </View>
+
+      </BottomSheetView>    
+    </BottomSheet> 
+    } 
+
   </View>
   </GestureHandlerRootView>  
   )

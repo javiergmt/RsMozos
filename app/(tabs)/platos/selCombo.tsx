@@ -11,7 +11,7 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { getHoraActual } from '../../Funciones/deConversion'
 import { showToast } from '../../Funciones/deInfo'
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
-import { Redirect } from 'expo-router'
+import { Redirect, Stack } from 'expo-router'
 import { AntDesign } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InputSpinner from "react-native-input-spinner";
@@ -28,7 +28,7 @@ type Gustos ={
 
 const selCombo = () => {
   const { urlBase ,getUltItem,ultMesa,ultDetalle,mesaDet,
-          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos} = useLoginStore()
+          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [comboSec, setComboSec] = useState( [] as comboSecType[]) 
   const [comboDet, setComboDet] = useState( [] as comboDetType[][])  
@@ -320,7 +320,9 @@ const selCombo = () => {
   return (
   <GestureHandlerRootView style={{ flex: 1 }}>
   <View style={styles.container}>
- 
+    <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
+   
+     
     <View style={styles.containerTitulo}>
        <Text style={styles.tituloText}> {item.descripcion}  </Text>
     </View>   

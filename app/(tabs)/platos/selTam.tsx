@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useLoginStore } from '../../store/useLoginStore'
 import { platosType, modifType } from '../../ApiFront/Types/BDTypes'
 import { getModif, getPlato_Precio } from '../../ApiFront/Gets/GetDatos'
-import { Redirect } from 'expo-router'
+import { Redirect, Stack } from 'expo-router'
 import { getHoraActual } from '../../Funciones/deConversion'
 import { showToast } from '../../Funciones/deInfo'
 import { Entypo } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ import Colors from '../../../constants/Colors'
 
 const selTam = () => {
   const { urlBase ,getUltItem, getUltSector,mesaDet,mesaDetModif,ultMesa,ultDetalle,
-    setUltDetalle,setMesaDet,setUltDescTam,BaseDatos} = useLoginStore()
+    setUltDetalle,setMesaDet,setUltDescTam,BaseDatos,comensales} = useLoginStore()
 
   const [item, setItem] = useState<platosType>()
   const [modif, setModif] = useState( [] as modifType[])
@@ -75,6 +75,9 @@ const selTam = () => {
   return (
     <SafeAreaView style={styles.container}>
     <View >
+      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
+        
+          
        <View> 
         <Text style={styles.tituloText}> {descPlato}</Text>
        </View> 

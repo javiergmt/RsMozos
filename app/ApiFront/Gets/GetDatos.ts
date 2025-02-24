@@ -290,7 +290,7 @@ export const getNoticias = async(url:string,base:string): Promise<NoticiasType[]
 }
 
 export const getReservas = async(url:string,base:string,fecha:string,turno:number): Promise<ReservasType[]> => {
-    const response = await fetch(url+`reservas/${fecha}/${turno}`,
+    const response = await fetch(url+`reservas/${fecha}/${fecha}/${turno}`,
         {   method: 'get', 
             headers: new Headers({
               'bd': base,

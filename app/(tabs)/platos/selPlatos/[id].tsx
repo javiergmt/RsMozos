@@ -44,7 +44,7 @@ const selPlatos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const [platos, setPlatos] = useState([])  
   const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,
-          ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos } = useLoginStore();
+          ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,comensales } = useLoginStore();
   const { desc, rub, sub , cadena , tipo} = rubSub(id,Rubros)
   const [selTam, setSelTam ] = useState(false)
   const [selGusto, setSelGusto ] = useState(false)
@@ -200,7 +200,7 @@ const selPlatos = () => {
     return (
      <> 
       <Stack.Screen options={
-        {headerTitle: `Mesa ${ultMesa.nroMesa} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}
+        {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers`, headerTitleAlign: 'center'}
         } /> 
       <GestureHandlerRootView style={styles.container}>
         

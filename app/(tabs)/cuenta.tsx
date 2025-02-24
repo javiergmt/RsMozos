@@ -13,7 +13,7 @@ const cuenta = () => {
   const {mozo,ultMesa,ultDetalle,setUltDetalle,getParam,
     mesaDet,mesaDetGustos,mesaDetModif,urlBase,
     setMesaDet,origDetalle,setOrigDetalle,
-    getBaseDatos,BaseDatos} = useLoginStore()
+    getBaseDatos,BaseDatos, comensales} = useLoginStore()
   const [cuenta, setCuenta] = useState<mesaDetType[]>([])
   const [verAnt, setVerAnt] = useState(true)
   const [isError, setIsError] = useState(false)
@@ -217,7 +217,7 @@ const cuenta = () => {
    
     <View style={styles.container}>
      <Stack.Screen options={{
-                              headerTitle: `Mesa ${ultMesa.nroMesa} - Mozo: ${mozo.nombre}`,
+                              headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
                               headerTitleAlign: 'center',
                               headerStyle: {
                                 backgroundColor: Colors.background,

@@ -62,7 +62,7 @@ const retImagen = (iconoApp:string) => {
 
 const index = () => {
   //const rubros = useLoginStore( (state) => state.Rubros )
-  const {ultMesa,urlBase,mozo,BaseDatos,Rubros} = useLoginStore()
+  const {ultMesa,urlBase,mozo,BaseDatos,Rubros,comensales} = useLoginStore()
   const [salir, setSalir] = useState(false)
  
   const [text, onChangeText] = useState('');
@@ -81,7 +81,7 @@ const index = () => {
    
     <View style={styles.container}>
      <Stack.Screen options={
-        {headerTitle: `Mesa ${ultMesa.nroMesa} - Mozo: ${mozo.nombre}`,
+        {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
          headerTitleAlign: 'center',
         headerRight:() => (
           <View style={{flexDirection: 'row',paddingRight: 10}}>

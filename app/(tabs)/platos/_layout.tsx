@@ -15,7 +15,8 @@ const { getUltMesa,mozo } = useLoginStore();
 useEffect(() => { 
     const m = getUltMesa()
     setUltMesa(m)
-    setTitulo(m.nroMesa.toString())
+    setTitulo(m.nroMesa.toString()+' - '+m.cantPersonas.toString()+' Pers.')
+    
     console.log('Traigo Mesa:',m)
   }, [] )
 
@@ -32,9 +33,9 @@ return (
             },
             
         }}>
-        <Stack.Screen name="index" options={{headerTitle: `Mesa ${titulo} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}} />
-        <Stack.Screen name="selTam" options={{headerTitle: `Mesa ${titulo} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}} /> 
-        <Stack.Screen name="selCombo" options={{headerTitle:`Mesa ${titulo} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}} /> 
+        <Stack.Screen name="index" options={{headerTitle: `Mesa ${titulo}`, headerTitleAlign: 'center'}} />
+        <Stack.Screen name="selTam" options={{headerTitle: `Mesa ${titulo}`, headerTitleAlign: 'center'}} /> 
+        <Stack.Screen name="selCombo" options={{headerTitle:`Mesa ${titulo}`, headerTitleAlign: 'center'}} /> 
     </Stack>
 
     </>

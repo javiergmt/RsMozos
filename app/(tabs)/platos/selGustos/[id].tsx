@@ -26,7 +26,7 @@ const selGustos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const idTam = Number(id)
   const { urlBase ,getUltItem,setMesaDet,setUltDetalle,getUltDescTam,setUltDescTam,
-          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos} = useLoginStore()
+          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [gustos, setGustos] = useState( [] as gustosType[])
   const [cantGustos, setCantGustos] = useState(0)
@@ -183,7 +183,7 @@ const selGustos = () => {
   return (
     <SafeAreaView style={styles.container}>
      <View >
-     <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} - Mozo: ${mozo.nombre}`, headerTitleAlign: 'center'}} /> 
+     <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
   
        <View> 
         <Text style={styles.tituloText}>  {item.descripcion}  </Text>
