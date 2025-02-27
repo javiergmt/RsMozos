@@ -1,4 +1,4 @@
-import { View, Text,  ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native'
+import { View, Text,  ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, RefreshControl } from 'react-native'
 import React, {  useEffect, useRef, useState } from 'react'
 import { Link, Redirect} from 'expo-router'
 import { mesasType, sectoresType, paramType, ReservasType } from './ApiFront/Types/BDTypes';
@@ -80,6 +80,7 @@ const mesas = () => {
   const [mesaSeleccionada, setMesaSeleccionada] = useState(0)
   const [tieneReserva, setIsTieneReserva] = useState(false)
   const [date, setDate] = useState(new Date());
+  const [refreshing,setRefreshing] =useState(false);
 
   // Control del bottomSheet
   const sheetRef = useRef<BottomSheet>(null); 
@@ -96,7 +97,11 @@ const mesas = () => {
       setMesas(mesas);
       setUltSector(idSector);
     };
+    setRefreshing(true)
     load();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
  } 
 
  // Bloqueo la mesa y la abro si esta cerrada 
@@ -193,7 +198,7 @@ const handleBottomSheet = async () => {
   setComensalesOk(true)
   const res = await GrabarComensales(mesaSeleccionada,cantComensales,urlBase,base)
   // Revisar porque no pone Cerrada = 0
-  const res2 = await LiberarMesa(mesaSeleccionada,false,urlBase,BaseDatos)
+  // const res2 = await LiberarMesa(mesaSeleccionada,false,urlBase,BaseDatos)
   //console.log('Comensales Grabados:',res)
 }
 
@@ -204,18 +209,30 @@ const handleReservas = async (r:ReservasType) => {
   const res = await GrabarComensales(mesaSeleccionada,r.cant,urlBase,base)
   const res1 = await ConfCumpReserva(r.idReserva,true,true,urlBase,BaseDatos)
 }
-useEffect(() => {
 
-  sheetRef.current?.snapToIndex(-1);
+const handleDataChange = async () => {
   handleMesas(ultSector); 
   const load = async () => {
       const result = await getSectores(urlBase,base);
       setSectores(result);
   };
+ 
   load();
   setOrigDetalle(0)
   setUltDetalle(0)
   setMesaDet([])
+} 
+
+useEffect(() => {
+
+  sheetRef.current?.snapToIndex(-1);
+  handleDataChange()
+  const interval = setInterval(() => {
+    handleDataChange()
+  }, 20000);
+  return () => clearInterval(interval);
+  
+ 
  
 }, []);
 
@@ -244,7 +261,12 @@ return (
     {/* Despliego las mesas del Sector */}
   
     <View style={{flex:1, height:'100%',  backgroundColor: Colors.background, }}>
-    <ScrollView contentContainerStyle={styles.cont_mesas}> 
+    <ScrollView contentContainerStyle={styles.cont_mesas}
+    refreshControl={
+      <RefreshControl
+     refreshing={refreshing}
+     onRefresh={() => handleMesas(ultSector) }/>}
+    > 
      { isPending && 
         <View>
         <ActivityIndicator size="large" color="#0000ff"/>

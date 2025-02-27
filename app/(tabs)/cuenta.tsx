@@ -27,6 +27,7 @@ const cuenta = () => {
   const [esEntSel, setEsEntSel] = useState(false)
   const [salir, setSalir] = useState(false)
   const Param = getParam()
+  const [refreshing,setRefreshing] =useState(false);
 
   // Trae los datos de En_NesaDet
   const traerCuenta = async (url:string,base:string) => {
@@ -57,8 +58,12 @@ const cuenta = () => {
   }
 
   const handleCerrar = async () => {  
+    
     const res = await CerrarMesa(ultMesa.nroMesa,urlBase,BaseDatos)
     setSalir(true)
+   
+   
+    
     return
   }
 
