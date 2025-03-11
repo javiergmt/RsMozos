@@ -14,6 +14,8 @@ import Colors from '../../../../constants/Colors'
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context'
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage} from "react-native-flash-message";
 
 const rubSub = (id:any,rubros:rubrosSubType[]) => {
     const pos = id.indexOf('-')
@@ -43,7 +45,7 @@ const rubSub = (id:any,rubros:rubrosSubType[]) => {
 const selPlatos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const [platos, setPlatos] = useState([])  
-  const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,
+  const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,setUltRubro,
           ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,comensales } = useLoginStore();
   const { desc, rub, sub , cadena , tipo} = rubSub(id,Rubros)
   const [selTam, setSelTam ] = useState(false)
@@ -64,6 +66,7 @@ const selPlatos = () => {
     // Agrego el item a la mesa
     sheetRef.current?.close()
     let estaEnMesa = false
+   
     mesaDet.forEach((m) => {
       if (m.idPlato == item.idPlato && m.idDetalle > origDetalle && m.obs == text) {
         m.cant = m.cant + cantItem
@@ -101,7 +104,12 @@ const selPlatos = () => {
     }  
     setMesaDet(mesaDet)
     console.log('MesaDet:',mesaDet)
-    showToast('Plato Agregado!!')
+    //showToast('Plato Agregado!!')
+    showMessage({
+      message: "Plato Agregado!!",
+      description: "El Plato se ha agregado a la mesa",
+      type: "success",
+    });
     setPedirCant(false)
     setCantItem(1)
   }
@@ -149,7 +157,7 @@ const selPlatos = () => {
   const renderItem: ListRenderItem<any> = ({ item }) => (
       
       <View style={styles.renglonContainer} >
-
+        <FlashMessage position="top" /> 
         <TouchableOpacity onPress={() => handleItem(item)}> 
 
         <View style={styles.itemContainer}>       
@@ -194,7 +202,7 @@ const selPlatos = () => {
         setPlatos(result)
       }
       load()
-      
+      setUltRubro(Number(id));
     }, [tipo,cadena,rub,sub] )
 
     return (

@@ -2,7 +2,7 @@ import { View, Text,  ScrollView, TouchableOpacity, StyleSheet, ActivityIndicato
 import React, {  useEffect, useRef, useState } from 'react'
 import { Link, Redirect} from 'expo-router'
 import { mesasType, sectoresType, paramType, ReservasType } from './ApiFront/Types/BDTypes';
-import { getMesas, getReservas, getSectores } from './ApiFront/Gets/GetDatos';
+import { getMesas, getPlato_Precio, getReservas, getSectores } from './ApiFront/Gets/GetDatos';
 import { useLoginStore } from "../app/store/useLoginStore"
 import Colors from '../constants/Colors';
 import { AbrirMesa, BloquearMesa, ConfCumpReserva, GrabarComensales, LiberarMesa } from './ApiFront/Posts/PostDatos';
@@ -10,6 +10,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getHoraActual } from './Funciones/deConversion';
 
 const mesaForma = (forma:number) => {
 
@@ -67,7 +68,7 @@ const mesas = () => {
   const [sector, setSector] = useState<number>(2);
   const {getUrl,mozo,ultSector,setUltSector,getParam,setUltMesa,
          setOrigDetalle,setUltDetalle,setMesaDet,setComensales,
-        getBaseDatos,BaseDatos} = useLoginStore()
+        getBaseDatos,BaseDatos, mesaDet} = useLoginStore()
   const urlBase = getUrl()
   const base = getBaseDatos()
   const Param = getParam()
@@ -77,6 +78,8 @@ const mesas = () => {
   const [isPending, setIsPending] = useState(false);  
   const [comensalesOk, setComensalesOk] = useState(!Param[0].pedirCubiertos)
   const [cantComensales, setCantComensales] = useState(1)
+  const [idPlatoCub, setIdPlatoCub] = useState(Param[0].idCubiertos)
+  const [descripCub, setDescripCub] = useState(Param[0].descripCub)
   const [mesaSeleccionada, setMesaSeleccionada] = useState(0)
   const [tieneReserva, setIsTieneReserva] = useState(false)
   const [date, setDate] = useState(new Date());
@@ -89,7 +92,7 @@ const mesas = () => {
   // SafeArea
   const { bottom, top, right, left } = useSafeAreaInsets();
  
-  // Caargo las mesas del Sector
+  // Cargo las mesas del Sector
   const handleMesas = (idSector:number) => {
     const load = async () => {
       const { mesas, isError, isPending }  = await getMesas(idSector,urlBase,base);
@@ -138,6 +141,8 @@ const mesas = () => {
             const res = await AbrirMesa(mesa.nroMesa,mozo,urlBase,base)
             console.log('Mesa Abierta',res)
             setUltDetalle(0)
+            
+            
           }
           setMesaSeleccionada(mesa.nroMesa)
       }
@@ -197,6 +202,33 @@ const handleBottomSheet = async () => {
   setComensales(cantComensales)
   setComensalesOk(true)
   const res = await GrabarComensales(mesaSeleccionada,cantComensales,urlBase,base)
+  if (idPlatoCub != 0) {
+    console.log('Creo Cubiertos',cantComensales)
+    const hora = getHoraActual()
+    const platoprecio = getPlato_Precio(idPlatoCub,0,0,hora,urlBase,BaseDatos)
+    platoprecio.then((res) => { 
+    const det = { 
+          nroMesa: mesaSeleccionada,
+          idPlato: idPlatoCub,
+          idDetalle: 1,
+          cant: cantComensales,
+          pcioUnit: (res ? res[0].pcioUnit : 0) ,
+          importe: (res ? res[0].pcioUnit * cantComensales: 0) ,
+          descripcion: descripCub,
+          obs: '',
+          esEntrada: false,
+          cocido: '',
+          idTamanio: 0,
+          descTam: '',
+          idSectorExped: (res ? res[0].idSectorExped : 0),
+          gustos: [],
+          idTipoConsumo: 'CF',
+          impCentralizada: (res ? res[0].impCentralizada : 0) 
+    }
+    mesaDet.push(det)
+    setUltDetalle(1)
+    })
+  }  
   // Revisar porque no pone Cerrada = 0
   // const res2 = await LiberarMesa(mesaSeleccionada,false,urlBase,BaseDatos)
   //console.log('Comensales Grabados:',res)

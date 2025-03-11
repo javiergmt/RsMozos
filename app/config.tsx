@@ -64,9 +64,7 @@ const config = () => {
     getValueFor('disp').then((res) => {
       onChangeDisp(res)
     }) 
-    
-     
-
+       
     getValueFor('bd').then((res) => {
       onChangeBase(res)
     })

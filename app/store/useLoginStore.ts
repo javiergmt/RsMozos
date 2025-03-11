@@ -46,6 +46,10 @@ interface LoginStoreState {
     getComensales: () => number,
     setComensales: (sector:number) => void,
 
+    idPlatoCub: number,
+    getIdPlatoCub: () => number,
+    setIdPlatoCub: (sector:number) => void,
+
     Param: paramType[],
     getParam: () => paramType[],
     setParam: (param:paramType[]) => void,
@@ -81,6 +85,10 @@ interface LoginStoreState {
     ultDescTam: string,
     getUltDescTam: () => string,
     setUltDescTam: (disp:string) => void,
+
+    ultRubro: number,
+    getUltRubro: () => number,
+    setUltRubro: (rubro:number) => void,
 }
 
 export const useLoginStore = create<LoginStoreState>(
@@ -95,6 +103,7 @@ export const useLoginStore = create<LoginStoreState>(
         ultSector: 2,
         ultMesa: initMesa(),
         comensales: 0,
+        idPlatoCub: 0,
         Param:[],
         ultItem: initItem(), 
         mesaDet: [],
@@ -104,6 +113,7 @@ export const useLoginStore = create<LoginStoreState>(
         origDetalle:0,
         dispId:'0',
         ultDescTam:'',
+        ultRubro:0,
 
         getMozoId: () => get().mozo?.idMozo,
         getMozoName: () => get().mozo?.nombre,
@@ -131,6 +141,9 @@ export const useLoginStore = create<LoginStoreState>(
         getComensales: () => get().comensales,
         setComensales: (comens:number) => set({comensales:comens}),
 
+        getIdPlatoCub: () => get().idPlatoCub,
+        setIdPlatoCub: (id:number) => set({idPlatoCub:id}),
+
         getParam: () => get().Param,
         setParam: (param:paramType[]) => set({Param:param}),
 
@@ -157,6 +170,9 @@ export const useLoginStore = create<LoginStoreState>(
 
         getUltDescTam: () => get().ultDescTam,
         setUltDescTam: (desc:string) => set({ultDescTam:desc}),
+
+        getUltRubro: () => get().ultRubro,
+        setUltRubro: (rubro:number) => set({ultRubro:rubro}),
     }))
 
 function initMozo(): mozoType {

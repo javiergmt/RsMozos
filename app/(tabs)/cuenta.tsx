@@ -8,6 +8,8 @@ import Colors from '../../constants/Colors'
 import { EliminarMesa, LiberarMesa, AgregarDetalleMulti, CerrarMesa } from '../ApiFront/Posts/PostDatos'
 import { AntDesign ,Entypo } from '@expo/vector-icons';
 import { capitalize, getHoraActual } from '../Funciones/deConversion'
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const cuenta = () => {
   const {mozo,ultMesa,ultDetalle,setUltDetalle,getParam,
@@ -77,6 +79,7 @@ const cuenta = () => {
        
     }
       // No grabo nada y vuelvo a mesas
+      
       setComandar(true)
       return
     }
@@ -135,7 +138,17 @@ const cuenta = () => {
       mesaDet.splice(0,mesaDet.length)
       mesaDetGustos.splice(0,mesaDetGustos.length)
       mesaDetModif.splice(0,mesaDetModif.length) 
-      setComandar(true)  
+  
+      //setComandar(true)  
+      showMessage({
+        message: "Plato con Modif Agregado!!",
+        description: "El Plato fue agregado a la Comanda",
+        type: "success",
+     
+      });
+      setTimeout(() => setComandar(true),
+      1000
+      )   
   }  
 
   const handleVerAnt = () => {  
@@ -164,6 +177,7 @@ const cuenta = () => {
      } else {
       const res = await LiberarMesa(ultMesa.nroMesa,false,urlBase,BaseDatos)
      }
+
      setSalir(true)
   }   
 
@@ -221,6 +235,7 @@ const cuenta = () => {
   return (
    
     <View style={styles.container}>
+     
      <Stack.Screen options={{
                               headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
                               headerTitleAlign: 'center',
@@ -242,7 +257,7 @@ const cuenta = () => {
                               />
                               
                               
-                            
+                                               
         { salir && <Redirect href="/mesas" />}                      
         <View>                      
         <Text style={styles.titulo}>Detalle de la cuenta</Text> 
@@ -350,9 +365,9 @@ const cuenta = () => {
       </View> 
 
       {
-          comandar ? <Redirect href={`/mesas`}  /> : <Text></Text>
+          comandar ?<Redirect href={`/mesas`}  /> : <Text></Text>
       }
-
+       
 
     </View>
 

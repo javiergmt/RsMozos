@@ -6,6 +6,7 @@ import Colors from '../constants/Colors';
 
 import * as SecureStore from 'expo-secure-store';
 import { Redirect } from 'expo-router';
+import FlashMessage from "react-native-flash-message";
 
 
 const index = () => {
@@ -65,7 +66,7 @@ useEffect(() => {
 return (
      <>
      <SafeAreaView style={styles.container}>       
-        
+     <FlashMessage position="top" /> 
         <View style={styles.body}>
           <Text style={styles.text}>Url: {urlBase}</Text>    
           <Text style={styles.text}>BD : {BaseDatos}</Text>             

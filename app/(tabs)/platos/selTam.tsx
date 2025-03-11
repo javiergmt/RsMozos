@@ -8,10 +8,13 @@ import { getHoraActual } from '../../Funciones/deConversion'
 import { showToast } from '../../Funciones/deInfo'
 import { Entypo } from '@expo/vector-icons';
 import Colors from '../../../constants/Colors'
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
+
 
 const selTam = () => {
   const { urlBase ,getUltItem, getUltSector,mesaDet,mesaDetModif,ultMesa,ultDetalle,
-    setUltDetalle,setMesaDet,setUltDescTam,BaseDatos,comensales} = useLoginStore()
+    setUltDetalle,setMesaDet,setUltDescTam,BaseDatos,comensales,ultRubro} = useLoginStore()
 
   const [item, setItem] = useState<platosType>()
   const [modif, setModif] = useState( [] as modifType[])
@@ -50,8 +53,17 @@ const selTam = () => {
 
         setUltDetalle(ultDetalle+1)
         setMesaDet(mesaDet)
-        setGrabarTam(true)
-        showToast('Plato con Modif Agregado!!')
+        
+        //showToast('Plato con Modif Agregado!!')
+        showMessage({
+              message: "Plato con Modif Agregado!!",
+              description: "El Plato fue agregado a la Comanda",
+              type: "success",
+           
+            });
+            setTimeout(() => setGrabarTam(true),
+            1000
+            )     
       })   
     }
   }
@@ -76,7 +88,7 @@ const selTam = () => {
     <SafeAreaView style={styles.container}>
     <View >
       <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
-        
+      <FlashMessage position="top" /> 
           
        <View> 
         <Text style={styles.tituloText}> {descPlato}</Text>
@@ -94,7 +106,7 @@ const selTam = () => {
              ))}
 
          {
-          grabarTam ? <Redirect href={`platos/${item.idRubro}`} /> : <Text></Text>
+          grabarTam ? <Redirect href={`platos/${ultRubro}`} /> : <Text></Text>
          }     
     </View>
     </SafeAreaView>

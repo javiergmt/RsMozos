@@ -198,6 +198,7 @@ export type paramType = {
   idPagWeb: number;
   nombreWeb: string;
   sector_ini: number;
+  descripCub: string;
 }
 
 export type gustosType ={

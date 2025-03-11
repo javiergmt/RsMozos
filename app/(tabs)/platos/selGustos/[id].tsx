@@ -13,6 +13,8 @@ import { getHoraActual } from '../../../Funciones/deConversion'
 import { showToast } from '../../../Funciones/deInfo'
 import Colors from '../../../../constants/Colors'
 import InputSpinner from "react-native-input-spinner";
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 
 type Gustos ={
@@ -26,13 +28,14 @@ const selGustos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const idTam = Number(id)
   const { urlBase ,getUltItem,setMesaDet,setUltDetalle,getUltDescTam,setUltDescTam,
-          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales} = useLoginStore()
+          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales,ultRubro} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [gustos, setGustos] = useState( [] as gustosType[])
   const [cantGustos, setCantGustos] = useState(0)
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const [grabarGustos, setGrabarGustos] = useState(false)
   const [mesaGustos, setMesaGustos] = useState( [] as Gustos[]) 
+  
 
   const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string,idPlatoRel:number) => {
     let cant = cantGustos + inc
@@ -159,11 +162,20 @@ const selGustos = () => {
       }
       })  
     
-
+      showMessage({
+        message: "Plato con gustos Agregado!!",
+        description: "El Plato fue agregado a la Comanda",
+        type: "success",
+   
+      });
     setUltDetalle(ultDetalle+nDet+1)
-    setGrabarGustos(true)
+
     setUltDescTam('')
-    showToast('Plato con gustos Agregado!!')
+    setTimeout(() => setGrabarGustos(true),
+      1000
+    )
+    //showToast('Plato con gustos Agregado!!')
+  
   }
 
   useEffect(() => {
@@ -184,7 +196,7 @@ const selGustos = () => {
     <SafeAreaView style={styles.container}>
      <View >
      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
-  
+      <FlashMessage position="top" />
        <View> 
         <Text style={styles.tituloText}>  {item.descripcion}  </Text>
        </View> 
@@ -232,7 +244,7 @@ const selGustos = () => {
          ))}
   
           {
-          grabarGustos ? <Redirect href={`platos/${item.idRubro}`} /> : <Text></Text>
+          grabarGustos ? <Redirect href={`platos/${ultRubro}`} /> : <Text></Text>
           }  
           </ScrollView>
          </View>     

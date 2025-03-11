@@ -16,6 +16,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InputSpinner from "react-native-input-spinner";
 import { tapHandlerName } from 'react-native-gesture-handler/lib/typescript/handlers/TapGestureHandler'
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 type Gustos ={
   idSeccion: number;
@@ -28,7 +30,7 @@ type Gustos ={
 
 const selCombo = () => {
   const { urlBase ,getUltItem,ultMesa,ultDetalle,mesaDet,
-          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales} = useLoginStore()
+          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales,ultRubro} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [comboSec, setComboSec] = useState( [] as comboSecType[]) 
   const [comboDet, setComboDet] = useState( [] as comboDetType[][])  
@@ -44,6 +46,7 @@ const selCombo = () => {
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const [autocompletar, setAutocompletar] = useState(false)
   const [unicoPlato, setUnicoPlato] = useState('')
+  const [count, setCount] = useState(0)
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = ['80%', '80%'];
   // SafeArea
@@ -157,8 +160,17 @@ const selCombo = () => {
     })
     
     setUltDetalle(ultDetalle+ndet+1)
-    showToast('Combo Agregado!!')
-    setSalir(true)
+    //showToast('Combo Agregado!!')
+    showMessage({
+      message: "Combo Agregado!!",
+      description: "El Combo fue agregado a la Comanda",
+      type: "success",
+      duration: 3000,
+    });
+    setTimeout(() => setSalir(true),
+    1000
+    )
+    
     
   }
 
@@ -321,7 +333,7 @@ const selCombo = () => {
   <GestureHandlerRootView style={{ flex: 1 }}>
   <View style={styles.container}>
     <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
-   
+    <FlashMessage position="top" />
      
     <View style={styles.containerTitulo}>
        <Text style={styles.tituloText}> {item.descripcion}  </Text>
@@ -449,7 +461,7 @@ const selCombo = () => {
    
     }
     {
-      salir ? <Redirect href={`platos/${item.idRubro}`} /> : <Text></Text>
+      salir ? <Redirect href={`platos/${ultRubro}`} /> : <Text></Text>
     }
   </View>
   </GestureHandlerRootView>
