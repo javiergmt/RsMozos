@@ -35,7 +35,7 @@ return (
         }}>
         <Stack.Screen name="index" options={{headerTitle: `Mesa ${titulo}`, headerTitleAlign: 'center'}} />
         <Stack.Screen name="selTam" options={{headerTitle: `Mesa ${titulo}`, headerTitleAlign: 'center'}} /> 
-        <Stack.Screen name="selCombo" options={{headerTitle:`Mesa ${titulo}`, headerTitleAlign: 'center'}} /> 
+      
     </Stack>
 
     </>

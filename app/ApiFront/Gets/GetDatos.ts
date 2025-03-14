@@ -1,4 +1,4 @@
-import { NoticiasType, platosprecioType, rubrosSubType, turnosType} from './../Types/BDTypes';
+import { comboInfoSecType, NoticiasType, platosprecioType, rubrosSubType, turnosType} from './../Types/BDTypes';
 
 import { mozoType,sectoresType,mesasType,platosType,paramType,gustosType,
     modifType,mesaEncType,mesaDetType, comboSecType, comboDetType,ReservasType,
@@ -252,6 +252,19 @@ export const getMesaDet = async(idMesa:number,url:string,base:string):
 
 export const getComboSec = async(idPlato:number,url:string,base:string): Promise<comboSecType[]> => {
     const response = await fetch(url+`combo_sec/${idPlato}`,
+        {   method: 'get', 
+            headers: new Headers({
+              'bd': base,
+            })
+        }
+    )
+    const data = await response.json()
+    console.log('comboSec: ',data)
+    return data
+}
+
+export const getInfoComboSec = async(nromesa:number,idDetalle:number,idPedido:number,url:string,base:string): Promise<comboInfoSecType[]> => {
+    const response = await fetch(url+`plato_info_combo/${nromesa}/${idDetalle}/${idPedido}`,
         {   method: 'get', 
             headers: new Headers({
               'bd': base,

@@ -1,23 +1,23 @@
 // Se arman y se dan a seleccionar los Combos con sus secciones
-
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { useLoginStore } from '../../store/useLoginStore'
-import { comboDetType, comboPostType, comboSecType, combosGustosType, gustosType, mesaDetType, platosType } from '../../ApiFront/Types/BDTypes'
-import { getComboDet, getComboSec, getGustos, getPlato_Precio } from '../../ApiFront/Gets/GetDatos'
+import { useLoginStore } from '../../../store/useLoginStore'
+import { comboDetType, comboPostType, comboSecType, combosGustosType, gustosType, mesaDetType, platosType } from '../../../ApiFront/Types/BDTypes'
+import { getComboDet, getComboSec, getGustos, getPlato_Precio } from '../../../ApiFront/Gets/GetDatos'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import Colors from '../../../constants/Colors'
+import Colors from '../../../../constants/Colors'
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { getHoraActual } from '../../Funciones/deConversion'
-import { showToast } from '../../Funciones/deInfo'
+import { getHoraActual } from '../../../Funciones/deConversion'
+import { showToast } from '../../../Funciones/deInfo'
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
-import { Redirect, Stack } from 'expo-router'
+import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
 import { AntDesign } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InputSpinner from "react-native-input-spinner";
 import { tapHandlerName } from 'react-native-gesture-handler/lib/typescript/handlers/TapGestureHandler'
 import FlashMessage from "react-native-flash-message";
 import { showMessage, hideMessage } from "react-native-flash-message";
+
 
 type Gustos ={
   idSeccion: number;
@@ -28,7 +28,8 @@ type Gustos ={
   idPlatoRel:number;
 }
 
-const selCombo = () => {
+const selCombos = () => {
+  const {id} = useLocalSearchParams() // id es lo que recibe
   const { urlBase ,getUltItem,ultMesa,ultDetalle,mesaDet,
           setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales,ultRubro} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
@@ -46,7 +47,6 @@ const selCombo = () => {
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const [autocompletar, setAutocompletar] = useState(false)
   const [unicoPlato, setUnicoPlato] = useState('')
-  const [count, setCount] = useState(0)
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = ['80%', '80%'];
   // SafeArea
@@ -107,6 +107,7 @@ const selCombo = () => {
           }        
         }) // Fin del forEach        
     })
+    
     let ndet = 1
     const det:mesaDetType = { 
         nroMesa: ultMesa.nroMesa,
@@ -170,23 +171,23 @@ const selCombo = () => {
     setTimeout(() => setSalir(true),
     1000
     )
-    
-    
+ 
   }
 
   // Control de cada seccion que se selecciona
   const handleSecciones = (id:number,cmax:number,auto:boolean,descCorta:string) => {
     console.log('Seccion:',id,cmax,auto,descCorta)
     setUltSeccion(id)
-    setCantMax(cmax)   
+    setCantMax(cmax) 
+    setIsOk(true)  
     if (auto) {
       setAutocompletar(true)
       setUnicoPlato(descCorta)
-      setIsOk(true)
+      
     } else {
       setAutocompletar(false)
       setUnicoPlato('')
-      setIsOk(false)
+      
     }
 
   }
@@ -213,37 +214,7 @@ const selCombo = () => {
       //console.log('MesaGustos:',mesaGustos)
   }
 
-  /*
-  const handlePressGusto = (isChecked:boolean, idGusto:number, descGusto:string) => { 
-    let cant = cantGustos
-    if (isChecked) {   
-       let noEsta = true      
-       cant = cant + 1
-       combosGustos.forEach((m) => {
-        if (m.idGusto == idGusto) {
-          m.cant = 1
-          noEsta = false
-        }
-       })
-       if (noEsta){
-        setCombosGustos([...combosGustos,{idSeccion:ultSeccion,idPlato:ultPlato,idGusto:idGusto,descGusto:descGusto,cant:1}])
-       }  
-      } else {  
-       cant = cant - 1
-       combosGustos.forEach((m) => {
-         if (m.idGusto == idGusto) {
-           m.cant = 0
-         }
-     })
-    }
-    setCantGustos(cant)
-    if (cant > cantMaxGustos) {
-        Alert.alert('Atención','No puede seleccionar más de '+cantMaxGustos.toString()+' Variedades')
-    } 
-    //console.log('Gustos:',combosGustos)
-  }
-  */
-
+ 
   // Control de la seleccion de platos de cada seccion
   const handlePress = (isChecked:boolean, idSeccion:number,idPlato:number,idTipoConsumo:string,cantGustos:number ) => {
     const loadGustos = async () => {
@@ -276,22 +247,6 @@ const selCombo = () => {
     })       
   } 
 
-  const cargaSeccion = (id:number) => {
-      const load = async () => {     
-      const result = await getComboDet(id,urlBase,BaseDatos);
-      if (result.length > 1) {  
-        result.forEach((r) => {
-          r.selected = false                  
-        })    
-      }
-     
-      return result        
-    };
-    const res = load();
-   
-    return res    
-  }
-
   const handleBottomSheet = () => { 
     //console.log('Comensales Grabados:',res)
     if (cantGustos == 0 ) {
@@ -307,26 +262,35 @@ const selCombo = () => {
   }
 
   useEffect(() => {
-    const it = getUltItem()
-    setItem(it)
-    console.log('Traigo Item:',it)
-    setComboDet(null)
-    const load = async () => {
-      const result = await getComboSec(it.idPlato,urlBase,BaseDatos);
-      return result
-    } 
-   
-    load().then((res) => {
-      setComboSec(res)
-      let sec = [] as comboDetType[][]
-      res.map (async (s) => {
-        const seccion = await cargaSeccion(s.idSeccion)  
-        //console.log('Seccion:',seccion)    
-        sec.push(seccion)
+    
+      const it = getUltItem()
+  
+      setItem(it)
+      console.log('Traigo Item:',it)
+      setComboDet(null)
+      const load = async () => {
+        const result = await getComboSec(it.idPlato,urlBase,BaseDatos);
+        return result
+      } 
+    
+      load().then((res) => {
+        setComboSec(res)
+        let sec = [] as comboDetType[][]
+        res.map (async (s) => {
+          //const seccion = await cargaSeccion(s.idSeccion,urlBase,BaseDatos,0,0,0)  
+          const seccion = await getComboDet(s.idSeccion,urlBase,BaseDatos);
+          // console.log('Carga Seccion:',seccion)
+          if (seccion.length > 1) {  
+            seccion.forEach((r) => {
+              r.selected = false
+            }) 
+          }
+          console.log('Seccion:',seccion)    
+          sec.push(seccion)
+        })
+        setComboDet(sec)
       })
-      setComboDet(sec)
-    })
-
+ 
   },[] )
 
   return (
@@ -336,7 +300,7 @@ const selCombo = () => {
     <FlashMessage position="top" />
      
     <View style={styles.containerTitulo}>
-       <Text style={styles.tituloText}> {item.descripcion}  </Text>
+       <Text style={styles.tituloText}> {item.descripcion} {id} </Text>
     </View>   
 
     {/* Despliego las Secciones de Combos */}
@@ -461,8 +425,13 @@ const selCombo = () => {
    
     }
     {
-      salir ? <Redirect href={`platos/${ultRubro}`} /> : <Text></Text>
+      salir && <Redirect href={`platos/${ultRubro}`} />
     }
+    
+      <View>
+     
+  </View>  
+  
   </View>
   </GestureHandlerRootView>
    
@@ -486,9 +455,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap:10,
     marginLeft: 10,
-    //alignContent: 'center', // tiene efecto si esta el wrap
-   
-    
   },
   containerScrollv: { 
     //alignContent: 'center', // tiene efecto si esta el wrap
@@ -615,4 +581,4 @@ const styles = StyleSheet.create({
     },
 });  
 
-export default selCombo
+export default selCombos

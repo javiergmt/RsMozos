@@ -230,6 +230,17 @@ export type comboSecType = {
   idTipoConsumo: string;
 }
 
+export type comboInfoSecType = {
+  idPlato: number;
+  cant: number;
+  descripcion: string;  
+  idSeccion: number;
+  descSeccion: string;  
+  idTamanio: number;
+  cantGustos: number;
+  idTipoConsumo: string;
+}
+
 export type comboDetType = {
   idSeccion: number;
   idPlato: number;
@@ -242,6 +253,7 @@ export type comboDetType = {
   selected: boolean;
   idSectorExped?: number;
   impCentralizada?: number;
+  comandado?: boolean;
 }
 
 //----------------------------------------------

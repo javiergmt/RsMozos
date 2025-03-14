@@ -42,7 +42,7 @@ export const isSoloOcupada = async (nroMesa: number, url:string, base:string) =>
     )
     const mesa = await response.json()
     console.log("MESA: ", mesa[0].cerrada,mesa[0].ocupada, (mesa[0].cerrada == 0) && (mesa[0].ocupada == 'S'))
-    return ( (mesa[0].cerrada == 0) && (mesa[0].ocupada == 'S') )
+    return ( (mesa[0].cerrada == 0 || mesa[0].cerrada == 1) && (mesa[0].ocupada == 'S') )
  
 }
 
@@ -217,4 +217,38 @@ export const AgregarDetalleMulti = (detalles: object[], url:string,base) => {
       respuesta(error.message)
     })
     
+}
+
+export const BorrarRenglon = (nroMesa: number,idDetalle:number,idPlato:number,idTipoConsumo:string, url:string,base:string) => {
+    try {
+        return fetch(url+"mesa_renglon_borrar/",
+            requestOptionPost({
+                nromesa: nroMesa,
+                idDetalle: idDetalle,
+                idPlato: idPlato,
+                idTipoConsumo: idTipoConsumo,
+                cant: 0,
+                descripcion: "",
+                pcioUnit: 0,
+                obs: "",
+                idTamanio: 0,
+                tamanio: "",
+                fecha: new Date().toISOString(),
+                hora: "",
+                idMozo: 1,
+                idUsuario: 1,
+                fechaHoraElim: new Date().toISOString(),
+                idUsuarioElim: 1,
+                idMozoElim: 1,
+                idObs: 0,
+                observacion: "",
+                comentario: "",
+                puntoDeVenta: 0
+            }, 'DELETE',base))
+        // .then(response => response.json())
+        // .then(response => console.log("RESPONSE DELETE ", response))
+        // .catch(error => console.log("ERROR DELETE MESA:", error))
+    } catch (error) {
+        console.log(error)
+    }
 }

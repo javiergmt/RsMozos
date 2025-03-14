@@ -50,7 +50,7 @@ const selPlatos = () => {
   const { desc, rub, sub , cadena , tipo} = rubSub(id,Rubros)
   const [selTam, setSelTam ] = useState(false)
   const [selGusto, setSelGusto ] = useState(false)
-  const [selCombo, setSelCombo ] = useState(false)
+  const [selectCombo, setSelectCombo ] = useState(false)
   const [descRubro, setDescRubro] = useState(desc)
   const [pedirCant, setPedirCant] = useState(false)
   const [cantItem, setCantItem] = useState(1)
@@ -141,7 +141,7 @@ const selPlatos = () => {
     }
     if ( item.idTipoConsumo == 'CB' ) {
       // Selecciona el gusto
-      setSelCombo(true)
+      setSelectCombo(true)
       return
     }
     if ( !item.tamanioUnico ) {
@@ -214,7 +214,7 @@ const selPlatos = () => {
         
         { selTam && <Redirect href="platos/selTam" />}
         { selGusto && <Redirect href={`/(tabs)/platos/selGustos/0`} />}
-        { selCombo && <Redirect href= "platos/selCombo/" />}
+        { selectCombo && <Redirect href= {`/(tabs)/platos/selCombos/0`}/>}
       
         { (!selTam && !selGusto) && platos.length > 0 &&
         <View style={styles.container}>
