@@ -1,4 +1,4 @@
-import { comboInfoSecType, NoticiasType, platosprecioType, rubrosSubType, turnosType} from './../Types/BDTypes';
+import { comboInfoSecType, NoticiasType, platosprecioType, rubrosSubType, turnosType, mensajesComandaType, lugSectImpreType } from './../Types/BDTypes';
 
 import { mozoType,sectoresType,mesasType,platosType,paramType,gustosType,
     modifType,mesaEncType,mesaDetType, comboSecType, comboDetType,ReservasType,
@@ -325,5 +325,31 @@ export const getTurnos = async(url:string,base:string): Promise<turnosType[]> =>
     )
     const data = await response.json()    
     console.log('turnos: ',data)
+    return data
+}
+
+export const getMensajesComanda = async(url:string,base:string): Promise<mensajesComandaType[]> => {
+    const response = await fetch(url+`mensajes_comanda`,
+        {   method: 'get', 
+            headers: new Headers({
+              'bd': base,
+            })
+        }
+    )
+    const data = await response.json()    
+    console.log('Mensajes: ',data)
+    return data
+}
+
+export const getLugaresSectores = async(url:string,base:string): Promise<lugSectImpreType[]> => {
+    const response = await fetch(url+`lugSectImpre`,
+        {   method: 'get', 
+            headers: new Headers({
+              'bd': base,
+            })
+        }
+    )
+    const data = await response.json()    
+    console.log('Lugares: ',data)
     return data
 }

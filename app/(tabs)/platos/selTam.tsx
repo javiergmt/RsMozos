@@ -13,7 +13,7 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 
 
 const selTam = () => {
-  const { urlBase ,getUltItem, getUltSector,mesaDet,mesaDetModif,ultMesa,ultDetalle,
+  const { urlBase ,getUltItem, getUltSector,mesaDet,mesaDetModif,ultMesa,ultDetalle,ultSector,
     setUltDetalle,setMesaDet,setUltDescTam,BaseDatos,comensales,ultRubro} = useLoginStore()
 
   const [item, setItem] = useState<platosType>()
@@ -29,7 +29,7 @@ const selTam = () => {
       return
     } else {
       const hora = getHoraActual()
-      const platoprecio = getPlato_Precio(item.idPlato,0,ultMesa.idSector,hora,urlBase,BaseDatos)
+      const platoprecio = getPlato_Precio(item.idPlato,id,ultMesa.idSector,hora,urlBase,BaseDatos)
         platoprecio.then((res) => {     
         const det = { 
         nroMesa: ultMesa.nroMesa,
@@ -76,7 +76,7 @@ const selTam = () => {
     setDescPlato(it.descripcion)
     
     const load = async () => {
-      const result = await getModif(it.idPlato,0,urlBase,BaseDatos);
+      const result = await getModif(it.idPlato,ultSector,urlBase,BaseDatos);
       setModif(result);
       console.log('Traigo modif:',sec, result)
     };

@@ -15,6 +15,7 @@ import Colors from '../../../../constants/Colors'
 import InputSpinner from "react-native-input-spinner";
 import FlashMessage from "react-native-flash-message";
 import { showMessage, hideMessage } from "react-native-flash-message";
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 
 
 type Gustos ={
@@ -27,15 +28,16 @@ type Gustos ={
 const selGustos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const idTam = Number(id)
-  const { urlBase ,getUltItem,setMesaDet,setUltDetalle,getUltDescTam,setUltDescTam,
-          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales,ultRubro} = useLoginStore()
+  const { urlBase ,getUltItem,setMesaDet,setUltDetalle,getUltDescTam,setUltDescTam,getUltRubro,
+          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales,ultRubSub} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [gustos, setGustos] = useState( [] as gustosType[])
   const [cantGustos, setCantGustos] = useState(0)
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const [grabarGustos, setGrabarGustos] = useState(false)
   const [mesaGustos, setMesaGustos] = useState( [] as Gustos[]) 
-  
+  const [rubrosub, setRubroSub] = useState("")
+  console.log('UltRubroenGustos:',rubrosub)
 
   const handleGustosInc = (cantg:number,inc:number, id:number,descrip:string,idPlatoRel:number) => {
     let cant = cantGustos + inc
@@ -51,42 +53,16 @@ const selGustos = () => {
     }
       setCantGustos(cant)
       if (cant > cantMaxGustos) {
-       Alert.alert('Atención','No puede seleccionar más de '+cantMaxGustos.toString()+' Variedades')
+       //Alert.alert('Atención','No puede seleccionar más de '+cantMaxGustos.toString()+' Variedades')
+       showMessage({
+              message: "ATENCION !!",
+              description: "No puede seleccionar más de "+cantMaxGustos.toString()+" Variedades",
+              type: "danger",
+              });
     } 
       
     //console.log('MesaGustos:',mesaGustos)
   }
-
-  /*
-  const handlePress = (isChecked:boolean, id:number,descrip:string ) => {
-    let cant = cantGustos
-    if (isChecked) { 
-      let noEsta = true       
-      cant = cant + 1
-      mesaGustos.forEach((m) => {
-        if (m.idGusto == id) {
-          m.cant = 1
-          noEsta = false
-        }
-      })
-      if (noEsta) {
-        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:1,idPlatoRel:0}])
-      }
-    } else {  
-      cant = cant - 1
-      mesaGustos.forEach((m) => {
-        if (m.idGusto == id) {
-          m.cant = 0
-        }
-      })
-    }
-    setCantGustos(cant)
-    if (cant > cantMaxGustos) {
-       Alert.alert('Atención','No puede seleccionar más de '+cantMaxGustos.toString()+' Variedades')
-    } 
-    console.log('Gustos:',mesaGustos)
-  }
-*/
 
  const handleConfirmar = async () => {
     //console.log('MesaGustos:',mesaGustos)
@@ -169,11 +145,12 @@ const selGustos = () => {
    
       });
     setUltDetalle(ultDetalle+nDet+1)
-
+    setRubroSub(ultRubSub)
     setUltDescTam('')
     setTimeout(() => setGrabarGustos(true),
       1000
     )
+    
     //showToast('Plato con gustos Agregado!!')
   
   }
@@ -212,20 +189,7 @@ const selGustos = () => {
 
        { !grabarGustos && gustos.map((g) => ( 
         <View style={styles.checkboxContainer} key={g.idGusto}>
-            {/* 
-            <BouncyCheckbox
-              size={25}
-              fillColor={Colors.colorcheckbox}
-              //unFillColor="#FFFFFF"
-              text={g.descGusto}
-              textStyle={{  color: "white" ,textDecorationLine: "none",}}
-              //iconStyle={{ borderColor: "blue" }}
-              innerIconStyle={{ borderWidth: 2 }}
-              onPress={(isChecked: boolean) => {handlePress(isChecked, g.idGusto, g.descGusto)}}
-            /> 
-            */}
-  
-
+          
             <View style={styles.col}>
 						<Text style={styles.text}>{g.descGusto}</Text>
 						<InputSpinner
@@ -244,7 +208,7 @@ const selGustos = () => {
          ))}
   
           {
-          grabarGustos ? <Redirect href={`platos/${ultRubro}`} /> : <Text></Text>
+          grabarGustos ? <Redirect href={`platos/${rubrosub}`} /> : <Text></Text>
           }  
           </ScrollView>
          </View>     

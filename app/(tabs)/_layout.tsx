@@ -6,7 +6,8 @@ import Colors from "../../constants/Colors"
 
 
 export default function TabsLayout() {
-  const {ultDetalle,mesaDet} = useLoginStore()
+  const {ultDetalle,mesaDet,ultMesa} = useLoginStore()
+  console.log('ultMesa:',ultMesa)
   return (
     <>
         <Tabs screenOptions={{ tabBarActiveTintColor: Colors.colorazulboton }}>
@@ -23,6 +24,7 @@ export default function TabsLayout() {
                   tabBarIcon: ({ color, size }) => <Ionicons name="fast-food-outline" color={color} size={size} />
               }} />
 
+          
           <Tabs.Screen
               name="cuenta"
               options={{
@@ -33,7 +35,18 @@ export default function TabsLayout() {
                   tabBarBadge: mesaDet.length,
                   tabBarIcon: ({ color, size }) => <Ionicons name="receipt-outline" color={color} size={size} />
               }} />
-              
+
+             <Tabs.Screen
+              name="mensajes"
+              options={{
+                  headerTitle: 'Mensajes',
+                  tabBarLabel: 'Mensajes',
+                  headerTitleAlign: 'center',
+                  //headerShown: false,
+                  //href: `/(tabs)/mensajes`,
+                  tabBarIcon: ({ color, size }) => <Ionicons name="chatbox-outline" color={color} size={size} />
+              }} />      
+          
           <Tabs.Screen
               // Name of the route to hide.
               name="index"

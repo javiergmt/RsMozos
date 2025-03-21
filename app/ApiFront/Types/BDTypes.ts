@@ -107,6 +107,7 @@ export type mesaDetType ={
   combos?: comboPostType[];
   idTipoConsumo: string;
   impCentralizada: number;
+
 }
 
 export type mesaDetGustosType ={
@@ -357,3 +358,47 @@ export interface turnosType{
     horaHasta: string,
     
 }
+
+export interface lugSectImpreType {
+  idLugarExped: number,
+  idSectorExped: number,
+  idImpresora: number,
+  descripcion: string,
+}
+
+export interface mensajesComandaType {
+  idMensaje: number,
+  descripcion: string,
+  orden: number,
+  nroMesa: number,
+}
+
+export interface comandaGustos
+{
+    descripcion : string,
+   
+}
+
+export interface comandaPlatos
+{
+    cant: number,
+    idTipoConsumo: string,
+    descripcion: string,
+    idSectorExped: number,
+    impCentralizada : number,
+    obs : string,
+    tamanio : string, 
+    esEntrada : boolean,
+    gustos: comandaGustos[]
+}
+
+export interface comanda
+{
+    nroMesa: number,
+    idMozo: number,
+    nombreMozo: string,
+    comensales: number, 
+    fechaHora: string, 
+    platos: comandaPlatos[]
+}
+

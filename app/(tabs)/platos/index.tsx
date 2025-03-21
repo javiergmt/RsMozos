@@ -84,9 +84,9 @@ const index = () => {
         {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
          headerTitleAlign: 'center',
         headerRight:() => (
-          <View style={{flexDirection: 'row',paddingRight: 10}}>
+          <View style={{flexDirection: 'row',paddingRight: 0}}>
           <TouchableOpacity onPress={() => handleSalir()} >
-          <AntDesign name="closecircle" size={30} color={Colors.colorBackBoton} />
+          <AntDesign name="close" size={35} color={Colors.colorBackBoton} />
           </TouchableOpacity>
           </View>
         )

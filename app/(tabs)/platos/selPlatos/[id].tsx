@@ -31,7 +31,7 @@ const rubSub = (id:any,rubros:rubrosSubType[]) => {
         const sub = id.slice(pos+1) 
         const subr = rubros.filter((r) => r.idRubro == rub).map((r) => { return r.subrubros})
         const desc =  subr[0].filter((s) => s.idSubRubro == sub).map((r) => { return capitalize(r.descripcion)})
-               
+         
         return { desc ,rub , sub, cadena ,tipo: rub==-1 ? 'F' : 'S'}
     } else {
          // Es un rubro
@@ -40,12 +40,13 @@ const rubSub = (id:any,rubros:rubrosSubType[]) => {
          const sub = 0
          return { desc , rub , sub , cadena ,tipo: rub==-1 ? 'F' : 'R'}
     }
+    
 }
 
 const selPlatos = () => {
-  const {id} = useLocalSearchParams() // id es lo que recibe
+  const {id} = useLocalSearchParams() as { id: string } // id es lo que recibe
   const [platos, setPlatos] = useState([])  
-  const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,setUltRubro,
+  const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,setUltRubro,setUltRubSub,
           ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,comensales } = useLoginStore();
   const { desc, rub, sub , cadena , tipo} = rubSub(id,Rubros)
   const [selTam, setSelTam ] = useState(false)
@@ -58,9 +59,9 @@ const selPlatos = () => {
   const [text, onChangeText] = useState('');
   const [esEntSel, setEsEntSel] = useState(false)
    // Control del bottomSheet
-   const sheetRef = useRef<BottomSheet>(null); 
-   const snapPoints = ["60%","50%"];
- 
+  const sheetRef = useRef<BottomSheet>(null); 
+  const snapPoints = ["60%","50%"];
+  
 
   const AgregaModifItem = (item:platosType) => {
     // Agrego el item a la mesa
@@ -129,6 +130,7 @@ const selPlatos = () => {
 
   const handleItem = (item:platosType) => {
     setUltItem(item)  
+    setUltRubro(Number(id));
     console.log('ultdetalle',ultDetalle)
     if ( item.idTipoConsumo == 'CV' ) {
       if ( !item.tamanioUnico ) {
@@ -136,11 +138,12 @@ const selPlatos = () => {
         setSelTam(true)    
       }
       // Selecciona el gusto
+      setUltRubSub(id);
       setSelGusto(true)
       return
     }
     if ( item.idTipoConsumo == 'CB' ) {
-      // Selecciona el gusto
+      // Arma el combo
       setSelectCombo(true)
       return
     }
@@ -202,8 +205,8 @@ const selPlatos = () => {
         setPlatos(result)
       }
       load()
-      setUltRubro(Number(id));
-    }, [tipo,cadena,rub,sub] )
+      //setUltRubro(Number(rub));
+    }, [rub , sub, cadena ,tipo] )
 
     return (
      <> 

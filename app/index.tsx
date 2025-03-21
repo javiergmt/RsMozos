@@ -70,7 +70,7 @@ return (
         <View style={styles.body}>
           <Text style={styles.text}>Url: {urlBase}</Text>    
           <Text style={styles.text}>BD : {BaseDatos}</Text>             
-          <Text style={styles.text}>Ver. 1.0.2</Text>
+          <Text style={styles.text}>Ver. 1.0.3</Text>
         </View>
         
         {isValido ? < Redirect href="/mozos" /> :

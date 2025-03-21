@@ -11,7 +11,8 @@ import Colors from "../constants/Colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AbrirMesa, CambiarReserva, ConfCumpReserva, GrabarComensales, isSoloOcupada, LiberarMesa } from "./ApiFront/Posts/PostDatos";
 import { AntDesign } from '@expo/vector-icons';
-
+import FlashMessage from "react-native-flash-message"
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const reservas = () => {
     const [reservas, setReservas] = useState<ReservasType[]>([]);
@@ -73,7 +74,12 @@ const reservas = () => {
           if  (r.mesa > 0) {
             const ocup = await isSoloOcupada(r.mesa,urlBase,base)
             if (ocup) {
-              Alert.alert('La mesa '+ r.mesa +' ya esta ocupada, por favor seleccione otra');
+              //Alert.alert('La mesa '+ r.mesa +' ya esta ocupada, por favor seleccione otra');
+              showMessage({
+                          message: "ATENCION !!",
+                          description: "La mesa "+ r.mesa +" ya esta ocupada, por favor seleccione otra",
+                          type: "danger",
+              });
               setUbicarReserva(true);
             } else {  
               // Si ya tiene mesa asignada la ocupo
@@ -83,7 +89,12 @@ const reservas = () => {
               const res2 = await LiberarMesa(r.mesa,false,urlBase,BaseDatos)
               const res3 = await ConfCumpReserva(r.idReserva,true,true,urlBase,BaseDatos)
               setActReservas(!actReservas);
-              Alert.alert('La Mesa '+r.mesa+' fue ocupada');
+              //Alert.alert('La Mesa '+r.mesa+' fue ocupada');
+              showMessage({
+                message: "CONFIRMACION !!",
+                description: "La mesa "+ r.mesa +", fue ocupada",
+                type: "success",
+              });
             }  
           } else { 
             setUbicarReserva(true);
@@ -92,7 +103,12 @@ const reservas = () => {
           // Confirmar Reserva
           const res = await ConfCumpReserva(r.idReserva,true,false,urlBase,BaseDatos)
           setActReservas(!actReservas);
-          Alert.alert('Reserva Confirmada');
+          //Alert.alert('Reserva Confirmada');
+          showMessage({
+            message: "CONFIRMACION !!",
+            description: "La recserva fue confirmada",
+            type: "success",
+          });
         }
     } 
 
@@ -116,10 +132,20 @@ const reservas = () => {
        const res1 = await GrabarComensales(m.nroMesa,2,urlBase,base)
        const res2 = await LiberarMesa(m.nroMesa,false,urlBase,BaseDatos)
        const res3 = await ConfCumpReserva(reserva.idReserva,true,true,urlBase,BaseDatos)
-       Alert.alert('Se ocupo la Mesa '+m.nroMesa);
+       //Alert.alert('Se ocupo la Mesa '+m.nroMesa);
+       showMessage({
+        message: "CONFIRMACION !!",
+        description: "La mesa "+ m.nroMesa +", fue ocupada",
+        type: "success",
+       });
        setActReservas(!actReservas);
     } else {
-      Alert.alert('La mesa '+ m.nroMesa +'ya esta ocupada');
+      //Alert.alert('La mesa '+ m.nroMesa +'ya esta ocupada');
+      showMessage({
+        message: "ATENCION !!",
+        description: "La mesa "+ m.nroMesa +", ya esta ocupada",
+        type: "danger",
+       });
     }
     setUbicarReserva(false);
     setIdSector(0);
@@ -166,7 +192,7 @@ const reservas = () => {
             {headerTitle: `RESERVAS`, headerTitleAlign: 'center'}
             } /> 
     <SafeAreaView style={styles.container}>     
-   
+        <FlashMessage position="top" />
         <View style={styles.container_input}>
         <TouchableOpacity onPress={showDatepicker} >
           {/* <Text style={styles.input_fecha} >{date.toISOString()}</Text> 

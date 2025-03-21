@@ -13,6 +13,7 @@ export default {
   colorcheckbox: "#508aad",
   colorborderubro: "#8ba1c9",
   colorfondoBoton: "#106cb3",
+  colorFondoCuenta: "#393939",
   //colorBackBoton: "#fc1303",
   colorBackModal: "#d6c8c7",
   colorBackBoton: "#dbac53",

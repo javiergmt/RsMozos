@@ -89,6 +89,10 @@ interface LoginStoreState {
     ultRubro: number,
     getUltRubro: () => number,
     setUltRubro: (rubro:number) => void,
+
+    ultRubSub: string,
+    getUltRubSub: () => string,
+    setUltRubSub: (rubsub:string) => void,
 }
 
 export const useLoginStore = create<LoginStoreState>(
@@ -114,6 +118,7 @@ export const useLoginStore = create<LoginStoreState>(
         dispId:'0',
         ultDescTam:'',
         ultRubro:0,
+        ultRubSub:'',
 
         getMozoId: () => get().mozo?.idMozo,
         getMozoName: () => get().mozo?.nombre,
@@ -173,6 +178,9 @@ export const useLoginStore = create<LoginStoreState>(
 
         getUltRubro: () => get().ultRubro,
         setUltRubro: (rubro:number) => set({ultRubro:rubro}),
+
+        getUltRubSub: () => get().ultRubSub,
+        setUltRubSub: (rubsub:string) => set({ultRubSub:rubsub}),
     }))
 
 function initMozo(): mozoType {

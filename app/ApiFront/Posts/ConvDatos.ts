@@ -1,4 +1,5 @@
 import { getHoraActual } from "../../Funciones/deConversion"
+import { comanda } from "../Types/BDTypes";
 
 interface PostPlato {
     nroMesa: number;
@@ -89,5 +90,20 @@ export function modificarPlatoPost(objeto: any): PostPlato {
     } 
     
     console.log("[MODIFICAR PLATO POST]: ",objeto, result)
+    return result
+}
+
+export function modificarComandaPost(objeto: any): comanda {
+    let result: comanda;
+    
+    result = {
+        nroMesa: objeto.nroMesa,
+        idMozo: objeto.idMozo,
+        nombreMozo: objeto.nombreMozo,
+        comensales: objeto.comensales, 
+        fechaHora: new Date().toISOString(),
+        platos: objeto.platos,
+    }   
+    console.log("[MODIFICAR COMANDA POST]: ",objeto, result)
     return result
 }

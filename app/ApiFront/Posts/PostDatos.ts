@@ -1,5 +1,6 @@
-import { mozoType,mesaDetPost, ReservasType } from "../Types/BDTypes"
-import { modificarPlatoPost } from "./ConvDatos"
+
+import { mozoType,mesaDetPost, ReservasType, comanda } from "../Types/BDTypes"
+import { modificarComandaPost, modificarPlatoPost } from "./ConvDatos"
 import { showToast } from '../../Funciones/deInfo'
 import { Alert } from "react-native"
 
@@ -192,6 +193,24 @@ export const ConfCumpReserva = async (id:number,confirmada:boolean,cumplida:bool
     return res
 }
 
+export const GrabarMensaje = async (descripcion:string, idMozo:number,nombre:string,nroMesa:number,sect:number,impre:number ,url:string, base:string) => {    
+  
+    const res = await fetch(url+"grabaMensaje/",
+        requestOptionPost({
+            descripcion: descripcion,
+            idMozo: idMozo,
+            idUsuario: 0,
+            nombre: nombre,
+            nroMesa: nroMesa,
+            idSectorExped: sect,
+            idImpresora: impre
+        },'POST',base))
+        .then(response => console.log(response.json()))
+        .catch(error => console.log(error))
+       
+    return res
+}
+
 const respuesta = (mens:string) => {
     console.log('Respuesta',mens)
     if (mens === 'commit') showToast('Datos grabados')
@@ -216,7 +235,49 @@ export const AgregarDetalleMulti = (detalles: object[], url:string,base) => {
       console.log("ENDPOINT", endpoint)
       respuesta(error.message)
     })
-    
+    return
+}
+
+export const Comandar2 = async (detalles:object[],url:string, base:string) => {    
+    const body = requestOptionPost({ comanda: modificarComandaPost(detalles[0]) }, 'POST',base)
+    const endpoint = url+ "comandar/"
+    let mensaje = ""
+    fetch(endpoint, body)
+      .then(response => response.json())
+      .then(response => { respuesta(response.mensaje) })
+        //console.log("RESPUESTA AGREGAR DETALLE: ", response, "\n DETALLE: ", body, "\n ENDPOINT", endpoint)
+        
+      //) 
+      .catch(error => {
+        console.log("ERROR AL COMANDAR: ", error)
+        console.log("BODY: ", body)
+        console.log("ENDPOINT", endpoint)
+        respuesta(error.message)
+      })
+    return
+
+    /*{
+            
+                nroMesa: 1,
+                idMozo: 1,
+                nombreMozo: "mozo 1",
+                comensales: 2,
+                fechaHora: "2025-03-20T16:54:34.120Z",
+                platos: [
+                  {
+                    cant: 1,
+                    idTipoConsumo: "CB",
+                    descripcion: "Coca Cola",
+                    idSectorExped: 1,
+                    impCentralizada: 1,
+                    obs: "sin hielo",
+                    tamanio: "",
+                    esEntrada: false,
+                    gustos: []
+                  }
+                ]
+            
+        }*/
 }
 
 export const BorrarRenglon = (nroMesa: number,idDetalle:number,idPlato:number,idTipoConsumo:string, url:string,base:string) => {
@@ -251,4 +312,21 @@ export const BorrarRenglon = (nroMesa: number,idDetalle:number,idPlato:number,id
     } catch (error) {
         console.log(error)
     }
+}
+
+export const Comandar = async (detalle:comanda ,url:string, base:string) => {    
+    console.log("COMANDA: ", detalle)
+    const res = await fetch(url+"comandar/",
+        requestOptionPost({            
+            nroMesa: detalle.nroMesa,
+            idMozo: detalle.idMozo,  
+            nombreMozo: detalle.nombreMozo,
+            comensales: detalle.comensales,            
+            fechaHora: "2025-03-20T16:54:34.120Z",
+            platos: detalle.platos      
+    },'POST',base))
+        .then(response => console.log(response.json()))
+        .catch(error => console.log(error))
+       
+    return res
 }

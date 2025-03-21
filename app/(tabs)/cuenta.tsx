@@ -3,9 +3,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Redirect, Stack } from 'expo-router'
 import { useLoginStore } from '../store/useLoginStore'
 import { getComboDet, getComboSec, getGustos, getInfoComboSec, getMesaDet,getPlato_Precio,getPlatos } from '../ApiFront/Gets/GetDatos'
-import { mesaDetType,mesaDetPost,platosType, comboSecType, comboDetType, comboInfoSecType, gustosType, combosGustosType, comboPostType } from '../ApiFront/Types/BDTypes'
+import { mesaDetType,mesaDetPost,platosType, comboSecType, comboDetType,comanda, 
+  comboInfoSecType, gustosType, combosGustosType, comboPostType, 
+  comandaPlatos,
+  comandaGustos} from '../ApiFront/Types/BDTypes'
 import Colors from '../../constants/Colors'
-import { EliminarMesa, LiberarMesa, AgregarDetalleMulti, CerrarMesa, BorrarRenglon } from '../ApiFront/Posts/PostDatos'
+import { EliminarMesa, LiberarMesa, AgregarDetalleMulti, CerrarMesa, BorrarRenglon, Comandar } from '../ApiFront/Posts/PostDatos'
 import { AntDesign ,Entypo } from '@expo/vector-icons';
 import { capitalize, getHoraActual } from '../Funciones/deConversion'
 import FlashMessage from "react-native-flash-message";
@@ -60,12 +63,17 @@ const cuenta = () => {
   const [isGustos, setIsGustos] = useState(false)
   const [gustos, setGustos] = useState( [] as gustosType[])
   const [combosGustos, setCombosGustos] = useState( [] as Gustos[])
+  const [comandaPlatos, setComandaPlatos] = useState( [] as comandaPlatos[])
   const [cantGustos, setCantGustos] = useState(0)
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = ['80%', '80%'];
+  const [fondo, setFondo] = useState(false)
 
-
+  const cambiaFondo = () => {
+    setFondo(!fondo)
+    return fondo
+  }  
   // Trae los datos de En_NesaDet
   const traerCuenta = async (url:string,base:string) => {
     const { cuenta, isError, isPending } = await getMesaDet(ultMesa.nroMesa,url,base)
@@ -123,8 +131,9 @@ const cuenta = () => {
     }
     
     // Grabo la mesa y vuelvo a mesas
-    const mDet = mesaDet.filter((m) => m.idDetalle > origDetalle)
+    const mDet = mesaDet.filter((m) => m.idDetalle > origDetalle )
     const detalle =[] as mesaDetPost[]
+    const comandaGustos = [] as comandaGustos[]
     mDet.forEach((m) => {
 
         const det ={ 
@@ -147,15 +156,34 @@ const cuenta = () => {
           esEntrada: m.esEntrada,
           descripcion: m.descripcion,
           fechaHora: new Date().toISOString(),
-          comanda: true,
+          comanda: false,
           idSectorExped: m.idSectorExped,
           impCentralizada: m.impCentralizada,
           gustos: m.gustos,
           combos: m.combos,
-         
         }
         
         detalle.push(det)
+        
+        m.gustos.forEach((g) => {
+          comandaGustos.push(
+            {descripcion : g.descripcion}
+          )
+        })
+
+        comandaPlatos.push(
+          {                  
+            cant: 1,
+            idTipoConsumo: m.idTipoConsumo,
+            tamanio: m.descTam,
+            obs: '',
+            descripcion: m.descripcion,
+            idSectorExped: m.idSectorExped, 
+            impCentralizada: m.impCentralizada,    
+            esEntrada: m.esEntrada,          
+            gustos: comandaGustos.length > 0 ? comandaGustos : []                
+          })
+          comandaGustos.splice(0,comandaGustos.length)
       })
 
       if (mDet.length > 0){
@@ -164,6 +192,20 @@ const cuenta = () => {
         // y se generan mensajes informando el resultado 
         const res = AgregarDetalleMulti(detalle,urlBase,BaseDatos)
        
+      }
+      if (comandaPlatos.length > 0) {
+        //console.log('Comanda:',comanda)
+        const comanda =[] as comanda[]
+        comanda.push(
+          { nroMesa: ultMesa.nroMesa,
+            idMozo: mozo.idMozo,
+            nombreMozo: mozo.nombre,
+            comensales: ultMesa.cantPersonas > 0 ? ultMesa.cantPersonas : comensales,
+            fechaHora: new Date().toISOString(),
+            platos: comandaPlatos.length > 0 ? comandaPlatos : []                
+          })
+        const res = Comandar(comanda[0],urlBase,BaseDatos)
+        
       }
 
       mesaDet.splice(0,mesaDet.length)
@@ -221,7 +263,7 @@ const cuenta = () => {
                   infoSecc.forEach((i) => {
                       if (i.idSeccion == r.idSeccion && i.idPlato == r.idPlato) {
                         r.selected = true
-                        r.comandado = true
+                        r.comandado = false
                       }
                   })
                 }) 
@@ -254,7 +296,6 @@ const cuenta = () => {
      } else {
       const res = await LiberarMesa(ultMesa.nroMesa,false,urlBase,BaseDatos)
      }
-
      setSalir(true)
   }   
 
@@ -312,25 +353,29 @@ const cuenta = () => {
       
       comboDet.forEach((cd) => {
         const csel = cd.filter (d => d.idSeccion == idSeccion && d.selected == true).length 
-        if (csel+1 > cantMax && isChecked) {
-          setIsOk(false)
-          Alert.alert('Atención','No puede seleccionar más de '+cantMax+' platos')
-        } else {
+       
           setIsOk(true)
           cd.filter (d => d.idSeccion == idSeccion).forEach((d) => {
                if (d.idPlato == idPlato) {
                    d.selected = isChecked
-                   d.comandado = false
+                   d.comandado = true
                }
           })
-          // Si es consumo variable cargo los gustos
-          if (idTipoConsumo == 'CV') {
-            setCantGustos(0)
-            setCantMaxGustos(0)
-            setIsGustos(isChecked)
-            loadGustos()
+          
+          if (csel+1 > cantMax && isChecked) {
+            setIsOk(false)
+            Alert.alert('Atención','No puede seleccionar más de '+cantMax+' platos')
+            
+          } else {
+            // Si es consumo variable cargo los gustos
+            if (idTipoConsumo == 'CV') {
+              setCantGustos(0)
+              setCantMaxGustos(0)
+              setIsGustos(isChecked)
+              loadGustos()
+            }  
           }  
-        }  
+        
       })       
   }
 
@@ -370,6 +415,20 @@ const cuenta = () => {
       
   }  
 
+  const handleBorrarCombo = async () => {
+    const res2 = await BorrarRenglon(ultMesa.nroMesa,idDetalle,1,"CB",urlBase,BaseDatos)
+    setSelectCombo(false)
+    const cuenta = traerCuenta(urlBase,BaseDatos)
+      cuenta.then((res) => {
+        const result = res.length > 0 ? res[res.length-1].idDetalle : 0
+        setMesaDet(res)
+        setCuenta(res)       
+        setUltDetalle(result)
+        setOrigDetalle(result)
+        setOrigDet(result)
+      })  
+  }
+
   const handleModifCombo = async () => {
     // Grabo la mesa y vuelvo a mesas
   const detalleGustos = (idPlato:number,idSeccion:number)  => {
@@ -391,14 +450,21 @@ const cuenta = () => {
     const hora = getHoraActual()
     const platopcio = await getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
     const detcombo = [] as comboPostType[]
+   
     comboDet.forEach(async (cd) => {
             let detgustos = [] as combosGustosType[]
+            let comandaGustos = [] as comandaGustos[]
             cd.forEach((d) => {
               //console.log('Gustos',d.idPlato,detgustos,detgustos.filter( (g) => {g.idPlato == d.idPlato}))
               if (d.selected) {
     
                 if (d.idTipoConsumo == 'CV') { 
                   detgustos = detalleGustos(d.idPlato,d.idSeccion)
+                  detgustos.forEach((g) => {
+                    comandaGustos.push(
+                      {descripcion : g.descripcion}
+                    )
+                  })
                   //console.log('Gustos:', d.idPlato, detgustos          
                 } 
                
@@ -412,25 +478,51 @@ const cuenta = () => {
                     tamanio: d.tamanio,
                     obs: '',
                     fechaHora: new Date().toISOString(),
-                    comanda: d.comandado,
+                    comanda: false,
                     descripcion: d.descripcion,
                     idSectorExped: d.idSectorExped, 
                     impCentralizada: d.impCentralizada,              
                     combosGustos: detgustos.length > 0 ? detgustos : []                
-                  })           
-                  
+                  })   
+                  if (d.comandado) {  
+                  comandaPlatos.push(
+                    {                  
+                      cant: 1,
+                      idTipoConsumo: 'CB',
+                      tamanio: d.tamanio,
+                      obs: '',
+                      descripcion: d.descripcion,
+                      idSectorExped: d.idSectorExped, 
+                      impCentralizada: d.impCentralizada,    
+                      esEntrada: false,          
+                      gustos: comandaGustos.length > 0 ? comandaGustos : []                
+                    })           
+                  }
               }        
             })        
     }) // Fin del forEach
-    console.log('Detalle Combo:',comboDet)
+    
+      /*
+    comanda.push(
+      { nroMesa: ultMesa.nroMesa,
+        idMozo: mozo.idMozo,
+        nombreMozo: mozo.nombre,
+        comensales: ultMesa.cantPersonas,
+        fechaHora: new Date().toISOString(),
+        platos: comandaPlatos.length > 0 ? comandaPlatos : []                
+      })
+      setComanda(comanda)
+      */
+    
+    console.log('Detalle Combo:',detcombo)
     const mDet = mesaDet.filter((m) => m.idDetalle == idDetalle)
-    console.log('Detalle:',mDet)
+    
   
     const detalle =[] as mesaDetPost[]
     //mDet.forEach((m) => {
     const det:mesaDetPost ={ 
           nroMesa: ultMesa.nroMesa,
-          idDetalle: ultDetalle+1,          
+          idDetalle: idDetalle,          
           idPlato: mDet[0].idPlato,
           idTipoConsumo: mDet[0].idTipoConsumo,
           cant: mDet[0].cant,
@@ -448,7 +540,7 @@ const cuenta = () => {
           esEntrada: false,
           descripcion: mDet[0].descripcion,
           fechaHora: new Date().toISOString(),
-          comanda: true,
+          comanda: false,
           idSectorExped: 0,
           impCentralizada: 0,
           gustos: [],
@@ -456,25 +548,19 @@ const cuenta = () => {
          
     }
     detalle.push(det)
-    console.log('Detalle:',detalle[0])
-    const res1 = AgregarDetalleMulti(detalle,urlBase,BaseDatos)    
+    //console.log('Detalle:',detalle[0])
     const res2 = await BorrarRenglon(ultMesa.nroMesa,idDetalle,1,"CB",urlBase,BaseDatos)
+    const res1 = await AgregarDetalleMulti(detalle,urlBase,BaseDatos)    
+
+
     setSelectCombo(false)
-    const cuenta = traerCuenta(urlBase,BaseDatos)
-      cuenta.then((res) => {
-        const result = res.length > 0 ? res[res.length-1].idDetalle : 0
-        console.log('renglones ',res)
-        setMesaDet(res)
-        setCuenta(res)       
-        setUltDetalle(result)
-        setOrigDetalle(result)
-        setOrigDet(result)
-      })  
-    
-}  
+   
+  } 
+   
+  
 
   useEffect(() => {
-    console.log('mesaDet',mesaDet)
+    console.log('Cuenta mesaDet',mesaDet)
     if (mesaDet.length == 0) {
       // Es la primera vez que se carga la cuenta
       
@@ -498,7 +584,7 @@ const cuenta = () => {
 
     //console.log('orig ',origDet)
     
-  }, [mesaDet]);
+  }, [mesaDet,selectCombo]);
 
   return (
    <GestureHandlerRootView style={{ flex: 1 }}>
@@ -516,8 +602,8 @@ const cuenta = () => {
                               },
                               headerRight:() => (
                                 <View style={{flexDirection: 'row',paddingRight: 10}}>
-                                <TouchableOpacity onPress={() => handleSalir()} >
-                                <AntDesign name="closecircle" size={35} color={Colors.colorBackBoton} />
+                                 <TouchableOpacity onPress={() => handleSalir()} >
+                                <AntDesign name="close" size={35} color={Colors.colorBackBoton} />
                                 </TouchableOpacity>
                                 </View>
                               )                                 
@@ -526,7 +612,7 @@ const cuenta = () => {
                               
                               
                                                
-        { salir && <Redirect href="/mesas" />}     
+        { salir && <Redirect href="/mesas" />}       
 
         {!selectCombo &&
         <View>                      
@@ -552,35 +638,39 @@ const cuenta = () => {
           <View  key={c.idDetalle} >
           { (c.idDetalle > origDet ) && 
          
-            <View style={styles.itemContainer} >    
-              <TouchableOpacity style={styles.itemSelContainer} onPress={()=>handleSelec(c)} >
+            <View  >    
+              <TouchableOpacity style={ [styles.itemContainer , {backgroundColor: c.idDetalle % 2 == 0? Colors.colorFondoCuenta: Colors.background}] } onPress={()=>handleSelec(c)} >
               {c.idDetalle == itemSel ?
               <Entypo name="vinyl" size={20} color={Colors.colorcheckbox} />
               :
               <Entypo name="circle" size={20} color={Colors.colorcheckbox} />
               }
+              
               <Text style={styles.item}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
               <Text style={styles.item}> {capitalize(c.descripcion)}</Text>
+              
               </TouchableOpacity>  
             </View>
      
           }
           {c.idDetalle <= origDet && verAnt && c.idTipoConsumo=="CB" &&
       
-          <View style={styles.itemContainer} >    
-              <TouchableOpacity style={styles.itemSelContainer} onPress={()=>handleSelec(c)} >
+            <View  >    
+            
+              <TouchableOpacity style={ [styles.itemContainer , {backgroundColor: c.idDetalle % 2 == 0? Colors.colorFondoCuenta: Colors.background}] } onPress={()=>handleSelec(c)} >
               {c.idDetalle == itemSel ?
               <Entypo name="dots-three-horizontal" size={20} color={Colors.colorcheckbox} />
               :
               <Entypo name="dots-three-horizontal" size={20} color={Colors.colorcheckbox} />
               }
               <Text style={styles.item}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
-              <Text style={styles.item}> {capitalize(c.descripcion)}</Text>
+              <Text style={styles.item}> {capitalize(c.descripcion)+" ("+c.idDetalle+")"}</Text>
               </TouchableOpacity>  
           </View>
           }
           {c.idDetalle <= origDet && verAnt && c.idTipoConsumo!="CB" &&
-          <View style={styles.itemContainer}>     
+          <View style={ [styles.itemContainer , {backgroundColor: c.idDetalle % 2 == 0 ? Colors.colorFondoCuenta: Colors.background}] } >    
+                
             <Entypo name="circle" size={15} color={Colors.background} />
             <Text style={styles.itemorig}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
             <Text style={styles.itemorig}> {capitalize(c.descripcion)}</Text>
@@ -746,11 +836,12 @@ const cuenta = () => {
         selectCombo && !isGustos && 
         <View style={styles.pieContainer}>
         <TouchableOpacity onPress={() => handleModifCombo()}  >
-          <AntDesign name="checkcircle" size={40} color={Colors.colorazulboton} />
+          <AntDesign name="check" size={40} color={Colors.colorazulboton} />
         </TouchableOpacity> 
         <TouchableOpacity onPress={() =>  setSelectCombo(false)}  >
-          <AntDesign name="closecircle" size={40} color={Colors.colorazulboton}  />
+          <AntDesign name="back" size={40} color={Colors.colorazulboton}  />
         </TouchableOpacity>
+       
         </View>        
       } 
       
@@ -777,9 +868,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginRight: 10,
-
+    
+   
     //padding: 5,
-  },modalContainer: {
+  },
+  itemContainer2: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginRight: 10,
+    backgroundColor: Colors.backsombra,
+    //padding: 5,
+  },
+  modalContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,

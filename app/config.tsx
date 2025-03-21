@@ -7,6 +7,8 @@ import { deconvPort, deconvUrl } from './Funciones/deConversion';
 import { getDisp } from './ApiFront/Gets/GetDatos';
 import Colors from '../constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FlashMessage from "react-native-flash-message"
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const config = () => {
   const {setUrl,urlBase,setDispId,setBaseDatos,BaseDatos} = useLoginStore()  
@@ -25,7 +27,12 @@ const config = () => {
       if (pass == '6736' || pass == 'Rest0.s0ft') {
         setIsOk(true)
       } else {
-        Alert.alert('Clave Incorrecta')
+        //Alert.alert('Clave Incorrecta')
+        showMessage({
+                    message: "ATENCION !!",
+                    description: "Clave Incorrecta",
+                    type: "danger",
+              });
         setGrabarOk(true)
       }
   }; 
@@ -73,7 +80,7 @@ const config = () => {
 
   return (
     <View style={styles.container}>
-
+    <FlashMessage position="top" />
       { isPending  &&
         <View >          
         <ActivityIndicator size="large" color="#0000ff"/> 

@@ -15,7 +15,7 @@ const rubros = () => {
   const [subrubros, setSubrubros] = useState([])
   const [idRubro, setIdRubro] = useState(99999)   
   const [descRubro, setDescRubro] = useState('')   
-
+  console.log('Rubro id:',id)
   useEffect(() => {
     if ( id.length > 0) {
        const rubrosfilt = Rubros.filter((r) => r.idRubro.toString() == id)

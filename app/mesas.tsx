@@ -11,6 +11,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getHoraActual } from './Funciones/deConversion';
+import FlashMessage from "react-native-flash-message"
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const mesaForma = (forma:number) => {
 
@@ -148,7 +150,12 @@ const mesas = () => {
       }
   } else {
     if (mesa.cerrada == 1) {
-      Alert.alert('ATENCION !!','Mesa Cerrada ')
+      //Alert.alert('ATENCION !!','Mesa Cerrada ')
+      showMessage({
+            message: "ATENCION !!",
+            description: "La mesa esta cerrada",
+            type: "danger",
+      });
     } else {
       if (mesa.idMozo != mozo.idMozo) {
         if (mesa.soloOcupada ) {
@@ -176,10 +183,20 @@ const mesas = () => {
           }
           
         } else {  
-          Alert.alert('ATENCION !!','Mesa Ocupada por otro Mozo')
+          //Alert.alert('ATENCION !!','Mesa Ocupada por otro Mozo')
+          showMessage({
+            message: "ATENCION !!",
+            description: "Mesa Ocupada por otro Mozo",
+            type: "danger",
+          });
         }  
       } else {
-        Alert.alert('ATENCION !!','Mesa en Uso')
+        //Alert.alert('ATENCION !!','Mesa en Uso')
+        showMessage({
+          message: "ATENCION !!",
+          description: "Mesa en Uso",
+          type: "danger",
+        });
       }
       
     }  
@@ -196,7 +213,12 @@ const handleComensales = (cant:number) => {
 
 const handleBottomSheet = async () => { 
   if (cantComensales == 0) {
-    Alert.alert('ATENCION !!','Debe ingresar la cantidad de Comensales')
+    //alert('ATENCION !!','Debe ingresar la cantidad de Comensales')
+    showMessage({
+      message: "ATENCION !!",
+      description: "Debe ingresar la cantidad de Comensales",
+      type: "danger",
+    });
     return
   }
   setComensales(cantComensales)
@@ -270,6 +292,7 @@ useEffect(() => {
 
 return (
   <GestureHandlerRootView style={{ flex: 1 }}>
+    <FlashMessage position="top" />
     <View style={{flex:1, height:'100%',  backgroundColor: Colors.background, }}>
      
     {/* Despliego los Sectores  */}
@@ -336,8 +359,9 @@ return (
     </View> 
 
     {/* Redirecciono a la pagina Cuenta o Rubros segun si esta Ocupada o Libre   */}  
-    { (isOk && ( isOcup=='N' || isSoloOcup) && comensalesOk && mozo.idTipoMozo != 4) && <Redirect href="/(tabs)/platos/" /> }
+    { (isOk && ( isOcup=='N' || isSoloOcup) && comensalesOk && mozo.idTipoMozo != 4) && <Redirect href="/(tabs)/platos" /> }
     { (isOk && isOcup=='S') && <Redirect href="/(tabs)/cuenta" /> }
+    { (isOk && isOcup=='X') && <Redirect href="/(tabs)/mensajes/1" /> }
     { (isOk && isOcup=='N' && comensalesOk && mozo.idTipoMozo == 4) && <Redirect href="/mesas" /> } 
 
     {/* Pido Comensales */}

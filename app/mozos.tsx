@@ -8,6 +8,8 @@ import Colors from '../constants/Colors';
 import convColores from './Funciones/convColores';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { version } from '../package.json';
+import FlashMessage from "react-native-flash-message"
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const mozos = () => {
   const [pass,setPass] = useState([]);
@@ -68,7 +70,12 @@ const mozos = () => {
             if (res.length > 0) {
               res.map((item) => {
               if ( (item.idMozo ==0)  || (item.idMozo == data[0].idMozo) ) {
-                Alert.alert('AVISO !!',item.descNoticia)
+                //Alert.alert('AVISO !!',item.descNoticia)
+                showMessage({
+                            message: "AVISO !!",
+                            description: item.descNoticia,
+                            type: "info",
+                     });
               } 
             })
               
@@ -77,7 +84,12 @@ const mozos = () => {
           }).catch((err) => {console.log('Error en carga de noticias:',err)
           })
         } else {
-          Alert.alert('ATENCION !!','Codigo de mozo incorrecto')
+          //Alert.alert('ATENCION !!','Codigo de mozo incorrecto')
+          showMessage({
+            message: "AVISO !!",
+            description: "Codigo de mozo incorrecto",
+            type: "danger",
+     });
         }
       }  
     }  
@@ -125,6 +137,7 @@ const mozos = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <FlashMessage position="top" />
         <View style={styles.body}>
         { isPending  &&
         <View style={styles.activ}>          
