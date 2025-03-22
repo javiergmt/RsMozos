@@ -77,7 +77,13 @@ const selTam = () => {
     
     const load = async () => {
       const result = await getModif(it.idPlato,ultSector,urlBase,BaseDatos);
-      setModif(result);
+      if (result.length == 0) {
+        const result = await getModif(it.idPlato,0,urlBase,BaseDatos);
+        setModif(result);
+      } else {
+        setModif(result);
+      }
+      
       console.log('Traigo modif:',sec, result)
     };
     load();

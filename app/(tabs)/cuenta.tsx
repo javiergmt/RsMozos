@@ -8,7 +8,7 @@ import { mesaDetType,mesaDetPost,platosType, comboSecType, comboDetType,comanda,
   comandaPlatos,
   comandaGustos} from '../ApiFront/Types/BDTypes'
 import Colors from '../../constants/Colors'
-import { EliminarMesa, LiberarMesa, AgregarDetalleMulti, CerrarMesa, BorrarRenglon, Comandar } from '../ApiFront/Posts/PostDatos'
+import { EliminarMesa, LiberarMesa, AgregarDetalleMulti, CerrarMesa, BorrarRenglon, Comandar, AgregarDetalleMulti_Noimp } from '../ApiFront/Posts/PostDatos'
 import { AntDesign ,Entypo } from '@expo/vector-icons';
 import { capitalize, getHoraActual } from '../Funciones/deConversion'
 import FlashMessage from "react-native-flash-message";
@@ -156,7 +156,7 @@ const cuenta = () => {
           esEntrada: m.esEntrada,
           descripcion: m.descripcion,
           fechaHora: new Date().toISOString(),
-          comanda: false,
+          comanda: true,
           idSectorExped: m.idSectorExped,
           impCentralizada: m.impCentralizada,
           gustos: m.gustos,
@@ -165,6 +165,7 @@ const cuenta = () => {
         
         detalle.push(det)
         
+        let comandaGustos = [] as comandaGustos[]
         m.gustos.forEach((g) => {
           comandaGustos.push(
             {descripcion : g.descripcion}
@@ -172,25 +173,26 @@ const cuenta = () => {
         })
 
         comandaPlatos.push(
-          {                  
-            cant: 1,
+          {              
+              
+            cant: m.cant,
             idTipoConsumo: m.idTipoConsumo,
             tamanio: m.descTam,
-            obs: '',
+            obs: m.obs,
             descripcion: m.descripcion,
             idSectorExped: m.idSectorExped, 
             impCentralizada: m.impCentralizada,    
             esEntrada: m.esEntrada,          
             gustos: comandaGustos.length > 0 ? comandaGustos : []                
           })
-          comandaGustos.splice(0,comandaGustos.length)
+          
       })
 
       if (mDet.length > 0){
         // Esta es la grabacion del detalle de la mesa
         // Los errores se chekean en la funcion AgregarDetalleMulti
         // y se generan mensajes informando el resultado 
-        const res = AgregarDetalleMulti(detalle,urlBase,BaseDatos)
+        const res = AgregarDetalleMulti_Noimp(detalle,urlBase,BaseDatos)
        
       }
       if (comandaPlatos.length > 0) {
@@ -550,8 +552,7 @@ const cuenta = () => {
     detalle.push(det)
     //console.log('Detalle:',detalle[0])
     const res2 = await BorrarRenglon(ultMesa.nroMesa,idDetalle,1,"CB",urlBase,BaseDatos)
-    const res1 = await AgregarDetalleMulti(detalle,urlBase,BaseDatos)    
-
+    const res1 = await AgregarDetalleMulti_Noimp(detalle,urlBase,BaseDatos)    
 
     setSelectCombo(false)
    

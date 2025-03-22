@@ -158,13 +158,12 @@ const selPlatos = () => {
   }
   
   const renderItem: ListRenderItem<any> = ({ item }) => (
-      
-      <View style={styles.renglonContainer} >
+        <View style={styles.renglonContainer} >
         <FlashMessage position="top" /> 
         <TouchableOpacity onPress={() => handleItem(item)}> 
 
         <View style={styles.itemContainer}>       
-          <Text style={styles.itemName}>{capitalize(item.descripcion)}</Text>
+          <Text style={styles.itemName}>{Rubros.filter((r) => r.idRubro == item.idRubro).map((r) => { return r.prefijo+' '+capitalize(item.descripcion)})}</Text>
           {
            (item.idTipoConsumo == 'CV' || item.idTipoConsumo == 'CB' || !item.tamanioUnico) ? 
           <AntDesign style={styles.itemIcon}  name="right" size={30} color="wihte" />

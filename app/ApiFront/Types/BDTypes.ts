@@ -141,6 +141,7 @@ export type rubrosSubType = {
     orden: number,
     visualizacion: string,
     iconoApp: string,
+    prefijo: string,
     subrubros: subRubrosType[]
 }
 

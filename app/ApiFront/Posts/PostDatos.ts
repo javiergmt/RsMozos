@@ -195,7 +195,7 @@ export const ConfCumpReserva = async (id:number,confirmada:boolean,cumplida:bool
 
 export const GrabarMensaje = async (descripcion:string, idMozo:number,nombre:string,nroMesa:number,sect:number,impre:number ,url:string, base:string) => {    
   
-    const res = await fetch(url+"grabaMensaje/",
+    const res = await fetch(url+"graba_mensaje/",
         requestOptionPost({
             descripcion: descripcion,
             idMozo: idMozo,
@@ -218,10 +218,11 @@ const respuesta = (mens:string) => {
     Alert.alert('ATENCION !! Hubo un error, revise las comandas y que los datos se hayan grabado!!',mens)
 }
 
-export const AgregarDetalleMulti = (detalles: object[], url:string,base) => {
+export const AgregarDetalleMulti_Noimp = (detalles: object[], url:string,base) => {
   console.log("DETALLES: ", detalles)
   const body = requestOptionPost({ mesaDetM: detalles.map((detalle) => modificarPlatoPost(detalle)) }, 'POST',base)
-  const endpoint = url+ "mesa_det_mult/"
+  const endpoint = url+ "mesa_det_mult_noimp/"
+  
   let mensaje = ""
   fetch(endpoint, body)
     .then(response => response.json())
@@ -238,9 +239,11 @@ export const AgregarDetalleMulti = (detalles: object[], url:string,base) => {
     return
 }
 
-export const Comandar2 = async (detalles:object[],url:string, base:string) => {    
-    const body = requestOptionPost({ comanda: modificarComandaPost(detalles[0]) }, 'POST',base)
-    const endpoint = url+ "comandar/"
+export const AgregarDetalleMulti = (detalles: object[], url:string,base) => {
+    console.log("DETALLES: ", detalles)
+    const body = requestOptionPost({ mesaDetM: detalles.map((detalle) => modificarPlatoPost(detalle)) }, 'POST',base)
+    const endpoint = url+ "mesa_det_mult/"
+    
     let mensaje = ""
     fetch(endpoint, body)
       .then(response => response.json())
@@ -249,36 +252,14 @@ export const Comandar2 = async (detalles:object[],url:string, base:string) => {
         
       //) 
       .catch(error => {
-        console.log("ERROR AL COMANDAR: ", error)
+        console.log("ERROR AGREGAR DETALLE: ", error)
         console.log("BODY: ", body)
         console.log("ENDPOINT", endpoint)
         respuesta(error.message)
       })
-    return
-
-    /*{
-            
-                nroMesa: 1,
-                idMozo: 1,
-                nombreMozo: "mozo 1",
-                comensales: 2,
-                fechaHora: "2025-03-20T16:54:34.120Z",
-                platos: [
-                  {
-                    cant: 1,
-                    idTipoConsumo: "CB",
-                    descripcion: "Coca Cola",
-                    idSectorExped: 1,
-                    impCentralizada: 1,
-                    obs: "sin hielo",
-                    tamanio: "",
-                    esEntrada: false,
-                    gustos: []
-                  }
-                ]
-            
-        }*/
-}
+      return
+  }
+  
 
 export const BorrarRenglon = (nroMesa: number,idDetalle:number,idPlato:number,idTipoConsumo:string, url:string,base:string) => {
     try {
