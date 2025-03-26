@@ -2,7 +2,7 @@ import { View, Text, Button, ScrollView, TouchableOpacity,StyleSheet, TextInput,
 import React, { useEffect, useRef, useState } from 'react'
 import { Redirect, Stack } from 'expo-router'
 import { useLoginStore } from '../store/useLoginStore'
-import { getComboDet, getComboSec, getGustos, getInfoComboSec, getMesaDet,getPlato_Precio,getPlatos } from '../ApiFront/Gets/GetDatos'
+import { getComboDet, getComboSec, getGustos, getInfoComboSec, getInfoGustos, getMesaDet,getPlato_Precio,getPlatos } from '../ApiFront/Gets/GetDatos'
 import { mesaDetType,mesaDetPost,platosType, comboSecType, comboDetType,comanda, 
   comboInfoSecType, gustosType, combosGustosType, comboPostType, 
   comandaPlatos,
@@ -68,18 +68,23 @@ const cuenta = () => {
   const [cantMaxGustos, setCantMaxGustos] = useState(0)
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = ['80%', '80%'];
+  /*
   const [fondo, setFondo] = useState(false)
 
   const cambiaFondo = () => {
     setFondo(!fondo)
     return fondo
   }  
+  */
+
   // Trae los datos de En_NesaDet
-  const traerCuenta = async (url:string,base:string) => {
+  const traerCuenta = async (url: string, base: string): Promise<mesaDetType[]> => {
     const { cuenta, isError, isPending } = await getMesaDet(ultMesa.nroMesa,url,base)
     return cuenta
   }
 
+  // Cuando se selecciona un item de la cuenta para poner una observacion
+  // Antes se carga la observacion que tenia el item
   const handleinfotext = () => { 
     mesaDet.forEach((m) =>{
       if(m.idDetalle == itemSel){
@@ -102,12 +107,14 @@ const cuenta = () => {
     }  
   }
 
+  // Cierra la mesa e imprime la cuenta
   const handleCerrar = async () => {  
     const res = await CerrarMesa(ultMesa.nroMesa,urlBase,BaseDatos)
     setSalir(true)
     return
   }
 
+  // Comandar la mesa
   const handleComandar = async (ok:boolean) => {
    if (!ok) {
       // Desbloquear la mesa o Elimirarla en caso de que no tenga detalle
@@ -156,7 +163,7 @@ const cuenta = () => {
           esEntrada: m.esEntrada,
           descripcion: m.descripcion,
           fechaHora: new Date().toISOString(),
-          comanda: true,
+          comanda: true, // Siempre es true, para que no se imprima
           idSectorExped: m.idSectorExped,
           impCentralizada: m.impCentralizada,
           gustos: m.gustos,
@@ -164,17 +171,17 @@ const cuenta = () => {
         }
         
         detalle.push(det)
-        
-        let comandaGustos = [] as comandaGustos[]
-        m.gustos.forEach((g) => {
-          comandaGustos.push(
-            {descripcion : g.descripcion}
-          )
-        })
+        if (m.idTipoConsumo != 'CB') {
+          let comandaGustos = [] as comandaGustos[]
+          m.gustos.forEach((g) => {
+            comandaGustos.push(
+              {descripcion : g.descripcion}
+            )
+          })
 
-        comandaPlatos.push(
-          {              
-              
+          // Agrego los platos a la comanda
+          comandaPlatos.push(
+          {                            
             cant: m.cant,
             idTipoConsumo: m.idTipoConsumo,
             tamanio: m.descTam,
@@ -185,6 +192,29 @@ const cuenta = () => {
             esEntrada: m.esEntrada,          
             gustos: comandaGustos.length > 0 ? comandaGustos : []                
           })
+        } else {
+          // Agrego los platos de la seccion de combos a la comanda
+          m.combos.forEach((c) => {
+            let comandaGustos = [] as comandaGustos[]
+            c.combosGustos.forEach((g) => {
+              comandaGustos.push(
+                {descripcion : g.descripcion}
+              )
+            })
+            comandaPlatos.push(
+              {                            
+                cant: c.cant,
+                idTipoConsumo: 'CB',
+                tamanio: c.tamanio,
+                obs: c.obs,
+                descripcion: c.descripcion,
+                idSectorExped: c.idSectorExped, 
+                impCentralizada: c.impCentralizada,    
+                esEntrada: false,          
+                gustos: comandaGustos.length > 0 ? comandaGustos : []                
+              }) 
+          })
+        }
           
       })
 
@@ -195,6 +225,7 @@ const cuenta = () => {
         const res = AgregarDetalleMulti_Noimp(detalle,urlBase,BaseDatos)
        
       }
+      // Si hay platos en la comanda los imprimo
       if (comandaPlatos.length > 0) {
         //console.log('Comanda:',comanda)
         const comanda =[] as comanda[]
@@ -235,8 +266,17 @@ const cuenta = () => {
   const handleSelec = async (c:mesaDetType) => {
     if (!info) {
       setItemSel(c.idDetalle)
+ 
     }
-    if (c.idTipoConsumo == "CB") {
+    // Si selecciono un combo que ya fue comandado, se permite modificarlo
+    // Si el combo no fue comandado se elimina
+    if ( (c.idTipoConsumo == "CB") && (c.idDetalle > origDetalle) ) {
+      const mDet = mesaDet.filter((m) => m.idDetalle != c.idDetalle)
+      setMesaDet(mDet)
+      setCuenta(mDet)
+      return
+    }
+    if ( (c.idTipoConsumo == "CB") && (c.idDetalle <= origDetalle) ) {
       const plato = await getPlatos('C',c.idPlato.toString(),'0','0',urlBase,BaseDatos)
     
       setUltItem(plato[0])
@@ -259,7 +299,7 @@ const cuenta = () => {
             const infoSecc = await getInfoComboSec(ultMesa.nroMesa,c.idDetalle,0,urlBase,BaseDatos)
             const seccion = await getComboDet(s.idSeccion,urlBase,BaseDatos);
             // console.log('Carga Seccion:',seccion)
-            if (seccion.length > 1) {  
+            if (seccion.length > 0) {  
                 seccion.forEach((r) => {
                   r.selected = false
                   infoSecc.forEach((i) => {
@@ -327,6 +367,7 @@ const cuenta = () => {
   
   }
 
+  // -------------------------------------------------------------------------------------
   // Modif. Combos
   const handleSecciones = async (id:number,cmax:number,auto:boolean,descCorta:string) => {
     // Seleccionar la seccion de combos
@@ -417,23 +458,9 @@ const cuenta = () => {
       
   }  
 
-  const handleBorrarCombo = async () => {
-    const res2 = await BorrarRenglon(ultMesa.nroMesa,idDetalle,1,"CB",urlBase,BaseDatos)
-    setSelectCombo(false)
-    const cuenta = traerCuenta(urlBase,BaseDatos)
-      cuenta.then((res) => {
-        const result = res.length > 0 ? res[res.length-1].idDetalle : 0
-        setMesaDet(res)
-        setCuenta(res)       
-        setUltDetalle(result)
-        setOrigDetalle(result)
-        setOrigDet(result)
-      })  
-  }
-
   const handleModifCombo = async () => {
     // Grabo la mesa y vuelvo a mesas
-  const detalleGustos = (idPlato:number,idSeccion:number)  => {
+    const detalleGustos = (idPlato:number,idSeccion:number)  => {
       let detg = [] as combosGustosType[]
       combosGustos.forEach((g) => {      
         if (g.idPlato == idPlato && g.idSeccion == idSeccion) {
@@ -450,7 +477,7 @@ const cuenta = () => {
       return detg 
     }
     const hora = getHoraActual()
-    const platopcio = await getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
+    // const platopcio = await getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
     const detcombo = [] as comboPostType[]
    
     comboDet.forEach(async (cd) => {
@@ -473,14 +500,14 @@ const cuenta = () => {
                 detcombo.push(
                   { idSeccion: d.idSeccion,
                     idPlato: d.idPlato, 
-                    procesado: false,
+                    procesado: true,
                     cocinado: false,                 
                     cant: 1,
                     idTamanio: d.idTamanio,
                     tamanio: d.tamanio,
                     obs: '',
                     fechaHora: new Date().toISOString(),
-                    comanda: false,
+                    comanda: true,
                     descripcion: d.descripcion,
                     idSectorExped: d.idSectorExped, 
                     impCentralizada: d.impCentralizada,              
@@ -504,22 +531,10 @@ const cuenta = () => {
             })        
     }) // Fin del forEach
     
-      /*
-    comanda.push(
-      { nroMesa: ultMesa.nroMesa,
-        idMozo: mozo.idMozo,
-        nombreMozo: mozo.nombre,
-        comensales: ultMesa.cantPersonas,
-        fechaHora: new Date().toISOString(),
-        platos: comandaPlatos.length > 0 ? comandaPlatos : []                
-      })
-      setComanda(comanda)
-      */
-    
     console.log('Detalle Combo:',detcombo)
     const mDet = mesaDet.filter((m) => m.idDetalle == idDetalle)
-    
-  
+    //mesaDet[idDetalle].detalles = 'Modif. Combo'
+    //console.log('Detalle:',mDet)
     const detalle =[] as mesaDetPost[]
     //mDet.forEach((m) => {
     const det:mesaDetPost ={ 
@@ -542,7 +557,7 @@ const cuenta = () => {
           esEntrada: false,
           descripcion: mDet[0].descripcion,
           fechaHora: new Date().toISOString(),
-          comanda: false,
+          comanda: true,
           idSectorExped: 0,
           impCentralizada: 0,
           gustos: [],
@@ -558,31 +573,45 @@ const cuenta = () => {
    
   } 
    
-  
-
   useEffect(() => {
-    console.log('Cuenta mesaDet',mesaDet)
+    
     if (mesaDet.length == 0) {
       // Es la primera vez que se carga la cuenta
-      
+      console.log('Cuenta mesaDet',mesaDet)
       // Traigo la cuenta de la mesa de En_mesadet ( puede ser vacia )
       const cuenta = traerCuenta(urlBase,BaseDatos)
       cuenta.then((res) => {
         const result = res.length > 0 ? res[res.length-1].idDetalle : 0
-        console.log('renglones ',res)
+ 
         setMesaDet(res)
         setCuenta(res)       
         setUltDetalle(result)
         setOrigDetalle(result)
         setOrigDet(result)
       })  
-    
+ 
     } else {
       // Ya se cargo la cuenta
+      console.log('Cuenta cargada',mesaDet)
+      // Recorro la cuenta y si hay Combos, vuelvo a generar el detalle
+      let det = ''
+      mesaDet.forEach(async (m) => {
+        if (m.idTipoConsumo == 'CB') {
+           const infocb = await getInfoComboSec(ultMesa.nroMesa,m.idDetalle,0,urlBase,BaseDatos)
+           if (infocb.length > 0) {
+            infocb.forEach((i) => {
+              det = det + i.descripcion + ' '   
+            })  
+          }
+          
+          m.detalles = det
+        }
+      })
+    
       setCuenta(mesaDet)
-
+      console.log('cuenta:',cuenta)
     }
-
+   
     //console.log('orig ',origDet)
     
   }, [mesaDet,selectCombo]);
@@ -640,6 +669,7 @@ const cuenta = () => {
           { (c.idDetalle > origDet ) && 
          
             <View  >    
+            {c.idTipoConsumo != "CB" &&
               <TouchableOpacity style={ [styles.itemContainer , {backgroundColor: c.idDetalle % 2 == 0? Colors.colorFondoCuenta: Colors.background}] } onPress={()=>handleSelec(c)} >
               {c.idDetalle == itemSel ?
               <Entypo name="vinyl" size={20} color={Colors.colorcheckbox} />
@@ -648,10 +678,21 @@ const cuenta = () => {
               }
               
               <Text style={styles.item}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
-              <Text style={styles.item}> {capitalize(c.descripcion)}</Text>
+              <Text style={styles.item}> {capitalize(c.descripcion)}</Text>              
               
-              </TouchableOpacity>  
+              </TouchableOpacity> 
+        
+            } 
+            {c.idTipoConsumo == "CB" &&
+              <TouchableOpacity style={ [styles.itemContainer , {backgroundColor: c.idDetalle % 2 == 0? Colors.colorFondoCuenta: Colors.background}] } onPress={()=>handleSelec(c)} >
+              <Entypo name="trash" size={20} color={Colors.colorcheckbox} />  
+              <Text style={styles.item}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
+              <Text style={styles.item}> {capitalize(c.descripcion)}</Text>
+              </TouchableOpacity> 
+            } 
+              
             </View>
+            
      
           }
           {c.idDetalle <= origDet && verAnt && c.idTipoConsumo=="CB" &&
@@ -666,7 +707,9 @@ const cuenta = () => {
               }
               <Text style={styles.item}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
               <Text style={styles.item}> {capitalize(c.descripcion)+" ("+c.idDetalle+")"}</Text>
+              
               </TouchableOpacity>  
+
           </View>
           }
           {c.idDetalle <= origDet && verAnt && c.idTipoConsumo!="CB" &&
@@ -675,7 +718,12 @@ const cuenta = () => {
             <Entypo name="circle" size={15} color={Colors.background} />
             <Text style={styles.itemorig}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
             <Text style={styles.itemorig}> {capitalize(c.descripcion)}</Text>
+            
           </View>
+          
+          }
+          { c.detalles != '' &&
+          <Text style={styles.itemDet}>{capitalize(c.detalles)}</Text>
           }
         </View>
 
@@ -840,7 +888,7 @@ const cuenta = () => {
           <AntDesign name="check" size={40} color={Colors.colorazulboton} />
         </TouchableOpacity> 
         <TouchableOpacity onPress={() =>  setSelectCombo(false)}  >
-          <AntDesign name="back" size={40} color={Colors.colorazulboton}  />
+          <AntDesign name="close" size={40} color={Colors.colornjaboton}  />
         </TouchableOpacity>
        
         </View>        
@@ -901,14 +949,20 @@ const styles = StyleSheet.create({
   },
   item: {
     fontSize: 20,
-    fontWeight: 'bold',
+    //fontWeight: 'bold',
     alignSelf: 'center',
     color: Colors.colorazulboton,
     paddingLeft: 10,
   },
+  itemDet: {
+    fontSize: 15,
+
+    color: Colors.backsombra,
+    paddingLeft: 50,
+  },
   itemorig: {
     fontSize: 20,
-    fontWeight: 'bold',
+    //fontWeight: 'bold',
     alignSelf: 'center',
     color: Colors.itemsviejos,
     paddingLeft: 20,

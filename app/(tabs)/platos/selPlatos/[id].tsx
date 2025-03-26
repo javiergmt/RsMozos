@@ -95,7 +95,8 @@ const selPlatos = () => {
       idSectorExped: (res ? res[0].idSectorExped : 0),
       gustos: [],
       idTipoConsumo: item.idTipoConsumo,
-      impCentralizada: (res ? res[0].impCentralizada : 0) 
+      impCentralizada: (res ? res[0].impCentralizada : 0),
+      detalles: ''
       }
       mesaDet.push(det)
       setUltDetalle(ultDetalle+1)
@@ -163,7 +164,7 @@ const selPlatos = () => {
         <TouchableOpacity onPress={() => handleItem(item)}> 
 
         <View style={styles.itemContainer}>       
-          <Text style={styles.itemName}>{Rubros.filter((r) => r.idRubro == item.idRubro).map((r) => { return r.prefijo+' '+capitalize(item.descripcion)})}</Text>
+          <Text style={styles.itemName}>{capitalize(item.descripcion)}</Text>
           {
            (item.idTipoConsumo == 'CV' || item.idTipoConsumo == 'CB' || !item.tamanioUnico) ? 
           <AntDesign style={styles.itemIcon}  name="right" size={30} color="wihte" />

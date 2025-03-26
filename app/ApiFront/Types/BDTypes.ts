@@ -107,6 +107,7 @@ export type mesaDetType ={
   combos?: comboPostType[];
   idTipoConsumo: string;
   impCentralizada: number;
+  detalles: string;
 
 }
 

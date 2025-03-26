@@ -14,7 +14,7 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 
 const selTam = () => {
   const { urlBase ,getUltItem, getUltSector,mesaDet,mesaDetModif,ultMesa,ultDetalle,ultSector,
-    setUltDetalle,setMesaDet,setUltDescTam,BaseDatos,comensales,ultRubro} = useLoginStore()
+    setUltDetalle,setMesaDet,setUltDescTam,BaseDatos,comensales,ultRubro,ultRubSub} = useLoginStore()
 
   const [item, setItem] = useState<platosType>()
   const [modif, setModif] = useState( [] as modifType[])
@@ -38,7 +38,7 @@ const selTam = () => {
         cant: 1,
         pcioUnit: (res ? res[0].pcioUnit : 0) ,
         importe: (res ? res[0].pcioUnit : 0) ,
-        descripcion: item.descripcion,
+        descripcion: item.descripcion + ' ' + descrip,
         obs: '',
         esEntrada: false,
         cocido: '',
@@ -48,6 +48,7 @@ const selTam = () => {
         impCentralizada: (res ? res[0].impCentralizada : 0),
         gustos: [],
         idTipoConsumo: item.idTipoConsumo,
+        detalles: '',
         }
         mesaDet.push(det)
 
@@ -112,7 +113,7 @@ const selTam = () => {
              ))}
 
          {
-          grabarTam ? <Redirect href={`platos/${ultRubro}`} /> : <Text></Text>
+          grabarTam ? <Redirect href={`platos/${ultRubSub}`} /> : <Text></Text>
          }     
     </View>
     </SafeAreaView>

@@ -10,12 +10,13 @@ import { capitalize, hyphenatedText } from '../../Funciones/deConversion'
 
 const rubros = () => {
   const {id} = useLocalSearchParams()
-  const { Rubros, ultMesa ,mozo, comensales} = useLoginStore()
+  const { Rubros, ultMesa ,mozo, comensales,setUltRubSub} = useLoginStore()
   const [rubrosfilt, setRubrosFilt] = useState([])
   const [subrubros, setSubrubros] = useState([])
   const [idRubro, setIdRubro] = useState(99999)   
   const [descRubro, setDescRubro] = useState('')   
   console.log('Rubro id:',id)
+
   useEffect(() => {
     if ( id.length > 0) {
        const rubrosfilt = Rubros.filter((r) => r.idRubro.toString() == id)
@@ -25,7 +26,7 @@ const rubros = () => {
         setSubrubros(subrubros)
         setIdRubro( rubrosfilt[0].idRubro)
         setDescRubro(capitalize(rubrosfilt[0].descripcion))
-        
+        setUltRubSub(Array.isArray(id) ? id[0] : id)
        }
     }
   }, [id]);

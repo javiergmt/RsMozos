@@ -70,9 +70,11 @@ const selGustos = () => {
     let nDet = 1;
     const platopcio = await getPlato_Precio(item.idPlato, idTam, ultMesa.idSector, hora, urlBase,BaseDatos)
       const detgus = [] as gustosDet[]
+      let detalle = ''
       mesaGustos.forEach((m) => {
         if (m.cant > 0) {
           detgus.push({ idGusto: m.idGusto, descripcion: m.cant > 1 ? '('+m.cant+')'+m.descGusto : m.descGusto,idPlatoRel: m.idPlatoRel })
+          detalle = detalle + m.descGusto + ','
         }
       })
 
@@ -94,7 +96,8 @@ const selGustos = () => {
       idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
       gustos: detgus,  
       idTipoConsumo: item.idTipoConsumo,
-      impCentralizada:  (platopcio ? platopcio[0].idSectorExped : 0)
+      impCentralizada:  (platopcio ? platopcio[0].idSectorExped : 0),
+      detalles: detalle
       } 
       //console.log('Detalle:',det)
       nDet = nDet + 1;
@@ -126,7 +129,8 @@ const selGustos = () => {
             idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
             gustos: [],  
             idTipoConsumo: 'CD',
-            impCentralizada:  (platopcio ? platopcio[0].idSectorExped : 0)
+            impCentralizada:  (platopcio ? platopcio[0].idSectorExped : 0),
+            detalles: ''
             } 
             //console.log('det2',det)
 
@@ -208,7 +212,7 @@ const selGustos = () => {
          ))}
   
           {
-          grabarGustos ? <Redirect href={`platos/${rubrosub}`} /> : <Text></Text>
+          grabarGustos ? <Redirect href={`platos/${ultRubSub}`} /> : <Text></Text>
           }  
           </ScrollView>
          </View>     

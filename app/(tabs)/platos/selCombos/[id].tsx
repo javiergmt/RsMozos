@@ -31,7 +31,7 @@ type Gustos ={
 const selCombos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const { urlBase ,getUltItem,ultMesa,ultDetalle,mesaDet,
-          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales,ultRubro} = useLoginStore()
+          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales,ultRubro,ultRubSub} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [comboSec, setComboSec] = useState( [] as comboSecType[]) 
   const [comboDet, setComboDet] = useState( [] as comboDetType[][])  
@@ -73,9 +73,8 @@ const selCombos = () => {
 
     const hora = getHoraActual()
     const platopcio = await getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
-
     const detcombo = [] as comboPostType[]
-      
+    let detalle = ''  
     comboDet.forEach(async (cd) => {
         let detgustos = [] as combosGustosType[]
         cd.forEach((d) => {
@@ -88,9 +87,10 @@ const selCombos = () => {
             } 
            
             detcombo.push(
+                 
               { idSeccion: d.idSeccion,
                 idPlato: d.idPlato, 
-                procesado: false,
+                procesado: true,
                 cocinado: false,                 
                 cant: 1,
                 idTamanio: d.idTamanio,
@@ -101,9 +101,10 @@ const selCombos = () => {
                 descripcion: d.descripcion,
                 idSectorExped: d.idSectorExped, 
                 impCentralizada: d.impCentralizada,              
-                combosGustos: detgustos.length > 0 ? detgustos : []                
+                combosGustos: detgustos.length > 0 ? detgustos : [],    
+                       
               })           
-              
+              detalle = detalle + d.descripcion + ','   
           }        
         }) // Fin del forEach        
     })
@@ -126,7 +127,8 @@ const selCombos = () => {
         impCentralizada: (platopcio ? platopcio[0].impCentralizada : 0),
         gustos: [],
         combos: detcombo,
-        idTipoConsumo: 'CB'
+        idTipoConsumo: 'CB',
+        detalles: detalle
     } 
     mesaDet.push(det)
     setMesaDet(mesaDet)
@@ -153,7 +155,8 @@ const selCombos = () => {
           idSectorExped: (platopcio ? platopcio[0].idSectorExped : 0),
           gustos: [],  
           idTipoConsumo: 'CD',
-          impCentralizada: (platopcio ? platopcio[0].impCentralizada : 0)
+          impCentralizada: (platopcio ? platopcio[0].impCentralizada : 0),
+          detalles:''
         } 
         mesaDet.push(det)
         setMesaDet(mesaDet)
@@ -277,13 +280,20 @@ const selCombos = () => {
         setComboSec(res)
         let sec = [] as comboDetType[][]
         res.map (async (s) => {
-          //const seccion = await cargaSeccion(s.idSeccion,urlBase,BaseDatos,0,0,0)  
+          //const seccion = await cargaSeccion(s.idSeccion,urlBase,BaseDatos,0,0,0) 
+         
           const seccion = await getComboDet(s.idSeccion,urlBase,BaseDatos);
           // console.log('Carga Seccion:',seccion)
           if (seccion.length > 1) {  
-            seccion.forEach((r) => {
+            seccion.forEach((r) => {              
               r.selected = false
             }) 
+          } else {
+            if ( s.autocompletar == true ) {
+              seccion[0].selected = true 
+            } else {
+              seccion[0].selected = false
+            }  
           }
           console.log('Seccion:',seccion)    
           sec.push(seccion)
@@ -300,7 +310,7 @@ const selCombos = () => {
     <FlashMessage position="top" />
      
     <View style={styles.containerTitulo}>
-       <Text style={styles.tituloText}> {item.descripcion} {id} </Text>
+       <Text style={styles.tituloText}> {item.descripcion} </Text>
     </View>   
 
     {/* Despliego las Secciones de Combos */}
@@ -425,7 +435,7 @@ const selCombos = () => {
    
     }
     {
-      salir && <Redirect href={`platos/${ultRubro}`} />
+      salir && <Redirect href={`platos/${ultRubSub}`} />
     }
     
       <View>
