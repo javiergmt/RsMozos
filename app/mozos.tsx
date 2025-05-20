@@ -19,7 +19,7 @@ const mozos = () => {
   const [msgError, setMsgError] = useState('')
   const [isPending, setIsPending] = useState(true)
   const {setMozoId,setMozoName,setIdTipoMozo,setRubros,setParam,setUltSector,
-         getUrl,urlBase,getBaseDatos,BaseDatos} = useLoginStore()
+         urlBase,BaseDatos,dispId} = useLoginStore()
  
   const [volver, setVolver] = useState(false)
   const onPress = () => {
@@ -38,7 +38,7 @@ const mozos = () => {
   //Obtienen los rubros de la base de datos
   const traerRubros = async (url:string,base:string) => {
     console.log('traerRubros:',url,base)
-    const { rubros, isError, isPending } = await getRubrosSub(url,base)
+    const { rubros, isError, isPending } = await getRubrosSub(url,base,dispId)
     setIsPending(isPending)
     return rubros
   }
@@ -166,7 +166,7 @@ const mozos = () => {
         </View>
 
         <View>
-          <Text style={styles.textver}>Version {version}</Text>
+          <Text style={styles.textver}>Id: {dispId} - Version {version}</Text>
         </View>
        
         {/* Si esta logueado redirige a la pagina de mesas */}

@@ -70,7 +70,7 @@ const mesas = () => {
   const [sector, setSector] = useState<number>(2);
   const {getUrl,mozo,ultSector,setUltSector,getParam,setUltMesa,
          setOrigDetalle,setUltDetalle,setMesaDet,setComensales,
-        getBaseDatos,BaseDatos, mesaDet} = useLoginStore()
+        getBaseDatos,BaseDatos, mesaDet, dispId} = useLoginStore()
   const urlBase = getUrl()
   const base = getBaseDatos()
   const Param = getParam()
@@ -245,7 +245,8 @@ const handleBottomSheet = async () => {
           idSectorExped: (res ? res[0].idSectorExped : 0),
           gustos: [],
           idTipoConsumo: 'CF',
-          impCentralizada: (res ? res[0].impCentralizada : 0) 
+          impCentralizada: (res ? res[0].impCentralizada : 0),
+          detalles: '' 
     }
     mesaDet.push(det)
     setUltDetalle(1)
@@ -267,7 +268,7 @@ const handleReservas = async (r:ReservasType) => {
 const handleDataChange = async () => {
   handleMesas(ultSector); 
   const load = async () => {
-      const result = await getSectores(urlBase,base);
+      const result = await getSectores(urlBase,base,dispId);
       setSectores(result);
   };
  

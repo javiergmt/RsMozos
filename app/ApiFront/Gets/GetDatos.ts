@@ -87,9 +87,9 @@ export const getParamMozos = async(url:string,base:string): Promise<{param:param
 }
 
 
-export const getSectores = async(url:string,base:string): Promise<sectoresType[]> => {
+export const getSectores = async(url:string,base:string,disp:string): Promise<sectoresType[]> => {
     
-    const response = await fetch(url+'sectores/100/-1/1',
+    const response = await fetch(url+`sectores/100/${disp}/1`,
         {   method: 'get', 
             headers: new Headers({
               'bd': base,
@@ -126,13 +126,13 @@ export const getMesas = async(id:number, url:string,base:string): Promise<{mesas
 
 }
 
-export const getRubrosSub = async(url:string,base:string): Promise<{rubros:rubrosSubType[],isError:boolean,isPending:boolean}> => {
+export const getRubrosSub = async(url:string,base:string,disp:string): Promise<{rubros:rubrosSubType[],isError:boolean,isPending:boolean}> => {
   
     let isPending = true
     let isError = false
     
     try {
-        const response = await fetch(url+'rubros_sub/1/0/0',
+        const response = await fetch(url+`rubros_sub/${disp}/0/0`,
             {   method: 'get', 
                 headers: new Headers({
                   'bd': base,

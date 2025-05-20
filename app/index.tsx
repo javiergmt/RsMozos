@@ -14,7 +14,7 @@ const index = () => {
   const [isPending, setIsPending] = useState(true)
   const [isValido, setIsValido] = useState(false)
   const [irConfig, setIrConfig] = useState(false)
-  const { setUrl,setDispId,setBaseDatos,urlBase,BaseDatos } = useLoginStore();
+  const { setUrl,setDispId,setBaseDatos,urlBase,BaseDatos,dispId } = useLoginStore();
   
   // Valido Dispositivo
   const validarDisp = async (id:number,url:string,base:string) => {
@@ -69,7 +69,8 @@ return (
      <FlashMessage position="top" /> 
         <View style={styles.body}>
           <Text style={styles.text}>Url: {urlBase}</Text>    
-          <Text style={styles.text}>BD : {BaseDatos}</Text>             
+          <Text style={styles.text}>BD : {BaseDatos}</Text>     
+          <Text style={styles.text}>Id : {dispId}</Text>          
           <Text style={styles.text}>Ver. 1.0.3</Text>
         </View>
         
