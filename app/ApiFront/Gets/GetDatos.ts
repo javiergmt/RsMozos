@@ -152,8 +152,8 @@ export const getRubrosSub = async(url:string,base:string,disp:string): Promise<{
       } 
 }
 
-export const getPlatos = async(tipo:string,cadena:string,idRubro:string,idSubRubro:string,url:string,base:string): Promise<platosType[]> => {
-    const response = await fetch(url+`platos/${tipo}/${cadena}/${idRubro}/${idSubRubro}`,
+export const getPlatos = async(tipo:string,cadena:string,idRubro:string,idSubRubro:string,dispId:string,url:string,base:string): Promise<platosType[]> => {
+    const response = await fetch(url+`platos/${tipo}/${cadena}/${idRubro}/${idSubRubro}/${dispId}`,
         {   method: 'get', 
             headers: new Headers({
               'bd': base,

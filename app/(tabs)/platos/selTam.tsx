@@ -38,7 +38,7 @@ const selTam = () => {
         cant: 1,
         pcioUnit: (res ? res[0].pcioUnit : 0) ,
         importe: (res ? res[0].pcioUnit : 0) ,
-        descripcion: item.descripcion + ' ' + descrip,
+        descripcion: item.descripcion ,
         obs: '',
         esEntrada: false,
         cocido: '',

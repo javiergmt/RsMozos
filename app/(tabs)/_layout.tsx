@@ -7,7 +7,7 @@ import Colors from "../../constants/Colors"
 
 export default function TabsLayout() {
   const {ultDetalle,mesaDet,ultMesa} = useLoginStore()
-  console.log('ultMesa:',ultMesa)
+  //console.log('cuenta:',mesaDet.length)
   return (
     <>
         <Tabs screenOptions={{ tabBarActiveTintColor: Colors.colorazulboton }}>
@@ -24,7 +24,6 @@ export default function TabsLayout() {
                   tabBarIcon: ({ color, size }) => <Ionicons name="fast-food-outline" color={color} size={size} />
               }} />
 
-          
           <Tabs.Screen
               name="cuenta"
               options={{
@@ -33,10 +32,13 @@ export default function TabsLayout() {
                   headerTitleAlign: 'center',
                   //tabBarBadge: ultDetalle,
                   tabBarBadge: mesaDet.length,
-                  tabBarIcon: ({ color, size }) => <Ionicons name="receipt-outline" color={color} size={size} />
+                  tabBarIcon: ({ color, size }) => <Ionicons name="receipt-outline" color={color} size={size} />,
+                  href: mesaDet.length  > 0 ? `(tabs)/cuenta/` : null,
+                  //href: mesaDet.length > 0 ? `/cuenta/${ultMesa}` : null,
               }} />
+            
 
-             <Tabs.Screen
+          <Tabs.Screen
               name="mensajes"
               options={{
                   headerTitle: 'Mensajes',

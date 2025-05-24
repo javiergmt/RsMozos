@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { useLoginStore } from './store/useLoginStore';
 import { getDisp } from './ApiFront/Gets/GetDatos';
 import Colors from '../constants/Colors';
-
 import * as SecureStore from 'expo-secure-store';
 import { Redirect } from 'expo-router';
 import FlashMessage from "react-native-flash-message";

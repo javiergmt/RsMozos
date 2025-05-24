@@ -14,6 +14,8 @@ import { getHoraActual } from './Funciones/deConversion';
 import FlashMessage from "react-native-flash-message"
 import { showMessage, hideMessage } from "react-native-flash-message";
 
+// Define la forma de la mesa
+// 0 = Rectangulo, 1 = Cuadrado, 2 = Rectangulo Redondeado, 3 = Cuadrado Redondeado, 4 = Elipse, 5 = Circulo  
 const mesaForma = (forma:number) => {
 
   switch (forma) {
@@ -33,6 +35,8 @@ const mesaForma = (forma:number) => {
       return styles.cuadrado;
   }
 }
+
+// Define el color de la mesa
 
 const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean) => {
   
@@ -125,6 +129,7 @@ const mesas = () => {
       const res = await BloquearMesa(mesa.nroMesa,mozo.idMozo,urlBase,base)
       console.log('Mesa Bloqueada',res)
       if (res.mesa != 0) {
+        setComensales(mesa.cantPersonas)
         setUltSector(mesa.idSector);
         setUltMesa(
           { nroMesa:mesa.nroMesa,
@@ -160,7 +165,7 @@ const mesas = () => {
       if (mesa.idMozo != mozo.idMozo) {
         if (mesa.soloOcupada ) {
           // Registrar la Mesa solo ocupada sin detalle al Mozo que se loguea
-          //Alert.alert('ATENCION !!','Mesa SOLO Ocupada por otro Mozo')
+       
           const res = await BloquearMesa(mesa.nroMesa,mozo.idMozo,urlBase,base)
           if (res.mesa != 0) {
             setUltSector(mesa.idSector);
@@ -183,7 +188,7 @@ const mesas = () => {
           }
           
         } else {  
-          //Alert.alert('ATENCION !!','Mesa Ocupada por otro Mozo')
+         
           showMessage({
             message: "ATENCION !!",
             description: "Mesa Ocupada por otro Mozo",
@@ -191,7 +196,7 @@ const mesas = () => {
           });
         }  
       } else {
-        //Alert.alert('ATENCION !!','Mesa en Uso')
+       
         showMessage({
           message: "ATENCION !!",
           description: "Mesa en Uso",
@@ -202,6 +207,8 @@ const mesas = () => {
     }  
   }
 }
+
+// Manejo de los Comensales, aumentar o decrementar
 const handleComensales = (cant:number) => {
   const cantidad = cantComensales
   if (cantidad + cant > 0) {
@@ -211,9 +218,15 @@ const handleComensales = (cant:number) => {
   }
 }
 
+// Grabo los comensales en la mesa y el detalle de cubiertos
 const handleBottomSheet = async () => { 
-  if (cantComensales == 0) {
-    //alert('ATENCION !!','Debe ingresar la cantidad de Comensales')
+  const grabarComens = async () => {
+      const res = await GrabarComensales(mesaSeleccionada,cantComensales,urlBase,base)
+      setComensales(cantComensales)
+      setComensalesOk(true)
+  };
+
+  if (cantComensales == 0) {   
     showMessage({
       message: "ATENCION !!",
       description: "Debe ingresar la cantidad de Comensales",
@@ -221,9 +234,9 @@ const handleBottomSheet = async () => {
     });
     return
   }
-  setComensales(cantComensales)
-  setComensalesOk(true)
-  const res = await GrabarComensales(mesaSeleccionada,cantComensales,urlBase,base)
+ 
+  grabarComens();
+
   if (idPlatoCub != 0) {
     console.log('Creo Cubiertos',cantComensales)
     const hora = getHoraActual()

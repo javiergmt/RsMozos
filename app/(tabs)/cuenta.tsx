@@ -277,7 +277,7 @@ const cuenta = () => {
       return
     }
     if ( (c.idTipoConsumo == "CB") && (c.idDetalle <= origDetalle) ) {
-      const plato = await getPlatos('C',c.idPlato.toString(),'0','0',urlBase,BaseDatos)
+      const plato = await getPlatos('C',c.idPlato.toString(),'0','0','0',urlBase,BaseDatos)
     
       setUltItem(plato[0])
       setIdDetalle(c.idDetalle)
@@ -678,7 +678,7 @@ const cuenta = () => {
               }
               
               <Text style={styles.item}> {c.cant.toFixed(2).toString().padStart(8,'')} </Text>
-              <Text style={styles.item}> {capitalize(c.descripcion)}</Text>              
+              <Text style={styles.item}> {capitalize(c.descripcion+' '+c.descTam)}</Text>              
               
               </TouchableOpacity> 
         
@@ -723,7 +723,7 @@ const cuenta = () => {
           
           }
           { c.detalles != '' &&
-          <Text style={styles.itemDet}>{capitalize(c.detalles)}</Text>
+          <Text style={[styles.itemDet  , {backgroundColor: c.idDetalle % 2 == 0 ? Colors.colorFondoCuenta: Colors.background}]}>{capitalize(c.detalles)}</Text>
           }
         </View>
 

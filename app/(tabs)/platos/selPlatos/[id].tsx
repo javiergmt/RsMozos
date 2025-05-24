@@ -47,7 +47,7 @@ const selPlatos = () => {
   const {id} = useLocalSearchParams() as { id: string } // id es lo que recibe
   const [platos, setPlatos] = useState([])  
   const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,setUltRubro,setUltRubSub,
-          ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,comensales } = useLoginStore();
+          ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,comensales,dispId } = useLoginStore();
   const { desc, rub, sub , cadena , tipo} = rubSub(id,Rubros)
   const [selTam, setSelTam ] = useState(false)
   const [selGusto, setSelGusto ] = useState(false)
@@ -201,7 +201,7 @@ const selPlatos = () => {
       sheetRef.current?.snapToIndex(-1);
       const load = async () => { 
         //console.log('Busco Platos:',tipo,cadena,rub,sub,urlBase)
-        const result = await getPlatos(tipo,cadena,rub,sub,urlBase,BaseDatos)
+        const result = await getPlatos(tipo,cadena,rub,sub,dispId,urlBase,BaseDatos)
         setPlatos(result)
       }
       load()
