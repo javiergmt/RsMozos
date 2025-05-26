@@ -594,17 +594,19 @@ const cuenta = () => {
       // Ya se cargo la cuenta
       console.log('Cuenta cargada',mesaDet)
       // Recorro la cuenta y si hay Combos, vuelvo a generar el detalle
-      let det = ''
+      
       mesaDet.forEach(async (m) => {
         if (m.idTipoConsumo == 'CB') {
+           let det = ''
            const infocb = await getInfoComboSec(ultMesa.nroMesa,m.idDetalle,0,urlBase,BaseDatos)
            if (infocb.length > 0) {
             infocb.forEach((i) => {
-              det = det + i.descripcion + ' '   
+              det = det + i.descripcion + ','   
             })  
+            m.detalles = det
           }
           
-          m.detalles = det
+          
         }
       })
     

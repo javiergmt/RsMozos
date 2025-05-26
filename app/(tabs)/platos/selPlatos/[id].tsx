@@ -1,13 +1,13 @@
 // Se muestran los platos del Rubros,Subrubros,Favoritos,Todos
 // Aca se seleccionan los platos
 
-import { View, Text, StyleSheet, ListRenderItem, TouchableOpacity, FlatList, ToastAndroid, Button, TextInput } from 'react-native'
+import { View, Text, StyleSheet, ListRenderItem, TouchableOpacity, FlatList, ToastAndroid, Button, TextInput, ScrollView } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
 import { getPlato_Precio, getPlatos } from '../../../ApiFront/Gets/GetDatos'
 import { useLoginStore } from '../../../store/useLoginStore'
 import { platosType, rubrosSubType } from '../../../ApiFront/Types/BDTypes'
-import { capitalize, getHoraActual } from '../../../Funciones/deConversion'
+import { capitalize, getHoraActual, hyphenatedText } from '../../../Funciones/deConversion'
 import { AntDesign , Entypo} from '@expo/vector-icons';
 import { showToast } from '../../../Funciones/deInfo'
 import Colors from '../../../../constants/Colors'
@@ -58,10 +58,11 @@ const selPlatos = () => {
   const [itemSel, setItemSel] = useState<platosType>()
   const [text, onChangeText] = useState('');
   const [esEntSel, setEsEntSel] = useState(false)
+
    // Control del bottomSheet
   const sheetRef = useRef<BottomSheet>(null); 
   const snapPoints = ["60%","50%"];
-  
+  const [verPlatos, setVerPlatos ] = useState(0) // 0: Renglones, 1: Botones
 
   const AgregaModifItem = (item:platosType) => {
     // Agrego el item a la mesa
@@ -158,11 +159,12 @@ const selPlatos = () => {
     
   }
   
-  const renderItem: ListRenderItem<any> = ({ item }) => (
+  const renderItemRenglones: ListRenderItem<any> = ({ item }) => (
+         
         <View style={styles.renglonContainer} >
         <FlashMessage position="top" /> 
         <TouchableOpacity onPress={() => handleItem(item)}> 
-
+    
         <View style={styles.itemContainer}>       
           <Text style={styles.itemName}>{capitalize(item.descripcion)}</Text>
           {
@@ -189,7 +191,8 @@ const selPlatos = () => {
             }
           </Text> 
         </View>
-
+     
+       
         </TouchableOpacity>
         
       </View>
@@ -197,12 +200,15 @@ const selPlatos = () => {
 
     );
 
+   
+
     useEffect(() => { 
       sheetRef.current?.snapToIndex(-1);
       const load = async () => { 
         //console.log('Busco Platos:',tipo,cadena,rub,sub,urlBase)
         const result = await getPlatos(tipo,cadena,rub,sub,dispId,urlBase,BaseDatos)
         setPlatos(result)
+
       }
       load()
       //setUltRubro(Number(rub));
@@ -221,10 +227,38 @@ const selPlatos = () => {
       
         { (!selTam && !selGusto) && platos.length > 0 &&
         <View style={styles.container}>
-        <View style={styles.container_titulo}>  
-        <Text style={styles.titulo}> {descRubro} </Text>
-        </View> 
-          <FlatList data={platos} renderItem={renderItem} keyExtractor={(item) => item.idPlato.toString()} />
+          <View style={styles.container_titulo}>  
+            <Text style={styles.titulo}> {descRubro} </Text>
+          </View>
+        
+          { verPlatos == 0 &&
+          <FlatList data={platos} renderItem={renderItemRenglones} keyExtractor={(item) => item.idPlato.toString()} />
+          }
+          
+          {verPlatos == 1 &&
+            <ScrollView contentContainerStyle={styles.container_rubros}>
+                {platos.map((p) => (
+                  <View key={p.idPlato} >     
+                  
+                    <TouchableOpacity  onPress={() => handleItem(p)}>
+                    <View style={ [styles.containerImage, {  backgroundColor: p.colorFondo=='' ? '#ffffff' : '#'+p.colorFondo.substring(3,9)}] } > 
+                      <View style={[styles.textContainer ]} >                   
+                        <Text style={[styles.text]}>{hyphenatedText(capitalize(p.descripcion))}</Text> 
+                       
+                      </View>
+                    </View>
+
+                    
+                    
+                  
+
+                     </TouchableOpacity>                
+                  
+                  </View>
+                 ))}
+                
+              </ScrollView>
+          }
         </View>
         }
 
@@ -441,8 +475,72 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginRight: 10,
-  }
+  },
 
+    container_rubros: { 
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    gap: 10,
+ 
+  },
+    containerImage: {
+      flexWrap: 'wrap',
+      //backgroundColor: '#000000',
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: Colors.colorborderubro,
+      paddingVertical: 1,
+      paddingHorizontal: 1,
+      width: 90,
+      height: 90,
+      marginVertical: 5,
+    },
+    itemImage: {
+      width: 60,
+      height: 60,
+      //marginTop: 8,
+      //marginLeft: 8,
+      objectFit: 'contain',
+      
+    },
+     textContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        width: 80,
+        height: 40,
+      },
+      textRubro: {
+        fontSize: 40,
+        fontWeight: 'bold',
+        paddingLeft: 15,
+        color: Colors.colorazulboton,
+      },
+      textTitulo: {
+        fontSize: 15,
+        paddingLeft: 15,
+        color: 'white',
+        padding: 5,
+      },
+      text: {
+        fontSize: 20,
+        fontWeight: '500',
+        marginBottom: 5,
+        marginLeft: 1,
+        color: 'black',
+      },
+      textsub: {
+        fontSize: 12,
+        fontWeight: '500',
+        marginBottom: 5,
+        marginLeft: 1,
+        color: 'white',
+      },
  
 });
 

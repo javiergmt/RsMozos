@@ -20,7 +20,7 @@ const reservas = () => {
     const [turnos, setTurnos] = useState<turnosType[]>([]);
     const [sectores, setSectores] = useState<sectoresType[]>([]);
     const [mesas, setMesas] = useState<mesasType[]>([]);
-    const {getUrl,getBaseDatos,BaseDatos,mozo} = useLoginStore();
+    const {getUrl,getBaseDatos,BaseDatos,mozo,dispId,setComensales} = useLoginStore();
     const [isOk, setIsOk] = useState(false);
     const [isPending, setIsPending] = useState(false); 
     const urlBase = getUrl()
@@ -95,6 +95,7 @@ const reservas = () => {
                 description: "La mesa "+ r.mesa +", fue ocupada",
                 type: "success",
               });
+              setComensales(r.cant);
             }  
           } else { 
             setUbicarReserva(true);
@@ -129,7 +130,7 @@ const reservas = () => {
     if (m.ocupada == 'N') {
        // Ocupo la mesa seleccionada
        const res = await AbrirMesa(m.nroMesa,mozo,urlBase,base)
-       const res1 = await GrabarComensales(m.nroMesa,2,urlBase,base)
+       const res1 = await GrabarComensales(m.nroMesa,m.cantPersonas,urlBase,base)
        const res2 = await LiberarMesa(m.nroMesa,false,urlBase,BaseDatos)
        const res3 = await ConfCumpReserva(reserva.idReserva,true,true,urlBase,BaseDatos)
        //Alert.alert('Se ocupo la Mesa '+m.nroMesa);
@@ -139,6 +140,7 @@ const reservas = () => {
         type: "success",
        });
        setActReservas(!actReservas);
+       setComensales(m.cantPersonas);
     } else {
       //Alert.alert('La mesa '+ m.nroMesa +'ya esta ocupada');
       showMessage({
@@ -172,7 +174,7 @@ const reservas = () => {
       
     useEffect(() => {   
         const load = async () => {
-            const result = await getSectores(urlBase,base);
+            const result = await getSectores(urlBase,base,'-1');
             setSectores(result);
         };
         load();    
