@@ -31,7 +31,8 @@ type Gustos ={
 const selCombos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const { urlBase ,getUltItem,ultMesa,ultDetalle,mesaDet,
-          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales,ultRubro,ultRubSub} = useLoginStore()
+          setUltDetalle,setMesaDet,getUltDescTam,BaseDatos,comensales,
+          ultRubro,ultRubSub,totMesa,setTotMesa} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [comboSec, setComboSec] = useState( [] as comboSecType[]) 
   const [comboDet, setComboDet] = useState( [] as comboDetType[][])  
@@ -76,8 +77,9 @@ const selCombos = () => {
     const detcombo = [] as comboPostType[]
     let detalle = ''  
     comboDet.forEach(async (cd) => {
-        let detgustos = [] as combosGustosType[]
+        
         cd.forEach((d) => {
+          let detgustos = [] as combosGustosType[]
           //console.log('Gustos',d.idPlato,detgustos,detgustos.filter( (g) => {g.idPlato == d.idPlato}))
           if (d.selected) {
 
@@ -108,7 +110,7 @@ const selCombos = () => {
           }        
         }) // Fin del forEach        
     })
-    
+    setTotMesa(totMesa + (platopcio ? platopcio[0].pcioUnit : 0) )
     let ndet = 1
     const det:mesaDetType = { 
         nroMesa: ultMesa.nroMesa,
@@ -316,16 +318,24 @@ const selCombos = () => {
     {/* Despliego las Secciones de Combos */}
     { comboSec &&
     <View>
-    <ScrollView horizontal contentContainerStyle={styles.containerScrollh}>
-      { comboSec.map((s) => (
-            
+   <ScrollView horizontal contentContainerStyle={styles.containerScrollh}>
+      { !isGustos && comboSec.map((s) => (
+         
          <TouchableOpacity key={s.idSeccion} onPress={() => handleSecciones(s.idSeccion,s.cantMax,s.autocompletar,s.descCorta)}>
            <View style={[styles.card]}>     
               <Text style={[styles.heading]}>{s.descripcion+' ('+s.cantMax+')'}</Text>
             </View>
          </TouchableOpacity>
-    
-     
+        
+         
+      ))}
+      { isGustos && comboSec.map((s) => (
+           <TouchableOpacity key={s.idSeccion}>
+           <View style={[styles.card]}>     
+              <Text style={[styles.heading]}>{s.descripcion+' ('+s.cantMax+')'}</Text>
+            </View>
+            </TouchableOpacity>
+       
       ))}
     </ScrollView >
     </View>

@@ -9,13 +9,16 @@ import Colors from '../constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FlashMessage from "react-native-flash-message"
 import { showMessage, hideMessage } from "react-native-flash-message";
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+
 
 const config = () => {
-  const {setUrl,urlBase,setDispId,setBaseDatos,BaseDatos} = useLoginStore()  
+  const {setUrl,urlBase,setDispId,setBaseDatos,BaseDatos,tipoListaPlatos,setTipoListaPlatos} = useLoginStore()  
   const [text, onChangeText] = useState('');
   const [number, onChangeNumber] = useState('1234');
   const [disp, onChangeDisp] = useState('0');
   const [base, onChangeBase] = useState('');
+  const [tipoLista, onChangeTipo] = useState('L');
   const [grabarOk, setGrabarOk] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const { bottom, top, right, left } = useSafeAreaInsets();
@@ -54,7 +57,9 @@ const config = () => {
     setDispId(disp)
     setBaseDatos(base)
     save('disp',disp);
-    save('bd',base);    
+    save('bd',base);  
+    setTipoListaPlatos(tipoLista);
+    save('tipoLista',tipoLista);  
   }
 
   useEffect(() => {
@@ -74,6 +79,11 @@ const config = () => {
        
     getValueFor('bd').then((res) => {
       onChangeBase(res)
+    })
+
+    getValueFor('tipoLista').then((res) => {
+      onChangeTipo(res)
+      console.log('tipoLista',res)
     })
 
    }, []);
@@ -137,7 +147,23 @@ const config = () => {
           value={disp}
           keyboardType="numeric"
         />
+
         
+        <Text style={styles.text}>Lista de Platos: </Text>
+        <View style={{flexDirection:'column', alignItems:'center', justifyContent:'center', marginLeft:60}}>
+        <BouncyCheckbox 
+        text="Lista"
+        textStyle={{ color: "#ffffff" }}
+        isChecked={tipoLista == 'L' ? true : false}
+        onPress={() => onChangeTipo('L') } />
+        <BouncyCheckbox         
+        text="Botones"
+        textStyle={{ color: "#ffffff" }}
+        isChecked={tipoLista == 'B' ? true : false}
+        onPress={() => onChangeTipo('B') } />
+        </View>
+        
+         
         <View style={[{bottom, },styles.cont_Pie  ]}>
         
           <TouchableOpacity onPress={handleGrabar}> 

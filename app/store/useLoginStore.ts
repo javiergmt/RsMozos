@@ -93,6 +93,14 @@ interface LoginStoreState {
     ultRubSub: string,
     getUltRubSub: () => string,
     setUltRubSub: (rubsub:string) => void,
+
+    tipoListaPlatos: string,
+    getTipoListaPlatos: () => string,
+    setTipoListaPlatos: (tipo:string) => void,
+
+    totMesa: number,
+    getTotMesa: () => number,
+    setTotMesa: (total:number) => void,
 }
 
 export const useLoginStore = create<LoginStoreState>(
@@ -119,6 +127,8 @@ export const useLoginStore = create<LoginStoreState>(
         ultDescTam:'',
         ultRubro:0,
         ultRubSub:'',
+        tipoListaPlatos:'L',
+        
 
         getMozoId: () => get().mozo?.idMozo,
         getMozoName: () => get().mozo?.nombre,
@@ -181,6 +191,12 @@ export const useLoginStore = create<LoginStoreState>(
 
         getUltRubSub: () => get().ultRubSub,
         setUltRubSub: (rubsub:string) => set({ultRubSub:rubsub}),
+
+        getTipoListaPlatos: () => get().tipoListaPlatos,
+        setTipoListaPlatos: (tipo:string) => set({tipoListaPlatos:tipo}),
+
+        getTotMesa: () => get().totMesa,
+        setTotMesa: (total:number) => set({totMesa:total}),
     }))
 
 function initMozo(): mozoType {

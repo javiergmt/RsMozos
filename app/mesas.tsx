@@ -74,7 +74,7 @@ const mesas = () => {
   const [sector, setSector] = useState<number>(2);
   const {getUrl,mozo,ultSector,setUltSector,getParam,setUltMesa,
          setOrigDetalle,setUltDetalle,setMesaDet,setComensales,
-        getBaseDatos,BaseDatos, mesaDet, dispId} = useLoginStore()
+        getBaseDatos,BaseDatos, mesaDet, dispId,setTotMesa} = useLoginStore()
   const urlBase = getUrl()
   const base = getBaseDatos()
   const Param = getParam()
@@ -115,6 +115,7 @@ const mesas = () => {
 
  // Bloqueo la mesa y la abro si esta cerrada 
  const handleMesa = async (mesa:mesasType) => {
+ setTotMesa(0); 
  if ( ( mesa.idMozo == 0 && mesa.ocupada == 'N' && mesa.cerrada == 0) 
     || ( mesa.idMozo == mozo.idMozo && mesa.ocupada == 'S' && mesa.cerrada == 0)
     )

@@ -7,7 +7,7 @@ import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
 import { getPlato_Precio, getPlatos } from '../../../ApiFront/Gets/GetDatos'
 import { useLoginStore } from '../../../store/useLoginStore'
 import { platosType, rubrosSubType } from '../../../ApiFront/Types/BDTypes'
-import { capitalize, getHoraActual, hyphenatedText } from '../../../Funciones/deConversion'
+import { capitalize, getHoraActual, hyphenatedText, vclToCssRgb } from '../../../Funciones/deConversion'
 import { AntDesign , Entypo} from '@expo/vector-icons';
 import { showToast } from '../../../Funciones/deInfo'
 import Colors from '../../../../constants/Colors'
@@ -47,7 +47,8 @@ const selPlatos = () => {
   const {id} = useLocalSearchParams() as { id: string } // id es lo que recibe
   const [platos, setPlatos] = useState([])  
   const { urlBase,setUltItem,ultMesa,mozo,mesaDet,setMesaDet,setUltRubro,setUltRubSub,
-          ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,comensales,dispId } = useLoginStore();
+          ultDetalle,setUltDetalle, origDetalle,Rubros,BaseDatos,
+          comensales,dispId,tipoListaPlatos,setTotMesa,totMesa } = useLoginStore();
   const { desc, rub, sub , cadena , tipo} = rubSub(id,Rubros)
   const [selTam, setSelTam ] = useState(false)
   const [selGusto, setSelGusto ] = useState(false)
@@ -62,7 +63,7 @@ const selPlatos = () => {
    // Control del bottomSheet
   const sheetRef = useRef<BottomSheet>(null); 
   const snapPoints = ["60%","50%"];
-  const [verPlatos, setVerPlatos ] = useState(0) // 0: Renglones, 1: Botones
+  const [verPlatos, setVerPlatos ] = useState(1) // 0: Renglones, 1: Botones
 
   const AgregaModifItem = (item:platosType) => {
     // Agrego el item a la mesa
@@ -74,12 +75,14 @@ const selPlatos = () => {
         m.cant = m.cant + cantItem
         m.importe = m.cant * m.pcioUnit
         estaEnMesa = true
+        setTotMesa(totMesa + m.pcioUnit * cantItem)
       }
     })
     if (!estaEnMesa) {
       const hora = getHoraActual()
       const platoprecio = getPlato_Precio(item.idPlato,0,ultMesa.idSector,hora,urlBase,BaseDatos)
       platoprecio.then((res) => { 
+      setTotMesa(totMesa + res[0].pcioUnit * cantItem)
       const det = { 
       nroMesa: ultMesa.nroMesa,
       idPlato: item.idPlato,
@@ -200,8 +203,6 @@ const selPlatos = () => {
 
     );
 
-   
-
     useEffect(() => { 
       sheetRef.current?.snapToIndex(-1);
       const load = async () => { 
@@ -231,17 +232,17 @@ const selPlatos = () => {
             <Text style={styles.titulo}> {descRubro} </Text>
           </View>
         
-          { verPlatos == 0 &&
+          { tipoListaPlatos == "L" &&
           <FlatList data={platos} renderItem={renderItemRenglones} keyExtractor={(item) => item.idPlato.toString()} />
           }
           
-          {verPlatos == 1 &&
+          { tipoListaPlatos == "B" &&
             <ScrollView contentContainerStyle={styles.container_rubros}>
                 {platos.map((p) => (
                   <View key={p.idPlato} >     
                   
                     <TouchableOpacity  onPress={() => handleItem(p)}>
-                    <View style={ [styles.containerImage, {  backgroundColor: p.colorFondo=='' ? '#ffffff' : '#'+p.colorFondo.substring(3,9)}] } > 
+                    <View style={ [styles.containerImage, {  backgroundColor: p.colorFondo=='' ? '#ffffffaa' : vclToCssRgb(p.colorFondo)}] } > 
                       <View style={[styles.textContainer ]} >                   
                         <Text style={[styles.text]}>{hyphenatedText(capitalize(p.descripcion))}</Text> 
                        

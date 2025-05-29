@@ -32,7 +32,7 @@ const cuenta = () => {
   const {mozo,ultMesa,ultDetalle,setUltDetalle,getParam,
     mesaDet,mesaDetGustos,mesaDetModif,urlBase,
     setMesaDet,origDetalle,setOrigDetalle,setUltItem,getUltItem,
-    getBaseDatos,BaseDatos, comensales} = useLoginStore()
+    getBaseDatos,BaseDatos, comensales,totMesa,getTotMesa,setTotMesa} = useLoginStore()
   const [cuenta, setCuenta] = useState<mesaDetType[]>([])
   const [verAnt, setVerAnt] = useState(true)
   const [isError, setIsError] = useState(false)
@@ -142,7 +142,7 @@ const cuenta = () => {
     const detalle =[] as mesaDetPost[]
     const comandaGustos = [] as comandaGustos[]
     mDet.forEach((m) => {
-
+        console.log('Comanda:',m)
         const det ={ 
           nroMesa: ultMesa.nroMesa,
           idDetalle: m.idDetalle,          
@@ -166,12 +166,12 @@ const cuenta = () => {
           comanda: true, // Siempre es true, para que no se imprima
           idSectorExped: m.idSectorExped,
           impCentralizada: m.impCentralizada,
-          gustos: m.gustos,
+          gustos: m.idTipoConsumo == 'CV' ? m.gustos : [],
           combos: m.combos,
         }
         
         detalle.push(det)
-        if (m.idTipoConsumo != 'CB') {
+        if ( (m.idTipoConsumo != 'CB') ) {
           let comandaGustos = [] as comandaGustos[]
           m.gustos.forEach((g) => {
             comandaGustos.push(
@@ -195,12 +195,16 @@ const cuenta = () => {
         } else {
           // Agrego los platos de la seccion de combos a la comanda
           m.combos.forEach((c) => {
+            
             let comandaGustos = [] as comandaGustos[]
             c.combosGustos.forEach((g) => {
+              if (g.idPlato == c.idPlato) {
               comandaGustos.push(
                 {descripcion : g.descripcion}
               )
+              }
             })
+           
             comandaPlatos.push(
               {                            
                 cant: c.cant,
@@ -213,6 +217,7 @@ const cuenta = () => {
                 esEntrada: false,          
                 gustos: comandaGustos.length > 0 ? comandaGustos : []                
               }) 
+             
           })
         }
           
@@ -265,8 +270,7 @@ const cuenta = () => {
 
   const handleSelec = async (c:mesaDetType) => {
     if (!info) {
-      setItemSel(c.idDetalle)
- 
+      setItemSel(c.idDetalle) 
     }
     // Si selecciono un combo que ya fue comandado, se permite modificarlo
     // Si el combo no fue comandado se elimina
@@ -356,6 +360,7 @@ const cuenta = () => {
           } else {    
               m.cant = m.cant + cant
               m.importe = m.cant * m.pcioUnit
+              setTotMesa(totMesa + (m.cant * m.pcioUnit))
               setMesaDet(mesaDet)
               setCuenta(mesaDet)
               return
@@ -473,7 +478,7 @@ const cuenta = () => {
             idPlatoRel: g.idPlatoRel,})
         }                
       })
-      //console.log('Gustos:',detg)
+      console.log('Gustos:',detg)
       return detg 
     }
     const hora = getHoraActual()
@@ -485,8 +490,9 @@ const cuenta = () => {
             let comandaGustos = [] as comandaGustos[]
             cd.forEach((d) => {
               //console.log('Gustos',d.idPlato,detgustos,detgustos.filter( (g) => {g.idPlato == d.idPlato}))
+              
               if (d.selected) {
-    
+                
                 if (d.idTipoConsumo == 'CV') { 
                   detgustos = detalleGustos(d.idPlato,d.idSeccion)
                   detgustos.forEach((g) => {
@@ -513,6 +519,7 @@ const cuenta = () => {
                     impCentralizada: d.impCentralizada,              
                     combosGustos: detgustos.length > 0 ? detgustos : []                
                   })   
+                  detgustos = [] // Reinicio los gustos para la proxima iteracion
                   if (d.comandado) {  
                   comandaPlatos.push(
                     {                  
@@ -580,9 +587,14 @@ const cuenta = () => {
       console.log('Cuenta mesaDet',mesaDet)
       // Traigo la cuenta de la mesa de En_mesadet ( puede ser vacia )
       const cuenta = traerCuenta(urlBase,BaseDatos)
+      let total = 0
       cuenta.then((res) => {
         const result = res.length > 0 ? res[res.length-1].idDetalle : 0
- 
+        res.forEach((m) => {
+          total += m.importe
+        })
+        setTotMesa(total)
+
         setMesaDet(res)
         setCuenta(res)       
         setUltDetalle(result)
@@ -594,8 +606,9 @@ const cuenta = () => {
       // Ya se cargo la cuenta
       console.log('Cuenta cargada',mesaDet)
       // Recorro la cuenta y si hay Combos, vuelvo a generar el detalle
-      
-      mesaDet.forEach(async (m) => {
+        let total = 0
+        mesaDet.forEach(async (m) => {
+        total += m.importe
         if (m.idTipoConsumo == 'CB') {
            let det = ''
            const infocb = await getInfoComboSec(ultMesa.nroMesa,m.idDetalle,0,urlBase,BaseDatos)
@@ -609,9 +622,10 @@ const cuenta = () => {
           
         }
       })
-    
+      setTotMesa(total)
       setCuenta(mesaDet)
       console.log('cuenta:',cuenta)
+      console.log('total:',total)
     }
    
     //console.log('orig ',origDet)
@@ -623,7 +637,7 @@ const cuenta = () => {
     <View style={styles.container}>
      
      <Stack.Screen options={{
-                              headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
+                              headerTitle: `Mesa ${ultMesa.nroMesa} - (${comensales}) - $${totMesa.toFixed(2)}`,
                               headerTitleAlign: 'center',
                               headerStyle: {
                                 backgroundColor: Colors.background,
@@ -724,7 +738,7 @@ const cuenta = () => {
           </View>
           
           }
-          { c.detalles != '' &&
+          { c.detalles != '' && verAnt && c.idDetalle <= origDet &&
           <Text style={[styles.itemDet  , {backgroundColor: c.idDetalle % 2 == 0 ? Colors.colorFondoCuenta: Colors.background}]}>{capitalize(c.detalles)}</Text>
           }
         </View>

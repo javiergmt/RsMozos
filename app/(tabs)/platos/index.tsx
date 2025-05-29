@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
     paddingLeft: 15,
-    color: Colors.colorazulboton,
+    color: Colors.colorFondoInput,
   },
   textTitulo: {
     fontSize: 15,

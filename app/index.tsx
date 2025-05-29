@@ -6,6 +6,7 @@ import Colors from '../constants/Colors';
 import * as SecureStore from 'expo-secure-store';
 import { Redirect } from 'expo-router';
 import FlashMessage from "react-native-flash-message";
+import { version } from '../package.json';
 
 
 const index = () => {
@@ -70,7 +71,7 @@ return (
           <Text style={styles.text}>Url: {urlBase}</Text>    
           <Text style={styles.text}>BD : {BaseDatos}</Text>     
           <Text style={styles.text}>Id : {dispId}</Text>          
-          <Text style={styles.text}>Ver. 1.0.3</Text>
+          <Text style={styles.text}>Ver. {version}</Text>
         </View>
         
         {isValido ? < Redirect href="/mozos" /> :

@@ -29,7 +29,7 @@ const selGustos = () => {
   const {id} = useLocalSearchParams() // id es lo que recibe
   const idTam = Number(id)
   const { urlBase ,getUltItem,setMesaDet,setUltDetalle,getUltDescTam,setUltDescTam,getUltRubro,
-          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales,ultRubSub} = useLoginStore()
+          mesaDet,ultMesa,ultDetalle,mozo,BaseDatos,comensales,ultRubSub,totMesa,setTotMesa} = useLoginStore()
   const [item, setItem] = useState<platosType>( getUltItem() )
   const [gustos, setGustos] = useState( [] as gustosType[])
   const [cantGustos, setCantGustos] = useState(0)
@@ -79,7 +79,7 @@ const selGustos = () => {
       })
 
       //console.log('Gustos:',detgus)
-
+      setTotMesa(totMesa + (platopcio ? platopcio[0].pcioUnit : 0) )
       const det:mesaDetType = { 
       nroMesa: ultMesa.nroMesa,
       idPlato: item.idPlato,

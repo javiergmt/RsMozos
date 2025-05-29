@@ -98,4 +98,42 @@ export function izqRellena(cadena:string, longitud:number){
         
 }
 
+//COLORES:
+// "colorMesaCerrada": "clYellow",
+// "colorMesaComiendo": "$00FF0080",
+// "colorMesaComiendoEsperando": "$0080FFFF",
+// "colorMesaEperando": "clRed",
+// "colorMesaNormal": "$0080FF80",
+// "colorMesaOcupada": "$00FF8080",
+// "colorMesaPorCobrar": "clRed",
+// "colorMesaSinPed": "$00FFFF80",
+// "colorPostre": "$00CA62D2",
+export function vclToCssRgb(vclColor: string): string {
+  // Formato 1: clYellow;
+  const test1 = /cl(\w+)/.exec(vclColor);
+  // Formato 2: "$0080FFFF
+  const test2 = /\$(\d{1,})/.exec(vclColor);
+
+  if (vclColor && /\d{1,}/.test(vclColor) && vclColor.length !== 9) return "";
+    if(test1){
+        const color = vclColor.slice(2).toLocaleLowerCase();
+        return `color-mix(in srgb, ${color}, transparent 60%)`;
+    }
+
+  // Extrae los componentes de color hexadecimales
+  if(test2)  {
+    const redHex = vclColor.slice(7, 9);
+    const greenHex = vclColor.slice(5, 7);
+    const blueHex = vclColor.slice(3, 5);
+
+    const red = parseInt(redHex, 16);
+    const green = parseInt(greenHex, 16);
+    const blue = parseInt(blueHex, 16);
+
+    // Devuelve el valor en formato RGB para utilizar directamente en CSS
+    return `rgba(${red}, ${green}, ${blue}, .4)`;
+  }
+  return ""
+}
+
 
