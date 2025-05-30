@@ -244,15 +244,9 @@ const selPlatos = () => {
                     <TouchableOpacity  onPress={() => handleItem(p)}>
                     <View style={ [styles.containerImage, {  backgroundColor: p.colorFondo=='' ? '#ffffffaa' : vclToCssRgb(p.colorFondo)}] } > 
                       <View style={[styles.textContainer ]} >                   
-                        <Text style={[styles.text]}>{hyphenatedText(capitalize(p.descripcion))}</Text> 
-                       
+                        <Text style={[styles.text]}>{hyphenatedText(capitalize(p.descCorta))}</Text> 
                       </View>
                     </View>
-
-                    
-                    
-                  
-
                      </TouchableOpacity>                
                   
                   </View>
