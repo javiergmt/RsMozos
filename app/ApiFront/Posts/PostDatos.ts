@@ -218,25 +218,28 @@ const respuesta = (mens:string) => {
     Alert.alert('ATENCION !! Hubo un error, revise las comandas y que los datos se hayan grabado!!',mens)
 }
 
-export const AgregarDetalleMulti_Noimp = (detalles: object[], url:string,base) => {
+export const AgregarDetalleMulti_Noimp = async (detalles: object[], url:string,base) => {
   console.log("DETALLES: ", detalles)
   const body = requestOptionPost({ mesaDetM: detalles.map((detalle) => modificarPlatoPost(detalle)) }, 'POST',base)
   const endpoint = url+ "mesa_det_mult_noimp/"
   
-  let mensaje = ""
-  fetch(endpoint, body)
+  let mensaje  = ""
+  await fetch(endpoint, body)
     .then(response => response.json())
-    .then(response => { respuesta(response.mensaje) })
-      //console.log("RESPUESTA AGREGAR DETALLE: ", response, "\n DETALLE: ", body, "\n ENDPOINT", endpoint)
+    .then(response => {
+      respuesta(response.mensaje)
+      mensaje = response.mensaje
       
-    //) 
+    })
     .catch(error => {
       console.log("ERROR AGREGAR DETALLE: ", error)
       console.log("BODY: ", body)
       console.log("ENDPOINT", endpoint)
       respuesta(error.message)
+        mensaje = error.message
     })
-    return
+    return mensaje
+    
 }
 
 export const AgregarDetalleMulti = (detalles: object[], url:string,base) => {

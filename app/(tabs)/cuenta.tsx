@@ -223,15 +223,17 @@ const cuenta = () => {
           
       })
 
+      let grabacion = "commit"
       if (mDet.length > 0){
         // Esta es la grabacion del detalle de la mesa
         // Los errores se chekean en la funcion AgregarDetalleMulti
         // y se generan mensajes informando el resultado 
-        const res = AgregarDetalleMulti_Noimp(detalle,urlBase,BaseDatos)
-       
-      }
+        const res = await AgregarDetalleMulti_Noimp(detalle,urlBase,BaseDatos)
+        console.log('Detalle Grabado:',res)
+        grabacion = res
+      }  
       // Si hay platos en la comanda los imprimo
-      if (comandaPlatos.length > 0) {
+      if ( (comandaPlatos.length > 0) && (grabacion == "commit") ) {
         //console.log('Comanda:',comanda)
         const comanda =[] as comanda[]
         comanda.push(
@@ -242,10 +244,10 @@ const cuenta = () => {
             fechaHora: new Date().toISOString(),
             platos: comandaPlatos.length > 0 ? comandaPlatos : []                
           })
-        const res = Comandar(comanda[0],urlBase,BaseDatos)
+        const res = await Comandar(comanda[0],urlBase,BaseDatos)
         
       }
-
+     
       mesaDet.splice(0,mesaDet.length)
       mesaDetGustos.splice(0,mesaDetGustos.length)
       mesaDetModif.splice(0,mesaDetModif.length) 
