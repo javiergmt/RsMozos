@@ -1,4 +1,4 @@
-import { View, Text,  ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, RefreshControl } from 'react-native'
+import { View, Text,  ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, RefreshControl, TextInput } from 'react-native'
 import React, {  useEffect, useRef, useState } from 'react'
 import { Link, Redirect} from 'expo-router'
 import { mesasType, sectoresType, paramType, ReservasType } from './ApiFront/Types/BDTypes';
@@ -38,9 +38,10 @@ const mesaForma = (forma:number) => {
 
 // Define el color de la mesa
 
-const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean) => {
-  
-  if ( idMozoSel != idMozo && ocupada=='S' && cerrada==0) {
+const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean, idTipoMozo:number) => {
+
+  //console.log('mesaColor:',ocupada,cerrada,conPostre,idMozo,idMozoSel,soloOcupada,idTipoMozo)
+  if ( (idMozoSel != idMozo && idTipoMozo != 3) && ocupada=='S' && cerrada==0) {
     if (soloOcupada) {
       return 'lightblue'
     } else {
@@ -74,7 +75,7 @@ const mesas = () => {
   const [sector, setSector] = useState<number>(2);
   const {getUrl,mozo,ultSector,setUltSector,getParam,setUltMesa,
          setOrigDetalle,setUltDetalle,setMesaDet,setComensales,
-        getBaseDatos,BaseDatos, mesaDet, dispId,setTotMesa} = useLoginStore()
+        getBaseDatos,BaseDatos, mesaDet, dispId, setTotMesa} = useLoginStore()
   const urlBase = getUrl()
   const base = getBaseDatos()
   const Param = getParam()
@@ -101,7 +102,7 @@ const mesas = () => {
   // Cargo las mesas del Sector
   const handleMesas = (idSector:number) => {
     const load = async () => {
-      const { mesas, isError, isPending }  = await getMesas(idSector,urlBase,base);
+      const { mesas, isError, isPending }  = await getMesas(idSector,-1,urlBase,base);
       setIsPending(isPending)
       setMesas(mesas);
       setUltSector(idSector);
@@ -117,7 +118,7 @@ const mesas = () => {
  const handleMesa = async (mesa:mesasType) => {
  setTotMesa(0); 
  if ( ( mesa.idMozo == 0 && mesa.ocupada == 'N' && mesa.cerrada == 0) 
-    || ( mesa.idMozo == mozo.idMozo && mesa.ocupada == 'S' && mesa.cerrada == 0)
+    || ( ( mesa.idMozo == mozo.idMozo || mozo.idTipoMozo == 3) && mesa.ocupada == 'S' && mesa.cerrada == 0)
     )
     {
       if (mesa.reservada) {
@@ -209,6 +210,24 @@ const mesas = () => {
   }
 }
 
+// Input de mesa para buscar
+const handleBuscarMesa = () => {
+  const load = async () => {
+      const { mesas, isError, isPending }  = await getMesas(-1,Number(text.trim()),urlBase,base);
+      //console.log('Mesa Encontrada:',mesas[0])
+      setIsPending(isPending)
+      if (mesas.length == 1) {
+        
+        if (sectores.filter(s => mesas[0].idSector == s.idSector).length == 1) {
+          handleMesa(mesas[0])
+        }201
+      }
+    };
+  // Buscar la mesa en mesas
+  load();
+  onChangeText('');
+}
+
 // Manejo de los Comensales, aumentar o decrementar
 const handleComensales = (cant:number) => {
   const cantidad = cantComensales
@@ -280,17 +299,26 @@ const handleReservas = async (r:ReservasType) => {
 }
 
 const handleDataChange = async () => {
-  handleMesas(ultSector); 
+  //handleMesas(ultSector); 
   const load = async () => {
-      const result = await getSectores(urlBase,base,dispId);
-      setSectores(result);
+   
+          const result = await getSectores(urlBase,base,dispId);
+          setSectores(result);
+          // obtener el primer sector
+          const firstSector = result[0];
+          if (firstSector) {
+            handleMesas(firstSector.idSector);
+          }
+    
   };
- 
+  
   load();
   setOrigDetalle(0)
   setUltDetalle(0)
   setMesaDet([])
 } 
+
+const [text, onChangeText] = useState('');
 
 useEffect(() => {
 
@@ -312,7 +340,9 @@ return (
      
     {/* Despliego los Sectores  */}
     {!isOk &&
-    <View style={styles.container}>
+  
+   <View style={styles.container}>
+     
     <ScrollView horizontal contentContainerStyle={styles.container} >
       { sectores.map((s) => (
             
@@ -346,24 +376,46 @@ return (
       mesas.map((m) => ( 
        
           <TouchableOpacity key={m.nroMesa} onPress={() => handleMesa(m)}>
-            <View >     
-                <Text style={[styles.itemText, mesaForma(m.forma),m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:5},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada)}]}>{m.nroMesa}</Text>
+            <View >
+                {/*    
+                <Text style={[styles.itemText, mesaForma(m.forma),m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:5},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo)}]}>{m.nroMesa}</Text>
+                */}
+                <Text style={[ styles.itemText, styles.cuadrado_red,m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:3},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo)}]}>{m.nroMesa}</Text>
             </View>
           </TouchableOpacity>
       
         
       ))}
     </ScrollView>
+    
     </View> 
 
     <View style={styles.separador}></View> 
-
+ 
     <View style={[{bottom, },styles.cont_Pie  ]}>
-    <Link href="/mozos" replace asChild>  
+      <View style={{ flexDirection: 'row', alignItems:'center', justifyContent: 'center' }}>
+
+       <Link href="/mozos" replace asChild>  
         <TouchableOpacity> 
             <Text style={styles.textBtSalir}>Salir</Text> 
         </TouchableOpacity>
-    </Link>
+       </Link>
+       <TextInput
+        style={styles.input}
+        onChangeText={onChangeText}
+        value={text}     
+        placeholder='Mesa..'   
+        placeholderTextColor='grey'
+        keyboardType="numeric"
+       /> 
+       { text != '' &&
+        <TouchableOpacity onPress={() => handleBuscarMesa()}>
+        <AntDesign name="search1" size={28} color={Colors.colorborderubro} />
+        </TouchableOpacity>
+       }
+      
+   
+    </View>
     { mozo.idTipoMozo == 4 &&
     <Link href="/reservas" replace asChild>  
         <TouchableOpacity> 
@@ -510,7 +562,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 10,
+    paddingTop: 5,
     width: '100%',
   },
   separador : {
@@ -540,11 +592,11 @@ const styles = StyleSheet.create({
     
   },
   itemText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    lineHeight: 50,
+    lineHeight: 62,
     
   },
   bottomText: {
@@ -591,11 +643,13 @@ const styles = StyleSheet.create({
     shadowColor: Colors.backsombra,
   },
   textBtSalir: {
-    width:300,
+    width:180,
     textAlign:'center',
     fontSize:25,
     fontWeight:'500',
+    marginTop:5,
     marginBottom:5,
+    marginRight:10,
     color:'white',
     //height:50,
     borderRadius:10,
@@ -618,12 +672,12 @@ const styles = StyleSheet.create({
     
   },
   cuadrado_red: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     borderRadius: 10,
-    borderColor: 'black',
+    borderColor: 'white',
     borderStyle: 'solid',
-    borderWidth: 1,
+    borderWidth: 3,
   },
   rectangulo: {
     width: 100,
@@ -687,6 +741,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 5,
   },
+    container_input: { 
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',  
+   
+  },
+    input: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      height: 30,
+      width: '20%',
+      borderWidth: 1,
+      borderColor: Colors.colorborderubro,
+      padding: 5,
+      color: 'white',
+      //backgroundColor: Colors.backbotones,
+      borderRadius: 8,
+      //paddingBottom: 1,     
+      
+    },
 
 });
 

@@ -137,6 +137,7 @@ const cuenta = () => {
        const res = await LiberarMesa(ultMesa.nroMesa,false,urlBase,BaseDatos)       
     }
     
+    
     // Grabo la mesa y vuelvo a mesas
     const mDet = mesaDet.filter((m) => m.idDetalle > origDetalle )
     const detalle =[] as mesaDetPost[]

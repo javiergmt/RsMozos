@@ -88,7 +88,6 @@ export const getParamMozos = async(url:string,base:string): Promise<{param:param
 
 
 export const getSectores = async(url:string,base:string,disp:string): Promise<sectoresType[]> => {
-    
     const response = await fetch(url+`sectores/100/${disp}/1`,
         {   method: 'get', 
             headers: new Headers({
@@ -101,11 +100,11 @@ export const getSectores = async(url:string,base:string,disp:string): Promise<se
     return (data)
 }
 
-export const getMesas = async(id:number, url:string,base:string): Promise<{mesas:mesasType[],isError:boolean,isPending:boolean}> => {    
+export const getMesas = async(idSector:number,mesa:number, url:string,base:string): Promise<{mesas:mesasType[],isError:boolean,isPending:boolean}> => {    
     let isPending = true
     let isError = false
     try {
-        const response = await fetch(url+`mesas/100/${id}`,
+        const response = await fetch(url+`mesas/100/${idSector}/${mesa}`,
             {   method: 'get', 
                 headers: new Headers({
                   'bd': base,

@@ -75,10 +75,11 @@ const index = () => {
       const res = await LiberarMesa(ultMesa.nroMesa,false,urlBase,BaseDatos)
      }
      setSalir(true)
+
   }   
 
   return (
-   
+    salir ? <Redirect href='/mesas' /> :
     <View style={styles.container}>
      <Stack.Screen options={
         {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
@@ -86,13 +87,13 @@ const index = () => {
         headerRight:() => (
           <View style={{flexDirection: 'row',paddingRight: 0}}>
           <TouchableOpacity onPress={() => handleSalir()} >
-          <AntDesign name="close" size={35} color={Colors.colorBackBoton} />
+          <AntDesign name="close" size={45} color={Colors.colorBackBoton} />
           </TouchableOpacity>
           </View>
         )
         }
         } /> 
-    { salir && <Redirect href="/mesas" />}
+ 
     <View style={styles.container_input}> 
       <TextInput
         style={styles.input}
