@@ -8,11 +8,13 @@ import { Link, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React from "react";
 import Colors from "../constants/Colors";
-import DateTimePicker from '@react-native-community/datetimepicker';
+//import DateTimePicker from '@react-native-community/datetimepicker';
 import { AbrirMesa, CambiarReserva, ConfCumpReserva, GrabarComensales, isSoloOcupada, LiberarMesa } from "./ApiFront/Posts/PostDatos";
 import { AntDesign } from '@expo/vector-icons';
 import FlashMessage from "react-native-flash-message"
 import { showMessage, hideMessage } from "react-native-flash-message";
+//import { DayPicker } from "react-day-picker";
+//import "react-day-picker/style.css";
 
 const reservas = () => {
     const [reservas, setReservas] = useState<ReservasType[]>([]);
@@ -29,25 +31,14 @@ const reservas = () => {
     const [idTurnoSel, setIdTurnoSel] = useState(0);
     const [turnoSel, setTurnoSel] = useState('Todos');
 
-    // Datetime Picker
-    const [date, setDate] = useState(new Date());
+    const [day, setDay] = useState(Number(new Date().getDate()));
+    const [mes, setMes] = useState(Number(new Date().getMonth())+1);
+    const [anio, setAnio] = useState(Number(new Date().getFullYear()));
+    const [date, setDate] = useState<Date | undefined>(new Date());
+
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
-
-    const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate;
-        setShow(false);
-        setDate(currentDate);
-    };
-
-    const showMode = (currentMode) => {
-        setShow(true);
-        setMode(currentMode);
-    };
-
-    const showDatepicker = () => {
-        showMode('date');
-    };
+    const [selected, setSelected] = useState<Date | undefined>(new Date());
 
     // Seelct Picker Turnos
     const [showSelect, setShowSelect] = useState(false);
@@ -116,7 +107,7 @@ const reservas = () => {
     const handleSector = (s: sectoresType) => {
       // Obtengo los sectores de las mesas
       const load = async () => {
-        const { mesas, isError, isPending } = await getMesas(s.idSector,urlBase,base);
+        const { mesas, isError, isPending } = await getMesas(s.idSector,-1,urlBase,base);
         setMesas(mesas.filter(m => m.ocupada == 'N'));
       };
       setIdSector(s.idSector);
@@ -154,7 +145,7 @@ const reservas = () => {
 
 }
 
-    const handleTurno = async (t:turnosType) => {
+  const handleTurno = async (t:turnosType) => {
       setShowSelect(false);
       setIdTurnoSel(t.idTurno);
       setTurnoSel(t.descripcion);
@@ -162,57 +153,98 @@ const reservas = () => {
 
   const handleBuscar =  () => { 
     setActReservas(!actReservas);
-}
+  }
 
-    useEffect(() => {   
+  const handleDay =  (day) => { 
+    if (day >= 0 && day < 32 ) {
+      setDay(day);
+      setDate(new Date(anio,mes-1,day))
+    }  
+  }
+
+  const handleMes =  (mes) => { 
+    if (mes >= 0 && mes < 13 ) {
+      setMes(mes);
+      setDate(new Date(anio,mes-1,day))
+    }  
+  }
+
+  const handleAnio =  (anio) => { 
+    
+      setAnio(anio);
+      setDate(new Date(anio,mes-1,day))
+    
+  }
+
+  useEffect(() => {   
       const load = async () => {
         const result = await getTurnos(urlBase,base);
         setTurnos(result);
     };
         load();    
-    }, []); 
+  }, []); 
       
-    useEffect(() => {   
+  useEffect(() => {   
         const load = async () => {
             const result = await getSectores(urlBase,base,'-1');
             setSectores(result);
         };
         load();    
-    }, []);  
+  }, []);  
 
-    useEffect(() => {
-      const load = async () => {
-          const res = await getReservas(urlBase,base,date.toISOString(),idTurnoSel);
+  useEffect(() => {
+    console.log('Actualizo reservas',date.toISOString(),idTurnoSel)
+    const load = async () => {
+    const res = await getReservas(urlBase,base,date.toISOString(),idTurnoSel);
           setReservas(res.filter(r => !r.cumplida && r.nombre.toUpperCase().includes(text.toUpperCase())) );
           onChangeText('');
-      };
-      load();    
-    }, [actReservas,idTurnoSel,date]);
+    };
+    load();    
+  }, [actReservas,idTurnoSel]);
 
-    return (<>
-          <Stack.Screen options={
-            {headerTitle: `RESERVAS`, headerTitleAlign: 'center'}
-            } /> 
+    return (       
     <SafeAreaView style={styles.container}>     
         <FlashMessage position="top" />
         <View style={styles.container_input}>
-        <TouchableOpacity onPress={showDatepicker} >
-          {/* <Text style={styles.input_fecha} >{date.toISOString()}</Text> 
-          <Text style={styles.input_fecha} >{/(\d{4}-\d{2}-\d{2})T-/.exec(date.toISOString())[1]}</Text>
-          <Text style={styles.input_fecha} >{ date.getDate() + "-"+ date.getMonth() +"-"+date.getFullYear()}</Text>
-          */}
-          <Text style={styles.input_fecha} >{ date.toLocaleDateString() }</Text>
-         </TouchableOpacity>
-         <TouchableOpacity onPress={handleSelect}>
-          <Text style={styles.input_turno} >{turnoSel}</Text>
-         </TouchableOpacity>
+          <Stack.Screen options={
+            {headerTitle: `RESERVAS`, headerTitleAlign: 'center'}
+            }
+          /> 
+     
+          <View style={{ flexDirection: 'row', alignItems:'center', justifyContent: 'center' }}>
+           <TextInput
+                    style={styles.input_fecha_dm}
+                    onChangeText={handleDay}
+                    value={day.toString()}
+                    maxLength={2}
+                    keyboardType='numeric'
+                  />
+            <TextInput
+                    style={styles.input_fecha_dm}
+                    onChangeText={handleMes}
+                    value={mes.toString()}
+                    maxLength={2}
+                    keyboardType='numeric'
+                  />    
+             <TextInput
+                    style={styles.input_fecha_y}
+                    onChangeText={handleAnio}
+                    value={anio.toString()}
+                    maxLength={4}
+                    keyboardType='numeric'
+                  />
+          </View>             
+  
+          <TouchableOpacity onPress={handleSelect}>
+            <Text style={styles.input_turno} >{turnoSel}</Text>
+          </TouchableOpacity>
           <TextInput
                   style={styles.input_text}
                   onChangeText={onChangeText}
                   value={text}     
                   placeholder='Buscar x Nombre'   
                   placeholderTextColor='grey'
-                />  
+          />  
         
           <View style={{marginLeft:10}}>
            
@@ -271,6 +303,7 @@ const reservas = () => {
           </ScrollView>
         </View>
         } 
+        {/*
         {show && (
         <DateTimePicker
           testID="dateTimePicker"
@@ -280,8 +313,9 @@ const reservas = () => {
           is24Hour={true}
           onChange={onChange}
         />
+     
         )}
-
+        */}
 
         {/* Ubicar Reserva */
         ubicarReserva && idSector == 0 &&
@@ -337,9 +371,10 @@ const reservas = () => {
 
   
     </SafeAreaView>
-    </>
-    )
+  )
+
 }
+
 export default reservas
 
 const styles = StyleSheet.create({
@@ -403,6 +438,38 @@ input_text: {
     fontWeight: 'bold',
     height: 40,
     width: 100,
+    borderWidth: 1,
+    borderColor: Colors.colorborderubro,
+    padding: 5,
+    color: 'white',
+    //backgroundColor: Colors.backbotones,
+    borderRadius: 8,
+    paddingBottom: 10,
+    //marginRight: 5,
+    
+    //marginLeft: 5,
+  },  
+  input_fecha_dm: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    height: 40,
+    width: 30,
+    borderWidth: 1,
+    borderColor: Colors.colorborderubro,
+    padding: 5,
+    color: 'white',
+    //backgroundColor: Colors.backbotones,
+    borderRadius: 8,
+    paddingBottom: 10,
+    //marginRight: 5,
+    
+    //marginLeft: 5,
+  },  
+  input_fecha_y: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    height: 40,
+    width: 50,
     borderWidth: 1,
     borderColor: Colors.colorborderubro,
     padding: 5,

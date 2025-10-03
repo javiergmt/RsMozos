@@ -84,13 +84,15 @@ const index = () => {
      <Stack.Screen options={
         {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
          headerTitleAlign: 'center',
-        headerRight:() => (
+         /* 
+         headerRight:() => (
           <View style={{flexDirection: 'row',paddingRight: 0}}>
           <TouchableOpacity onPress={() => handleSalir()} >
           <AntDesign name="close" size={45} color={Colors.colorBackBoton} />
           </TouchableOpacity>
           </View>
         )
+        */
         }
         } /> 
  
@@ -114,7 +116,12 @@ const index = () => {
     </View>   
 
     <View style={styles.container_input}>  
-       <Text  style={styles.textRubro}>Rubros</Text>
+      
+        <TouchableOpacity >
+          <Text style={styles.textTitulo}><AntDesign name="close" size={30} color={Colors.colorBackBoton} onPress={handleSalir} /></Text>
+        </TouchableOpacity>
+   
+      <Text  style={styles.textRubro}>Rubros</Text>
       <Link href={`/(tabs)/platos/0`} asChild>
         <TouchableOpacity >
           <Text style={styles.textTitulo}><AntDesign name="appstore1" size={20} color={Colors.colorborderubro} /> Ver Todos </Text>
@@ -149,8 +156,7 @@ const index = () => {
            </Link>
         
         </View>
-       ))}
-      
+       ))}      
     </ScrollView>
 
     </View>

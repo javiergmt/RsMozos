@@ -1,4 +1,4 @@
-import { dispValido } from './../ApiFront/Types/BDTypes';
+import { dispValido } from '../ApiFront/Types/BDTypes';
 import { create } from 'zustand';
 import { mozoType, rubrosSubType, paramType, platosType,
     mesaType, mesaDetType , mesaDetGustosType, mesaDetModifType} from '../ApiFront/Types/BDTypes';
@@ -198,6 +198,7 @@ export const useLoginStore = create<LoginStoreState>(
         getTotMesa: () => get().totMesa,
         setTotMesa: (total:number) => set({totMesa:total}),
     }))
+export default useLoginStore;
 
 function initMozo(): mozoType {
     
