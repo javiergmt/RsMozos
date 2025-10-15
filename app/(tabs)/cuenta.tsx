@@ -612,7 +612,7 @@ const cuenta = () => {
         let total = 0
         mesaDet.forEach(async (m) => {
         total += m.importe
-        if (m.idTipoConsumo == 'CB') {
+        //if (m.idTipoConsumo == 'CB') {
            let det = ''
            const infocb = await getInfoComboSec(ultMesa.nroMesa,m.idDetalle,0,urlBase,BaseDatos)
            if (infocb.length > 0) {
@@ -620,7 +620,7 @@ const cuenta = () => {
               det = det + i.descripcion + ','   
             })  
             m.detalles = det
-          }
+        //}
           
           
         }
@@ -709,7 +709,7 @@ const cuenta = () => {
               <Text style={styles.item}> {capitalize(c.descripcion)}</Text>
               </TouchableOpacity> 
             } 
-              
+                        
             </View>
             
      
@@ -742,6 +742,10 @@ const cuenta = () => {
           
           }
           { c.detalles != '' && verAnt && c.idDetalle <= origDet &&
+          <Text style={[styles.itemDet  , {backgroundColor: c.idDetalle % 2 == 0 ? Colors.colorFondoCuenta: Colors.background}]}>{capitalize(c.detalles)}</Text>
+          }
+
+          { c.detalles != '' && verAnt && c.idDetalle > origDet &&
           <Text style={[styles.itemDet  , {backgroundColor: c.idDetalle % 2 == 0 ? Colors.colorFondoCuenta: Colors.background}]}>{capitalize(c.detalles)}</Text>
           }
         </View>

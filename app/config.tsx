@@ -145,7 +145,7 @@ const config = () => {
           style={styles.input}
           onChangeText={onChangeDisp}
           value={disp}
-          keyboardType="numeric"
+       
         />
 
         

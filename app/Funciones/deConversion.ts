@@ -20,6 +20,10 @@ export function getFechaActual() {
     return /(\d{4}-\d{2}-\d{2})T/.exec(new Date().toISOString())[1]
 }
 
+export function getFechaHoraActual() {
+
+    return /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(new Date().toISOString())[1]
+}
 
 
 export function calcularHoras(hora:string){

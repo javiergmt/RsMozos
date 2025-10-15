@@ -7,7 +7,7 @@ import { getComboDet, getComboSec, getGustos, getPlato_Precio } from '../../../A
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Colors from '../../../../constants/Colors'
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { getHoraActual } from '../../../Funciones/deConversion'
+import { getFechaHoraActual, getHoraActual } from '../../../Funciones/deConversion'
 import { showToast } from '../../../Funciones/deInfo'
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
@@ -76,6 +76,7 @@ const selCombos = () => {
     const platopcio = await getPlato_Precio(item.idPlato, 0, ultMesa.idSector, hora, urlBase,BaseDatos)
     const detcombo = [] as comboPostType[]
     let detalle = ''  
+    const fechaHora = getFechaHoraActual()   
     comboDet.forEach(async (cd) => {
         
         cd.forEach((d) => {
@@ -89,7 +90,7 @@ const selCombos = () => {
             } 
            
             detcombo.push(
-                 
+             
               { idSeccion: d.idSeccion,
                 idPlato: d.idPlato, 
                 procesado: true,
@@ -98,7 +99,7 @@ const selCombos = () => {
                 idTamanio: d.idTamanio,
                 tamanio: d.tamanio,
                 obs: '',
-                fechaHora: new Date().toISOString(),
+                fechaHora: fechaHora,
                 comanda: true,
                 descripcion: d.descripcion,
                 idSectorExped: d.idSectorExped, 
