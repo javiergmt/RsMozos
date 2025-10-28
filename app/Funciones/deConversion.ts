@@ -11,18 +11,27 @@ export default function deConversion(){
  * @return {string}
  */
 export function getHoraActual() {
+    const fecha = new Date()
+    console.log('Fecha actual:', fecha)
+    // fijar la zona horaria a UTC-3
+    fecha.setHours(fecha.getHours() - 3)
 
-    return /(\d{2}:\d{2})/.exec(new Date().toISOString())[1]
+    // obtener la hora en formato ISO y extraer la parte de la hora
+    return /(\d{2}:\d{2})/.exec(fecha.toISOString())[1]
 }
 
 export function getFechaActual() {
-    
-    return /(\d{4}-\d{2}-\d{2})T/.exec(new Date().toISOString())[1]
+    const fecha = new Date()
+    // fijar la zona horaria a UTC-3
+    fecha.setHours(fecha.getHours() - 3)
+    return /(\d{4}-\d{2}-\d{2})T/.exec(fecha.toISOString())[1]
 }
 
 export function getFechaHoraActual() {
-
-    return /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(new Date().toISOString())[1]
+const fecha = new Date()
+    // fijar la zona horaria a UTC-3
+    fecha.setHours(fecha.getHours() - 3)
+    return /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(fecha.toISOString())[1]
 }
 
 

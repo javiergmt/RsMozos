@@ -82,6 +82,7 @@ const selPlatos = () => {
       const hora = getHoraActual()
       const platoprecio = getPlato_Precio(item.idPlato,0,ultMesa.idSector,hora,urlBase,BaseDatos)
       platoprecio.then((res) => { 
+        console.log(hora,'PlatoPrecio:',res)
       setTotMesa(totMesa + res[0].pcioUnit * cantItem)
       const det = { 
       nroMesa: ultMesa.nroMesa,

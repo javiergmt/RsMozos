@@ -257,6 +257,7 @@ export type comboDetType = {
   idSectorExped?: number;
   impCentralizada?: number;
   comandado?: boolean;
+  cantidad?: number;
 }
 
 //----------------------------------------------

@@ -37,6 +37,7 @@ const selCombos = () => {
   const [comboSec, setComboSec] = useState( [] as comboSecType[]) 
   const [comboDet, setComboDet] = useState( [] as comboDetType[][])  
   const [cantMax, setCantMax] = useState(0)  
+  const [cantPlatos, setCantPlatos] = useState(0)  
   const [ultSeccion, setUltSeccion] = useState(0)
   const [ultPlato, setUltPlato] = useState(0)
   const [isOk, setIsOk] = useState(false)
@@ -95,7 +96,7 @@ const selCombos = () => {
                 idPlato: d.idPlato, 
                 procesado: true,
                 cocinado: false,                 
-                cant: 1,
+                cant: d.cantidad ? d.cantidad : 1,
                 idTamanio: d.idTamanio,
                 tamanio: d.tamanio,
                 obs: '',
@@ -238,8 +239,10 @@ const selCombos = () => {
       } else {
         setIsOk(true)
         cd.filter (d => d.idSeccion == idSeccion).forEach((d) => {
+             d.cantidad = 0
              if (d.idPlato == idPlato) {
                  d.selected = isChecked
+                 d.cantidad = 1
              }
         })
         // Si es consumo variable cargo los gustos
@@ -251,6 +254,49 @@ const selCombos = () => {
         }  
       }  
     })       
+  } 
+
+   const handleSeccionPress = (cantg:number,inc:number,idSeccion:number,idPlato:number,idTipoConsumo:string,cantGustos:number ) => {
+    console.log('Cantidad Plato:',cantPlatos,inc,cantMax)
+    
+    const loadGustos = async () => {
+      const result = await getGustos(idPlato,urlBase,BaseDatos);
+      setGustos(result); 
+      setUltPlato(idPlato)   
+      setCantMaxGustos(cantGustos)  
+    };
+    let cant = 0;
+    comboDet.forEach((cd) => {
+      
+      cd.filter (d => d.idSeccion == idSeccion).forEach((d) => {
+            //console.log(d)
+             cant = cant + (d.cantidad ? d.cantidad : 0);
+            
+      })
+    })
+
+    if (cant + inc > cantMax ) {
+      setIsOk(false)
+      Alert.alert('Atención','No puede seleccionar más de '+cantMax+' platos')      
+    } else {
+      comboDet.forEach((cd) => {      
+        cd.filter (d => d.idSeccion == idSeccion).forEach((d) => {
+ 
+             if (d.idPlato == idPlato) {
+                 d.selected = true
+                 d.cantidad = cantg 
+             }
+             setCantPlatos(cant)
+             if (idTipoConsumo == 'CV' && cantg == 1) {
+                setCantGustos(0)
+                setCantMaxGustos(0)
+                setIsGustos(true)
+                loadGustos()
+              }  
+        })
+           })
+      setIsOk(true)
+    }
   } 
 
   const handleBottomSheet = () => { 
@@ -290,6 +336,7 @@ const selCombos = () => {
           if (seccion.length > 1) {  
             seccion.forEach((r) => {              
               r.selected = false
+              r.cantidad = 0
             }) 
           } else {
             if ( s.autocompletar == true ) {
@@ -349,9 +396,9 @@ const selCombos = () => {
       {comboDet && autocompletar &&
            <Text style={styles.checkbox}><AntDesign name="check" size={25} color={Colors.colorazulboton} /> {unicoPlato} </Text>
       }       
-      
-      {comboDet && !autocompletar &&
-       comboDet.map((cd) => (
+
+      {/* Si la cantidad maxima es igual a 1 , uso checkbox */}
+      {comboDet && !autocompletar && cantMax == 1 && comboDet.map((cd) => (
         cd.filter (d => d.idSeccion == ultSeccion).map((d) => (
          
         <View style={styles.checkboxContainer} key={d.idPlato} >         
@@ -369,9 +416,31 @@ const selCombos = () => {
         </View>
         ))
         ))
-        
       }
-      
+
+      {/* Si la cantidad maxima es mayor a 1 debo permitir seleccionar varios platos */}
+      {comboDet && !autocompletar && cantMax > 1 && comboDet.map((cd) => (
+        cd.filter (d => d.idSeccion == ultSeccion).map((d) => (
+        <View style={styles.checkboxContainer} key={d.idPlato}>       
+          <View style={styles.col}>
+            <Text style={styles.text}>{' '+d.descripcion +' '+d.tamanio}</Text>
+            <InputSpinner
+              value={d.cantidad ? d.cantidad : 0}
+              editable={false}
+              max={cantMax}
+              skin ="clean"
+              
+              style={styles.spinner}
+              color={Colors.colorcheckbox}
+
+              onIncrease={(value) => { handleSeccionPress(value as number,1,d.idSeccion,d.idPlato,d.idTipoConsumo,d.cantGustos) }}
+              onDecrease={(value) => { handleSeccionPress(value as number,-1,d.idSeccion,d.idPlato,d.idTipoConsumo,d.cantGustos) }}
+            />
+          </View>
+        </View>
+        ))
+      ))
+      }
       
       </ScrollView>
       </View>
@@ -586,7 +655,7 @@ const styles = StyleSheet.create({
     text: {
       flex: 3,
       marginRight: 20,
-      fontSize: 22,
+      fontSize: 18,
       fontWeight: "bold",
       color: Colors.colorazulboton,
     },

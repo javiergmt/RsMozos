@@ -2,20 +2,18 @@
 // Recibe un parametro id que es el id del modificador seleccionado o 0.
 // Es para los casos que un plato de tipo CV tenga modificadores
 
-import { View, Text, SafeAreaView ,ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { View, Text, SafeAreaView ,ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLoginStore } from '../../../store/useLoginStore'
 import { getGustos, getPlato_Precio } from '../../../ApiFront/Gets/GetDatos'
-import { Link, Redirect, Stack, useLocalSearchParams } from 'expo-router'
-import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { gustosDet, gustosType, mesaDetGustosType, mesaDetType, platosType } from '../../../ApiFront/Types/BDTypes'
+import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
+import { gustosDet, gustosType, mesaDetType, platosType } from '../../../ApiFront/Types/BDTypes'
 import { getHoraActual } from '../../../Funciones/deConversion'
-import { showToast } from '../../../Funciones/deInfo'
 import Colors from '../../../../constants/Colors'
 import InputSpinner from "react-native-input-spinner";
 import FlashMessage from "react-native-flash-message";
-import { showMessage, hideMessage } from "react-native-flash-message";
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
+import { showMessage } from "react-native-flash-message";
+
 
 
 type Gustos ={
@@ -200,7 +198,7 @@ const selGustos = () => {
 							value={0}
 							style={styles.spinner}
 							color={Colors.colorcheckbox}
-            
+              skin ="clean"
               onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto,g.idPlatoRel)
               }}
               onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto,g.idPlatoRel)
@@ -237,20 +235,18 @@ const styles = StyleSheet.create({
 
   },
   cont_checkbox: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginLeft: 20,  
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 20,  
     marginBottom: 5, 
     marginTop: 5,
-      //height: '100%',
-    },
+  },
   checkbox: {
     fontSize: 20,
     fontWeight: 'bold',
     alignSelf: 'center',
     color: 'white',
-   
   },
   label: {
     margin: 8,
@@ -288,7 +284,7 @@ const styles = StyleSheet.create({
 	text: {
 		flex: 3,
 		marginRight: 20,
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "bold",
     color: Colors.colorazulboton,
 	},
