@@ -41,7 +41,7 @@ const mesaForma = (forma:number) => {
 const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean, idTipoMozo:number) => {
 
   //console.log('mesaColor:',ocupada,cerrada,conPostre,idMozo,idMozoSel,soloOcupada,idTipoMozo)
-  if ( (idMozoSel != idMozo && idTipoMozo != 3) && ocupada=='S' && cerrada==0) {
+  if ( (idMozoSel != idMozo && idTipoMozo != 3 && idTipoMozo != 2 ) && ocupada=='S' && cerrada==0) {
     if (soloOcupada) {
       return 'lightblue'
     } else {
@@ -118,9 +118,8 @@ const mesas = () => {
  const handleMesa = async (mesa:mesasType) => {
  setTotMesa(0); 
  if ( ( mesa.idMozo == 0 && mesa.ocupada == 'N' && mesa.cerrada == 0) 
-    || ( ( mesa.idMozo == mozo.idMozo || mozo.idTipoMozo == 3) && mesa.ocupada == 'S' && mesa.cerrada == 0)
-    )
-    {
+    || ( ( mesa.idMozo == mozo.idMozo || mozo.idTipoMozo == 3 || mozo.idTipoMozo == 2 ) && mesa.ocupada == 'S' && mesa.cerrada == 0)
+  ) {
       if (mesa.reservada) {
        setIsTieneReserva(true)
         const res = await getReservas(urlBase,base,date.toISOString(),0);
@@ -164,7 +163,7 @@ const mesas = () => {
             type: "danger",
       });
     } else {
-      if (mesa.idMozo != mozo.idMozo) {
+      if (mesa.idMozo != mozo.idMozo ) {
         if (mesa.soloOcupada ) {
           // Registrar la Mesa solo ocupada sin detalle al Mozo que se loguea
        
