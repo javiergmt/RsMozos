@@ -4,12 +4,13 @@ import { Link, Redirect } from 'expo-router'
 import { useLoginStore } from './store/useLoginStore'
 import * as SecureStore from 'expo-secure-store';
 import { deconvPort, deconvUrl } from './Funciones/deConversion';
-import { getDisp } from './ApiFront/Gets/GetDatos';
+import { Conectar } from './ApiFront/Posts/PostDatos';
 import Colors from '../constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FlashMessage from "react-native-flash-message"
 import { showMessage, hideMessage } from "react-native-flash-message";
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import { datosApp } from './ApiFront/Types/BDTypes';
 
 
 const config = () => {
@@ -26,25 +27,52 @@ const config = () => {
   const [pass, onChangePass] = useState('')
   const [showPassword, setShowPassword] = useState(false); 
   
-  const validarPass = () => {
-      if (pass == '6736' || pass == 'Rest0.s0ft') {
-        setIsOk(true)
-      } else {
-        //Alert.alert('Clave Incorrecta')
-        showMessage({
-                    message: "ATENCION !!",
-                    description: "Clave Incorrecta",
-                    type: "danger",
-              });
-        setGrabarOk(true)
-      }
-  }; 
-
-  const getDisp = async () => {
-   //const mac = await DeviceInfo.getMacAddress()
-   //setDispId(mac)
-  
+  const getConectar = async (clave:string): Promise<boolean> => {
+   const datos = await Conectar(clave)
+   let datosApp = datos["data"]["data"] as datosApp[]  
+   console.log('datos en config',datosApp)
+   if (datosApp['conectado']==1){
+      showMessage({
+        message: "ATENCION !!",
+        description: "Este Dispositivo no esta autorizado para conectarse a la App RestoSoft.",
+        type: "danger",
+      });
+    
+      setUrl('http://0.0.0.0:1234/')
+      save('url','http://0.0.0.0:1234/');
+      setDispId('0')
+      setBaseDatos('') 
+      save('disp','0');
+      save('bd','');  
+      setTipoListaPlatos('');
+      save('tipoLista','');  
+      return false;
+   } else {
+      setUrl('http://'+datosApp['ipServer'].trim()+'/' )
+      save('url','http://'+datosApp['ipServer'].trim()+'/' );
+      setDispId(datosApp['ptoVta'].toString())
+      setBaseDatos(datosApp['baseDatos'].trim())
+      save('disp',datosApp['ptoVta'].toString());
+      save('bd',datosApp['baseDatos'].trim());  
+      setTipoListaPlatos("B");
+      save('tipoLista',"B");   
+      return true;
+   }
+ 
   };
+
+  async function validarPass() {
+    if (pass == '6736' || pass == 'Rest0.s0ft') {
+      setIsOk(true);
+    } else {
+      const conect = await getConectar(pass);
+      setGrabarOk(true);
+      
+     
+    }
+    
+  } 
+
 
   async function save(key, value) {
     await SecureStore.setItemAsync(key, value);
@@ -83,7 +111,7 @@ const config = () => {
 
     getValueFor('tipoLista').then((res) => {
       onChangeTipo(res)
-      console.log('tipoLista',res)
+     
     })
 
    }, []);

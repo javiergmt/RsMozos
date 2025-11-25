@@ -1,5 +1,5 @@
 
-import { mozoType,mesaDetPost, ReservasType, comanda } from "../Types/BDTypes"
+import { mozoType,mesaDetPost, ReservasType, comanda, datosApp } from "../Types/BDTypes"
 import { modificarComandaPost, modificarPlatoPost } from "./ConvDatos"
 import { showToast } from '../../Funciones/deInfo'
 import { Alert } from "react-native"
@@ -313,4 +313,35 @@ export const Comandar = async (detalle:comanda ,url:string, base:string) => {
         .catch(error => console.log(error))
        
     return res
+}
+
+export const Conectar = async (clave:string): Promise<{data: datosApp[], isError: boolean, isPending: boolean}> =>  {    
+    //console.log("COMANDA: ", detalle)
+    let isPending = true
+    let isError = false
+    let url = 'http://181.191.64.252:2520/rsoftAppVal/'
+
+    try {
+        const response = await fetch(url
+        , {method: 'POST',
+        headers: {
+         
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({  
+            service: "validar",
+            method: "appValidar",
+            params: {
+                pass: clave
+            }          
+        })
+        })  
+        const data = await response.json()
+        isPending = false    
+        return {data:data,isError,isPending}
+    } catch (error) {
+        console.log("ERROR CONECTAR: ", error)        
+        isError = true
+    }
+    return {data:[],isError,isPending}
 }

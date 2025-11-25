@@ -405,3 +405,12 @@ export interface comanda
     platos: comandaPlatos[]
 }
 
+export interface datosApp
+{
+    idResto: number,
+    ipServer: string,
+    baseDatos: string,
+    ptoVta: number, 
+    conectado: number 
+}
+

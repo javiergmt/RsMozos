@@ -1,7 +1,6 @@
 import { View, Text, Button, SafeAreaView, StyleSheet, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLoginStore } from './store/useLoginStore';
-import { getDisp } from './ApiFront/Gets/GetDatos';
 import Colors from '../constants/Colors';
 import * as SecureStore from 'expo-secure-store';
 import { Redirect } from 'expo-router';
@@ -12,24 +11,11 @@ import { version } from '../package.json';
 const index = () => {
   const [msgError, setMsgError] = useState('')
   const [isPending, setIsPending] = useState(true)
-  const [isValido, setIsValido] = useState(false)
+  const [isValido, setIsValido] = useState(true)
   const [irConfig, setIrConfig] = useState(false)
   const { setUrl,setDispId,setBaseDatos,urlBase,BaseDatos,dispId } = useLoginStore();
   
-  // Valido Dispositivo
-  const validarDisp = async (id:number,url:string,base:string) => {
-     const data = await getDisp(id,url,base) 
-     setIsPending(data.isPending)
-      if (data.isError) {
-        setMsgError('Error en la validacion del dispositivo: '+data.isError)
-      } else {
-        if (data.disp[0].valido == 1) {
-          setIsValido(true)
-        }
-      }
-     
-     return data
-  }
+ 
 
   const getValueFor = async (key:string) => {
     let result = await SecureStore.getItemAsync(key);
@@ -56,7 +42,7 @@ useEffect(() => {
       grabarStore(url,id,base)
       console.log('url:',url,' id:',id,' base:',base)
       //const url = 'http://192.168.1.1:1234/'
-      const {disp,isError,isPending} = await validarDisp(parseInt(id),url,base)
+      //const {disp,isError,isPending} = await validarDisp(parseInt(id),url,base)
       
       return 
     };

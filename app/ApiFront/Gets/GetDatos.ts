@@ -1,4 +1,4 @@
-import { comboInfoSecType, NoticiasType, platosprecioType, rubrosSubType, turnosType, mensajesComandaType, lugSectImpreType, gustosDet } from './../Types/BDTypes';
+import { comboInfoSecType, NoticiasType, platosprecioType, rubrosSubType, turnosType, mensajesComandaType, lugSectImpreType, gustosDet, datosApp } from './../Types/BDTypes';
 
 import { mozoType,sectoresType,mesasType,platosType,paramType,gustosType,
     modifType,mesaEncType,mesaDetType, comboSecType, comboDetType,ReservasType,
@@ -9,32 +9,6 @@ import { getHoraActual } from '../../Funciones/deConversion';
 
 export default function GetDatos(){
     return null;
-}
-
-export const getDisp = async(id:number,url:string,base:string):
-    Promise<{ disp:dispValido[],isError:string,isPending:boolean}> => {
-
-    let isPending = true
-    let isError = ''
-      
-    try {
-        const response = await fetch(url+`disp_valido/${id}`,
-            {   method: 'get', 
-                headers: new Headers({
-                  'bd': base,
-                })
-            }
-        )
-        const disp = await response.json()
-        //console.log('url: ',url,' - Rubros: ',rubros)
-        isPending = false
-        return {disp,isError,isPending}
-     } catch (e) { 
-        console.log('Error en Dispositivo: ',e,' url:',url)
-        isError = e.message       
-        isPending = true
-        return {disp:[{valido:0}],isError,isPending}
-      } 
 }
 
 export const GetMozoPass = async(id:any,url:string,base:string): Promise<{data: mozoType[], isError: boolean, isPending: boolean}> => {
