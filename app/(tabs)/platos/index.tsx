@@ -82,7 +82,7 @@ const index = () => {
     salir ? <Redirect href='/mesas' /> :
     <View style={styles.container}>
      <Stack.Screen options={
-        {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`,
+        {headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} - ${comensales} Pers.`,
          headerTitleAlign: 'center',
          /* 
          headerRight:() => (

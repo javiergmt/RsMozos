@@ -31,13 +31,7 @@ const config = () => {
    const datos = await Conectar(clave)
    let datosApp = datos["data"]["data"] as datosApp[]  
    console.log('datos en config',datosApp)
-   if (datosApp['conectado']==1){
-      showMessage({
-        message: "ATENCION !!",
-        description: "Este Dispositivo no esta autorizado para conectarse a la App RestoSoft.",
-        type: "danger",
-      });
-    
+   if (datosApp['conectado']==1){          
       setUrl('http://0.0.0.0:1234/')
       save('url','http://0.0.0.0:1234/');
       setDispId('0')
@@ -54,8 +48,8 @@ const config = () => {
       setBaseDatos(datosApp['baseDatos'].trim())
       save('disp',datosApp['ptoVta'].toString());
       save('bd',datosApp['baseDatos'].trim());  
-      setTipoListaPlatos("B");
-      save('tipoLista',"B");   
+      setTipoListaPlatos("L");
+      save('tipoLista',"L");   
       return true;
    }
  
@@ -66,8 +60,16 @@ const config = () => {
       setIsOk(true);
     } else {
       const conect = await getConectar(pass);
-      setGrabarOk(true);
-      
+      if (!conect) {
+        console.log('dispositivo no autorizado');
+        showMessage({
+        message: "ATENCION !!",
+        description: "Este Dispositivo no esta autorizado para conectarse a la App RestoSoft.",
+        type: "danger",
+        });
+      } else {
+        setGrabarOk(true);
+      }
      
     }
     
@@ -138,6 +140,11 @@ const config = () => {
           <View style={[{bottom, },styles.cont_Pie  ]}>
             <TouchableOpacity onPress={validarPass}> 
                 <Text style={styles.textBtSalir}>Validar Clave</Text> 
+            </TouchableOpacity>
+          </View> 
+          <View style={[{bottom, },styles.cont_Pie  ]}>
+            <TouchableOpacity onPress={() => {setGrabarOk(true)}}> 
+                <Text style={styles.textBtSalir}>Volver</Text> 
             </TouchableOpacity>
           </View> 
         </View>

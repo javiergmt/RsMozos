@@ -34,7 +34,7 @@ const rubros = () => {
   return (
     <View style={styles.container}>
       
-      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
+      <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} - ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
       {/* <Text style={[styles.titulo]}>Platos del Rubro: {id}</Text> */}
       <View style={styles.container_titulo}>  
        <Text style={styles.textRubro}>SubRubros</Text>

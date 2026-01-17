@@ -3,6 +3,7 @@ import { comanda } from "../Types/BDTypes";
 
 interface PostPlato {
     nroMesa: number;
+    descMesa: string;
     idDetalle: number;
     idPlato: number;
     cant: number;
@@ -72,6 +73,7 @@ export function modificarPlatoPost(objeto: any): PostPlato {
         idTamanio: objeto.idTamanio,
         importe: objeto.importe,
         nroMesa: objeto.nroMesa,
+        descMesa: objeto.descMesa,
         pcioUnit: objeto.pcioUnit,
         procesado: objeto.procesado,
         obs: objeto.obs,
@@ -98,6 +100,7 @@ export function modificarComandaPost(objeto: any): comanda {
     
     result = {
         nroMesa: objeto.nroMesa,
+        descMesa: objeto.descMesa,
         idMozo: objeto.idMozo,
         nombreMozo: objeto.nombreMozo,
         comensales: objeto.comensales, 

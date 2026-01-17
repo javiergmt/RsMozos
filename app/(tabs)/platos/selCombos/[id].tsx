@@ -356,7 +356,7 @@ const selCombos = () => {
   return (
   <GestureHandlerRootView style={{ flex: 1 }}>
   <View style={styles.container}>
-    <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
+    <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
     <FlashMessage position="top" />
      
     <View style={styles.containerTitulo}>

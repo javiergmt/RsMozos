@@ -146,6 +146,7 @@ const cuenta = () => {
         console.log('Comanda:',m)
         const det ={ 
           nroMesa: ultMesa.nroMesa,
+          descMesa: ultMesa.descMesa,
           idDetalle: m.idDetalle,          
           idPlato: m.idPlato,
           idTipoConsumo: m.idTipoConsumo,
@@ -239,6 +240,7 @@ const cuenta = () => {
         const comanda =[] as comanda[]
         comanda.push(
           { nroMesa: ultMesa.nroMesa,
+            descMesa: ultMesa.descMesa,
             idMozo: mozo.idMozo,
             nombreMozo: mozo.nombre,
             comensales: ultMesa.cantPersonas > 0 ? ultMesa.cantPersonas : comensales,
@@ -549,6 +551,7 @@ const cuenta = () => {
     //mDet.forEach((m) => {
     const det:mesaDetPost ={ 
           nroMesa: ultMesa.nroMesa,
+          descMesa: ultMesa.descMesa,
           idDetalle: idDetalle,          
           idPlato: mDet[0].idPlato,
           idTipoConsumo: mDet[0].idTipoConsumo,
@@ -640,7 +643,7 @@ const cuenta = () => {
     <View style={styles.container}>
      
      <Stack.Screen options={{
-                              headerTitle: `Mesa ${ultMesa.nroMesa} - (${comensales}) - $${totMesa.toFixed(2)}`,
+                              headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} - (${comensales}) - $${totMesa.toFixed(2)}`,
                               headerTitleAlign: 'center',
                               headerStyle: {
                                 backgroundColor: Colors.background,

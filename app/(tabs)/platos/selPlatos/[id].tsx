@@ -219,7 +219,7 @@ const selPlatos = () => {
     return (
      <> 
       <Stack.Screen options={
-        {headerTitle: `Mesa ${ultMesa.nroMesa} - ${comensales} Pers`, headerTitleAlign: 'center'}
+        {headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} - ${comensales} Pers`, headerTitleAlign: 'center'}
         } /> 
       <GestureHandlerRootView style={styles.container}>
         

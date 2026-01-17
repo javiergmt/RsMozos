@@ -53,7 +53,8 @@ export type mesasType = {
     porCobrar: boolean,
     reservada: boolean,
     soloOcupada: boolean,
-    conPostre: boolean 
+    conPostre: boolean,
+    descMesa: string 
 }
 
 export type mesaType = {
@@ -65,6 +66,7 @@ export type mesaType = {
     cantPersonas: number,
     activa: boolean, 
     soloOcupada: boolean,
+    descMesa: string
 }
 
 export type mesaEncType ={
@@ -266,6 +268,7 @@ export type comboDetType = {
 
 export type mesaDetPost = {
   nroMesa: number;
+  descMesa: string;
   idDetalle: number;
   idPlato: number;
   idTipoConsumo: string;
@@ -398,6 +401,7 @@ export interface comandaPlatos
 export interface comanda
 {
     nroMesa: number,
+    descMesa: string,
     idMozo: number,
     nombreMozo: string,
     comensales: number, 

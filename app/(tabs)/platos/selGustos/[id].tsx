@@ -174,7 +174,7 @@ const selGustos = () => {
   return (
     <SafeAreaView style={styles.container}>
      <View >
-     <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
+     <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} -  ${comensales} Pers.`, headerTitleAlign: 'center'}} /> 
       <FlashMessage position="top" />
        <View> 
         <Text style={styles.tituloText}>  {item.descripcion}  </Text>

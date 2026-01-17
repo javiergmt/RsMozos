@@ -114,7 +114,7 @@ useEffect(() => {
   <SafeAreaView style={{ flex: 1 }}>
      <View style={styles.container}>    
         <FlashMessage position="top" />
-        <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} -  ${comensales} Pers.`, 
+        <Stack.Screen options={{headerTitle: `Mesa ${ultMesa.nroMesa} ${ultMesa.descMesa} -  ${comensales} Pers.`, 
                     headerTitleAlign: 'center',
                     headerStyle: {
                                   backgroundColor: Colors.background,

@@ -303,6 +303,7 @@ export const Comandar = async (detalle:comanda ,url:string, base:string) => {
     const res = await fetch(url+"comandar/",
         requestOptionPost({            
             nroMesa: detalle.nroMesa,
+            descMesa: detalle.descMesa,
             idMozo: detalle.idMozo,  
             nombreMozo: detalle.nombreMozo,
             comensales: detalle.comensales,            
@@ -319,22 +320,21 @@ export const Conectar = async (clave:string): Promise<{data: datosApp[], isError
     //console.log("COMANDA: ", detalle)
     let isPending = true
     let isError = false
-    let url = 'http://181.191.64.252:2520/rsoftAppVal/'
+    let url = 'http://181.191.64.252:2520/ValidacionApp/rsoftAppVal/'
 
     try {
         const response = await fetch(url
         , {method: 'POST',
-        headers: {
-         
+           headers: {         
             'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({  
-            service: "validar",
-            method: "appValidar",
-            params: {
-                pass: clave
-            }          
-        })
+            },
+            body: JSON.stringify({  
+                service: "validar",
+                method: "appValidar",
+                params: {
+                    pass: clave
+                }          
+            })
         })  
         const data = await response.json()
         isPending = false    

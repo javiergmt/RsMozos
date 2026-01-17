@@ -91,6 +91,7 @@ const mesas = () => {
   const [tieneReserva, setIsTieneReserva] = useState(false)
   const [date, setDate] = useState(new Date());
   const [refreshing,setRefreshing] =useState(false);
+  const [mostrarDescMesa, setMostrarDescMesa] = useState(Param[0].marcarMesaSinCobrar)
 
   // Control del bottomSheet
   const sheetRef = useRef<BottomSheet>(null); 
@@ -140,7 +141,8 @@ const mesas = () => {
             cerrada:mesa.cerrada,
             cantPersonas:mesa.cantPersonas,
             activa:mesa.activa,
-            soloOcupada:mesa.soloOcupada
+            soloOcupada:mesa.soloOcupada,
+            descMesa: mesa.descMesa
           });
           setIsOk(true)
           setIsOcup(mesa.ocupada)
@@ -178,7 +180,8 @@ const mesas = () => {
                 cerrada:mesa.cerrada,
                 cantPersonas:mesa.cantPersonas,
                 activa:mesa.activa,
-                soloOcupada:mesa.soloOcupada
+                soloOcupada:mesa.soloOcupada,
+                descMesa: mesa.descMesa
               });
               setIsOk(true)
               setIsOcup(mesa.ocupada)
@@ -380,6 +383,7 @@ return (
                 <Text style={[styles.itemText, mesaForma(m.forma),m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:5},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo)}]}>{m.nroMesa}</Text>
                 */}
                 <Text style={[ styles.itemText, styles.cuadrado_red,m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:3},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo)}]}>{m.nroMesa}</Text>
+                {mostrarDescMesa && <Text style={[ styles.itemTextDesc]}>{m.descMesa}</Text>}
             </View>
           </TouchableOpacity>
       
@@ -597,6 +601,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 62,
     
+  },
+  itemTextDesc: {    
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'left',
+    lineHeight: 32,
+    maxWidth:110,
+    minWidth:110,
   },
   bottomText: {
     fontSize: 25,
