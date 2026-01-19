@@ -11,10 +11,10 @@ import FlashMessage from "react-native-flash-message"
 import { showMessage, hideMessage } from "react-native-flash-message";
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { datosApp } from './ApiFront/Types/BDTypes';
-
+import { getMesas } from './ApiFront/Gets/GetDatos';
 
 const config = () => {
-  const {setUrl,urlBase,setDispId,setBaseDatos,BaseDatos,tipoListaPlatos,setTipoListaPlatos} = useLoginStore()  
+  const {setUrl,urlBase,setDispId,setBaseDatos,BaseDatos,tipoListaPlatos,setTipoListaPlatos,setMesasConDesc} = useLoginStore()  
   const [text, onChangeText] = useState('');
   const [number, onChangeNumber] = useState('1234');
   const [disp, onChangeDisp] = useState('0');
@@ -80,6 +80,24 @@ const config = () => {
     await SecureStore.setItemAsync(key, value);
   }
 
+   const handleMesas = () => {
+        const load = async () => {
+          const { mesas, isError, isPending }  = await getMesas(-1,-1,urlBase,BaseDatos);
+          if (!isError) {
+            console.log('mesas con descrip',mesas.filter(mesa => mesa.descMesa !== '' ).length > 0 );
+            // contar las mesas con descripcion
+            if ( mesas.filter(mesa => mesa.descMesa !== '' ).length > 0 ) {
+              setMesasConDesc(true);            
+            } else {
+              setMesasConDesc(false);            
+            }
+          }
+          return;
+        }
+        console.log('verificando mesas con descrip...');
+        load();
+     }
+
   const handleGrabar = () => {  
     setGrabarOk(true)
     setUrl('http://'+text+':'+number+'/')
@@ -92,9 +110,12 @@ const config = () => {
     save('tipoLista',tipoLista);  
   }
 
+ 
+
   useEffect(() => {
     async function getValueFor(key) {
     let result = await SecureStore.getItemAsync(key);
+    handleMesas();
     return result
     }
   
@@ -269,3 +290,5 @@ export default config
 function validarDisp(disp: string, urlBase: string) {
   throw new Error('Function not implemented.');
 }
+
+

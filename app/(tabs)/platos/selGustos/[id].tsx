@@ -47,7 +47,7 @@ const selGustos = () => {
         }
     })
     if (noEsta) {
-        setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:cantg,idPlatoRel:idPlatoRel}])
+      setMesaGustos([...mesaGustos,{idGusto:id,descGusto:descrip,cant:cantg,idPlatoRel:idPlatoRel}])
     }
       setCantGustos(cant)
       if (cant > cantMaxGustos) {
@@ -164,8 +164,11 @@ const selGustos = () => {
     setCantMaxGustos(it.cantgustos)
     const load = async () => {
       const result = await getGustos(it.idPlato,urlBase,BaseDatos);
-      setGustos(result);
-      console.log('Traigo gustos:',result)
+      if (result.length > 9) {
+        setGustos([...result,{idGusto:0,descGusto:'Seleccione',idPlato:0,idPlatoRel:0}]);
+      } else {
+        setGustos(result);
+      }
     };
     load();
    
@@ -189,30 +192,31 @@ const selGustos = () => {
           </View>
        <ScrollView>
 
-       { !grabarGustos && gustos.map((g) => ( 
-        <View style={styles.checkboxContainer} key={g.idGusto}>
-          
-            <View style={styles.col}>
-						<Text style={styles.text}>{g.descGusto}</Text>
-						<InputSpinner
-							value={0}
-							style={styles.spinner}
-							color={Colors.colorcheckbox}
-              skin ="clean"
-              onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto,g.idPlatoRel)
-              }}
-              onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto,g.idPlatoRel)
-              }}
-						/>
-					  </View>
-        </View>
+          { !grabarGustos && gustos.map((g) => ( 
+          <View style={styles.checkboxContainer} key={g.idGusto}>
+            
+              <View style={styles.col}>
+              <Text style={styles.text}>{g.descGusto}</Text>
+              <InputSpinner
+                value={0}
+
+                style={styles.spinner}
+                color={Colors.colorcheckbox}
+                skin ="clean"
+                onIncrease={(value) => { handleGustosInc(value as number,1,g.idGusto,g.descGusto,g.idPlatoRel)
+                }}
+                onDecrease={(value) => { handleGustosInc(value as number,-1,g.idGusto,g.descGusto,g.idPlatoRel)
+                }}
+              />
+              </View>
+          </View>
          
          ))}
-  
+    
           {
           grabarGustos ? <Redirect href={`platos/${ultRubSub}`} /> : <Text></Text>
           }  
-          </ScrollView>
+        </ScrollView>
          </View>     
      </SafeAreaView>
   
@@ -226,15 +230,17 @@ const styles = StyleSheet.create({
 
   },
   checkboxContainer: {
+    flex:1,
     flexDirection: 'row', 
     alignItems: 'center',
     justifyContent: 'center',    
     marginLeft: 20,  
-    marginBottom: 10, 
+    marginBottom: 10 , 
     marginTop: 10,
 
   },
   cont_checkbox: {
+    flex:1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

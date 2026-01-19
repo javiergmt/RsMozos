@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Redirect } from 'expo-router';
 import FlashMessage from "react-native-flash-message";
 import { version } from '../package.json';
+import { getMesas } from './ApiFront/Gets/GetDatos';
 
 
 const index = () => {
@@ -13,7 +14,7 @@ const index = () => {
   const [isPending, setIsPending] = useState(true)
   const [isValido, setIsValido] = useState(true)
   const [irConfig, setIrConfig] = useState(false)
-  const { setUrl,setDispId,setBaseDatos,urlBase,BaseDatos,dispId } = useLoginStore();
+  const { setUrl,setDispId,setBaseDatos,urlBase,BaseDatos,dispId,setMesasConDesc } = useLoginStore();
   
  
 
@@ -33,6 +34,24 @@ const grabarStore = async (url:string,disp:string,base:string) => {
     setBaseDatos(base)
 }
 
+ const handleMesas = () => {
+      const load = async () => {
+        const { mesas, isError, isPending }  = await getMesas(-1,-1,urlBase,BaseDatos);
+        if (!isError) {
+          console.log('mesas con descrip',mesas.filter(mesa => mesa.descMesa !== '' ).length > 0 );
+          // contar las mesas con descripcion
+          if ( mesas.filter(mesa => mesa.descMesa !== '' ).length > 0 ) {
+            setMesasConDesc(true);            
+          } else {
+            setMesasConDesc(false);            
+          }
+        }
+        return;
+      }
+      console.log('verificando mesas con descrip...');
+      load();
+   }
+
 useEffect(() => {    
     const load = async () => {
       // Leo los valores grabados en el Store
@@ -47,6 +66,7 @@ useEffect(() => {
       return 
     };
     load()
+    handleMesas();
     
 }, [isValido]);
 return (

@@ -38,34 +38,39 @@ const mesaForma = (forma:number) => {
 
 // Define el color de la mesa
 
-const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean, idTipoMozo:number) => {
+const mesaColor = (param:paramType[],ocupada:string,cerrada:number,conPostre:boolean,idMozo:number,idMozoSel:number,soloOcupada:boolean, idTipoMozo:number, activa:boolean) => {
 
   //console.log('mesaColor:',ocupada,cerrada,conPostre,idMozo,idMozoSel,soloOcupada,idTipoMozo)
-  if ( (idMozoSel != idMozo && idTipoMozo != 3 && idTipoMozo != 2 ) && ocupada=='S' && cerrada==0) {
-    if (soloOcupada) {
-      return 'lightblue'
-    } else {
-    return 'gray'
-    }
-  } else {
-    if (conPostre) {
-      return param[0].colorPostre
-    } else {
+  if ( activa) {
+    if ( (idMozoSel != idMozo && idTipoMozo != 3 && idTipoMozo != 2 ) && ocupada=='S' && cerrada==0) {
       if (soloOcupada) {
         return 'lightblue'
       } else {
-        if (cerrada == 1) {
-          return param[0].colorMesaCerrada
+      return 'gray'
+      }
+    } else {
+      if (conPostre) {
+        return param[0].colorPostre
+      } else {
+        if (soloOcupada) {
+          return 'lightblue'
         } else {
-          if (ocupada == 'N') {
-            return param[0].colorMesaNormal
+          if (cerrada == 1) {
+            return param[0].colorMesaCerrada
           } else {
-            return param[0].colorMesaOcupada
+            if (ocupada == 'N') {
+              return param[0].colorMesaNormal
+            } else {
+              return param[0].colorMesaOcupada
+            }
           }
-        }
-    }  
+      }  
+    }
+    }
+  } else {  
+    return 'lightgray'
   }
-  }
+    
 }
 
 const mesas = () => {
@@ -75,7 +80,7 @@ const mesas = () => {
   const [sector, setSector] = useState<number>(2);
   const {getUrl,mozo,ultSector,setUltSector,getParam,setUltMesa,
          setOrigDetalle,setUltDetalle,setMesaDet,setComensales,
-        getBaseDatos,BaseDatos, mesaDet, dispId, setTotMesa} = useLoginStore()
+        getBaseDatos,BaseDatos, mesaDet, dispId, setTotMesa,mesasConDesc} = useLoginStore()
   const urlBase = getUrl()
   const base = getBaseDatos()
   const Param = getParam()
@@ -91,7 +96,7 @@ const mesas = () => {
   const [tieneReserva, setIsTieneReserva] = useState(false)
   const [date, setDate] = useState(new Date());
   const [refreshing,setRefreshing] =useState(false);
-  const [mostrarDescMesa, setMostrarDescMesa] = useState(Param[0].marcarMesaSinCobrar)
+  const [mostrarDescMesa, setMostrarDescMesa] = useState(mesasConDesc)
 
   // Control del bottomSheet
   const sheetRef = useRef<BottomSheet>(null); 
@@ -117,6 +122,13 @@ const mesas = () => {
 
  // Bloqueo la mesa y la abro si esta cerrada 
  const handleMesa = async (mesa:mesasType) => {
+ if (!mesa.activa) {
+    showMessage({message: 'ATENCION !!',
+      description: "La mesa esta Inactiva",
+      type: "danger",
+    });
+    return;
+  }   
  setTotMesa(0); 
  if ( ( mesa.idMozo == 0 && mesa.ocupada == 'N' && mesa.cerrada == 0) 
     || ( ( mesa.idMozo == mozo.idMozo || mozo.idTipoMozo == 3 || mozo.idTipoMozo == 2 ) && mesa.ocupada == 'S' && mesa.cerrada == 0)
@@ -382,7 +394,7 @@ return (
                 {/*    
                 <Text style={[styles.itemText, mesaForma(m.forma),m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:5},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo)}]}>{m.nroMesa}</Text>
                 */}
-                <Text style={[ styles.itemText, styles.cuadrado_red,m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:3},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo)}]}>{m.nroMesa}</Text>
+                <Text style={[ styles.itemText, styles.cuadrado_red,m.reservada && m.ocupada=='N' && {borderColor:'white',borderWidth:3},{backgroundColor:mesaColor(Param,m.ocupada,m.cerrada,m.conPostre,m.idMozo,mozo.idMozo,m.soloOcupada,mozo.idTipoMozo,m.activa)}]}>{m.nroMesa}</Text>
                 {mostrarDescMesa && <Text style={[ styles.itemTextDesc]}>{m.descMesa}</Text>}
             </View>
           </TouchableOpacity>

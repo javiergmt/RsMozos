@@ -101,6 +101,10 @@ interface LoginStoreState {
     totMesa: number,
     getTotMesa: () => number,
     setTotMesa: (total:number) => void,
+
+    mesasConDesc: boolean,
+    getMesasConDesc: () => boolean,
+    setMesasConDesc: (mesasConDesc:boolean) => void,
 }
 
 export const useLoginStore = create<LoginStoreState>(
@@ -128,6 +132,7 @@ export const useLoginStore = create<LoginStoreState>(
         ultRubro:0,
         ultRubSub:'',
         tipoListaPlatos:'L',
+        mesasConDesc:false,
         
 
         getMozoId: () => get().mozo?.idMozo,
@@ -197,6 +202,9 @@ export const useLoginStore = create<LoginStoreState>(
 
         getTotMesa: () => get().totMesa,
         setTotMesa: (total:number) => set({totMesa:total}),
+
+        getMesasConDesc: () => get().mesasConDesc,
+        setMesasConDesc: (mesasConDesc:boolean) => set({mesasConDesc:mesasConDesc}),
     }))
 export default useLoginStore;
 
@@ -218,7 +226,7 @@ return {
 
 function initMesa(): mesaType {
     return {
-        nroMesa: 0, idSector: 0, ocupada: '', idMozo: 0, cerrada: 0, cantPersonas: 0, activa: false,soloOcupada:false
+        nroMesa: 0, idSector: 0, ocupada: '', idMozo: 0, cerrada: 0, cantPersonas: 0, activa: false,soloOcupada:false,descMesa:''
     }
 }
 
